@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAdiGda4dd8vlc4mjZnP_AJGAj0zsZJeAs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>891674885313</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.hogga.app.hogga</string>
+	<key>PROJECT_ID</key>
+	<string>zone-app-bfa4b</string>
+	<key>STORAGE_BUCKET</key>
+	<string>zone-app-bfa4b.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:891674885313:ios:3f4d1cc904d71ae46de840</string>
+</dict>
+</plist>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "891674885313",
+    "project_id": "zone-app-bfa4b",
+    "storage_bucket": "zone-app-bfa4b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891674885313:android:02c2a77fdad855f96de840",
+        "android_client_info": {
+          "package_name": "com.hogga.app.hogga"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnxOQxnEo85IcSYeF27hziBKzjuhwm5S0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
