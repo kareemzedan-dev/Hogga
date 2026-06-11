@@ -26,6 +26,15 @@ class MyOrderData {
   final int lawyersCount;
   final DateTime createdAt;
   final String formattedDate;
+  // Payment status
+  final String paymentStatus;
+  final String paymentStatusText;
+  // Service type
+  final String serviceTypeKey;
+  final String serviceTypeText;
+  // Chat
+  final int? chatRoomId;
+  final String? paymentUrl;
 
   MyOrderData({
     required this.id,
@@ -38,7 +47,17 @@ class MyOrderData {
     required this.lawyersCount,
     required this.createdAt,
     required this.formattedDate,
+    this.paymentStatus = 'pending',
+    this.paymentStatusText = '',
+    this.serviceTypeKey = 'article',
+    this.serviceTypeText = '',
+    this.chatRoomId,
+    this.paymentUrl,
   });
+
+  bool get isPaid => paymentStatus == 'paid';
+  bool get hasChatRoom => chatRoomId != null;
+  bool get hasPaymentUrl => paymentUrl != null && paymentUrl!.isNotEmpty;
 
   factory MyOrderData.fromJson(Map<String, dynamic> json) {
     final dateString = json['date']?.toString();
@@ -55,6 +74,12 @@ class MyOrderData {
           ? DateTime.tryParse(dateString) ?? DateTime.now()
           : DateTime.now(),
       formattedDate: json['formatted_date']?.toString() ?? '',
+      paymentStatus: json['payment_status']?.toString() ?? 'pending',
+      paymentStatusText: json['payment_status_text']?.toString() ?? '',
+      serviceTypeKey: json['service_type_key']?.toString() ?? 'article',
+      serviceTypeText: json['service_type_text']?.toString() ?? '',
+      chatRoomId: json['chat_room_id'] as int?,
+      paymentUrl: json['payment_url']?.toString(),
     );
   }
 }

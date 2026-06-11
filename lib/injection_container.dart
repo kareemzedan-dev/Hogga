@@ -20,6 +20,7 @@ import 'features/shared/auth/presentation/lawyer/cubit/lawyer_registration_cubit
 // Removed Bookings
 
 // Home
+import 'features/user/hogga_services/data/datasources/bainah_remote_datasource.dart';
 import 'features/user/home/data/datasources/home_remote_data_source.dart';
 import 'features/user/home/data/repositories/home_repository.dart';
 import 'features/user/home/presentation/cubit/home_cubit.dart';
@@ -40,11 +41,10 @@ import 'features/user/more/presentation/contact_us/manager/contact_us_cubit.dart
 import 'features/user/more/presentation/instructions/manager/instructions_cubit.dart';
 import 'features/user/more/presentation/privacy/manager/privacy_policy_cubit.dart';
 
-// Bainah Services
-import 'features/user/bainah_services/data/datasources/bainah_remote_datasource.dart';
-import 'features/user/bainah_services/data/repositories/bainah_repository.dart';
-import 'features/user/bainah_services/presentation/manager/item_categories_cubit.dart';
-import 'features/user/bainah_services/presentation/manager/service_request_cubit.dart';
+// hogga Services
+import 'features/user/hogga_services/data/repositories/hogga_repository.dart';
+import 'features/user/hogga_services/presentation/manager/item_categories_cubit.dart';
+import 'features/user/hogga_services/presentation/manager/service_request_cubit.dart';
 import 'features/user/notifications/data/repositories/notifications_repository.dart';
 import 'features/user/notifications/presentation/cubit/notifications_cubit.dart';
 
@@ -137,6 +137,26 @@ import 'features/lawyer/subscription/data/datasources/subscription_remote_data_s
 import 'features/lawyer/subscription/data/repositories/subscription_repository.dart';
 import 'features/lawyer/subscription/presentation/cubit/subscription_cubit.dart';
 
+// User Wallet
+import 'features/user/wallet/data/datasources/wallet_remote_data_source.dart' as user_wallet_ds;
+import 'features/user/wallet/data/repositories/wallet_repository.dart' as user_wallet_repo;
+import 'features/user/wallet/presentation/cubits/wallet_cubit.dart' as user_wallet_cubit;
+import 'features/user/wallet/presentation/cubits/payment_details_cubit.dart' as payment_details_cubit;
+
+// Chat
+import 'features/chat/data/datasources/chat_remote_data_source.dart';
+import 'features/chat/data/repositories/chat_repository.dart';
+import 'features/chat/presentation/cubit/chat_list_cubit.dart';
+import 'features/chat/presentation/cubit/chat_messages_cubit.dart';
+import 'features/chat/presentation/cubit/call_cubit.dart';
+
+// Lawyer Chat
+import 'features/lawyer/chat/data/datasources/lawyer_chat_remote_data_source.dart';
+import 'features/lawyer/chat/data/repositories/lawyer_chat_repository.dart';
+import 'features/lawyer/chat/presentation/cubit/lawyer_chat_list_cubit.dart';
+import 'features/lawyer/chat/presentation/cubit/lawyer_chat_messages_cubit.dart';
+import 'features/lawyer/chat/presentation/cubit/lawyer_call_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -188,12 +208,32 @@ Future<void> init() async {
 
   sl.registerLazySingleton<MoreRepository>(() => MoreRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<MoreRemoteDataSource>(() => MoreRemoteDataSourceImpl(apiClient: sl()));
-  sl.registerLazySingleton<BainahRepository>(() => BainahRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<BainahRemoteDataSource>(() => BainahRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<hoggaRepository>(() => hoggaRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<hoggaRemoteDataSource>(() => hoggaRemoteDataSourceImpl(apiClient: sl()));
 
   // Notifications
   sl.registerFactory(() => NotificationsCubit(repository: sl()));
   sl.registerLazySingleton<NotificationsRepository>(() => NotificationsRepositoryImpl(apiClient: sl()));
+
+  // User Wallet
+  sl.registerFactory(() => user_wallet_cubit.WalletCubit(repository: sl(instanceName: 'UserWalletRepo')));
+  sl.registerFactory(() => payment_details_cubit.PaymentDetailsCubit(repository: sl(instanceName: 'UserWalletRepo')));
+  sl.registerLazySingleton<user_wallet_repo.WalletRepository>(() => user_wallet_repo.WalletRepository(remoteDataSource: sl(instanceName: 'UserWalletDS')), instanceName: 'UserWalletRepo');
+  sl.registerLazySingleton<user_wallet_ds.WalletRemoteDataSource>(() => user_wallet_ds.WalletRemoteDataSource(apiClient: sl()), instanceName: 'UserWalletDS');
+
+  // Chat
+  sl.registerFactory(() => ChatListCubit(repository: sl()));
+  sl.registerFactory(() => CallCubit(repository: sl()));
+  sl.registerFactoryParam<ChatMessagesCubit, int, void>((roomId, _) => ChatMessagesCubit(repository: sl(), roomId: roomId));
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepository(remoteDataSource: sl()));
+  sl.registerLazySingleton<ChatRemoteDataSource>(() => ChatRemoteDataSource(apiClient: sl()));
+
+  // Lawyer Chat
+  sl.registerFactory(() => LawyerChatListCubit(repository: sl()));
+  sl.registerFactory(() => LawyerCallCubit(repository: sl()));
+  sl.registerFactoryParam<LawyerChatMessagesCubit, int, void>((roomId, _) => LawyerChatMessagesCubit(repository: sl(), roomId: roomId));
+  sl.registerLazySingleton<LawyerChatRepository>(() => LawyerChatRepository(remoteDataSource: sl()));
+  sl.registerLazySingleton<LawyerChatRemoteDataSource>(() => LawyerChatRemoteDataSource(apiClient: sl()));
 
 
   // Lawyer Wallet

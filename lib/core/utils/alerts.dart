@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hogga/core/navigation/app_navigator.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
-import 'package:hogga/main.dart';
 import '../widgets/app_snakbar.dart';
 
 class AppAlerts {
@@ -35,7 +35,7 @@ class AppAlerts {
 
   /// Shows a snackbar without context (useful for global background tasks).
   static void showGlobalSnackBar(String message, {bool isError = true}) {
-    final state = MyApp.messengerKey.currentState;
+    final state = AppNavigator.messengerKey.currentState;
     if (state == null) return;
 
     state.showSnackBar(

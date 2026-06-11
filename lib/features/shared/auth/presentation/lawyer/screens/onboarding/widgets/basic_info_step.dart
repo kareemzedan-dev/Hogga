@@ -8,7 +8,7 @@ import 'package:hogga/config/shared_preference/shared_preference.dart' show AppP
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/validators.dart';
 import 'package:hogga/core/widgets/custom_text_field.dart';
-import 'package:hogga/features/user/bainah_services/presentation/widgets/city_picker_sheet.dart';
+import 'package:hogga/features/user/hogga_services/presentation/widgets/city_picker_sheet.dart';
 import '../../../cubit/lawyer_registration_cubit.dart';
 import 'onboarding_step_scaffold.dart';
 import 'onboarding_file_picker_card.dart';

@@ -22,3 +22,14 @@ class MyOrderDetailsError extends MyOrdersState {
   final String message;
   MyOrderDetailsError(this.message);
 }
+
+class MyOrderPaymentLoading extends MyOrdersState {}
+class MyOrderPaymentSuccess extends MyOrdersState {
+  final String paymentUrl;
+  final String caseNumber;
+  MyOrderPaymentSuccess(this.paymentUrl, this.caseNumber);
+}
+class MyOrderPaymentError extends MyOrdersState {
+  final String message;
+  MyOrderPaymentError(this.message);
+}

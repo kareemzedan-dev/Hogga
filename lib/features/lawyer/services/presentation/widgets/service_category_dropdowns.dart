@@ -6,7 +6,7 @@ import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/features/user/home/presentation/cubit/home_cubit.dart';
 import 'package:hogga/features/user/home/presentation/cubit/home_state.dart';
-import 'package:hogga/features/user/bainah_services/presentation/manager/item_categories_cubit.dart';
+import 'package:hogga/features/user/hogga_services/presentation/manager/item_categories_cubit.dart';
 
 class ServiceCategoryDropdowns extends StatelessWidget {
   final int? selectedMainCategoryId;

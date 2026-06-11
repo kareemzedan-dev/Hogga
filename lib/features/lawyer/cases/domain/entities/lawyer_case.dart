@@ -11,6 +11,9 @@ class LawyerCase extends Equatable {
   final String? court;
   final String? descriptionSnippet;
   final String clientName;
+  final String serviceType;
+  final String serviceTypeText;
+  final int? chatRoomId;
 
   const LawyerCase({
     required this.id,
@@ -23,19 +26,17 @@ class LawyerCase extends Equatable {
     this.court,
     this.descriptionSnippet,
     required this.clientName,
+    this.serviceType = 'article',
+    this.serviceTypeText = '',
+    this.chatRoomId,
   });
+
+  bool get hasChatRoom => chatRoomId != null;
 
   @override
   List<Object?> get props => [
-        id,
-        caseNumber,
-        realCaseNumber,
-        title,
-        statusKey,
-        statusText,
-        date,
-        court,
-        descriptionSnippet,
-        clientName,
+        id, caseNumber, realCaseNumber, title, statusKey, statusText,
+        date, court, descriptionSnippet, clientName,
+        serviceType, serviceTypeText, chatRoomId,
       ];
 }

@@ -406,8 +406,8 @@ class AppStrings {
   static const String saveChanges = 'saveChanges';
   static const String changePhoto = 'changePhoto';
 
-  // Bainah Services
-  static const String bainahServicesHub = 'bainahServicesHub';
+  // hogga Services
+  static const String hoggaServicesHub = 'hoggaServicesHub';
   static const String chooseSpecialization = 'chooseSpecialization';
   
   // Tabs
@@ -1161,4 +1161,42 @@ class AppStrings {
 
   static const String startFrom = "startFrom";
   static const String bookAnAppointment = "bookAnAppointment";
+  static const String servicesAndProducts = 'servicesAndProducts';
+  static const String quantity = 'quantity';
+  static const String paymentDetails = 'paymentDetails';
+  static const String paidAmount = 'paidAmount';
+  static const String transactionNumber = 'transactionNumber';
+  static const String invoiceNumber = 'invoiceNumber';
+  static const String chats = 'chats';
+  static const String noChats = 'noChats';
+  static const String noLawyerChatsSubtitle = 'noLawyerChatsSubtitle';
+  static const String noClientChatsSubtitle = 'noClientChatsSubtitle';
+  static const String startConversation = 'startConversation';
+  static const String calling = 'calling';
+  static const String waitingForLawyer = 'waitingForLawyer';
+  static const String waitingForClient = 'waitingForClient';
+  static const String connected = 'connected';
+  static const String switchCamera = 'switchCamera';
+  static const String speaker = 'speaker';
+  static const String mute = 'mute';
+  static const String video = 'video';
+  static const String end = 'end';
+  static const String failedToSendMessage = 'failedToSendMessage';
+  static const String failedToSendFile = 'failedToSendFile';
+  static const String voiceCall = 'voiceCall';
+  static const String startConversationWithLawyer = 'startConversationWithLawyer';
+  static const String startConversationWithClient = 'startConversationWithClient';
+  static const String typeYourMessage = 'typeYourMessage';
+  static const String pdfFile = 'pdfFile';
+  static const String attachment = 'attachment';
+  static const String upcomingSessions = 'upcomingSessions';
+  static const String previousSessions = 'previousSessions';
+  static const String completePaymentNow = 'completePaymentNow';
+  static const String makeVideoCall = 'makeVideoCall';
+  static const String makeVoiceCall = 'makeVoiceCall';
+  static const String enterChat = 'enterChat';
+  static const String chat = 'chat';
+  static const String paidStatus = 'paidStatus';
+  static const String imagePreview = 'imagePreview';
+  static const String audioPreview = 'audioPreview';
 }

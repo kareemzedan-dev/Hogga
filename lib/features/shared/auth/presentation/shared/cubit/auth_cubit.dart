@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/core/constants/constant_strings.dart';
 
 import 'package:hogga/config/shared_preference/shared_preference.dart';
+import 'package:hogga/core/calls/call_coordinator.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/features/shared/auth/data/models/login_success.dart';
 import 'package:hogga/features/shared/auth/data/models/registratoin_success.dart';
@@ -27,7 +28,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void _listenToTokenRefresh() {
-    FcmService().onTokenRefresh.listen((token) {
+    FcmService.instance.onTokenRefresh.listen((token) {
       if (AppPreferences().isLoggedIn) {
         updateFcmToken();
       }
@@ -47,6 +48,7 @@ class AuthCubit extends Cubit<AuthState> {
         } else if (result is LoginSuccess) {
           await _persistAuthenticatedUser(result.user);
           updateFcmToken();
+          await CallCoordinator.instance.syncAfterLogin();
           emit(Authenticated(result.user));
         }
       },
@@ -54,7 +56,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> updateFcmToken() async {
-    final fcmService = FcmService();
+    final fcmService = FcmService.instance;
     final token = await fcmService.getToken();
     if (token != null) {
       await authRepository.updateToken(token);
@@ -91,6 +93,7 @@ class AuthCubit extends Cubit<AuthState> {
         } else if (result is RegisterSuccess) {
           await _persistAuthenticatedUser(result.user);
           updateFcmToken();
+          await CallCoordinator.instance.syncAfterLogin();
           emit(Authenticated(result.user));
         }
       },
@@ -113,6 +116,7 @@ class AuthCubit extends Cubit<AuthState> {
         if (result is LoginSuccess) {
           await _persistAuthenticatedUser(result.user);
           updateFcmToken();
+          await CallCoordinator.instance.syncAfterLogin();
           emit(Authenticated(result.user));
           return;
         }
@@ -140,6 +144,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     await authRepository.logout();
     await AppPreferences().clear();
+    CallCoordinator.instance.reset();
     emit(Unauthenticated());
   }
 

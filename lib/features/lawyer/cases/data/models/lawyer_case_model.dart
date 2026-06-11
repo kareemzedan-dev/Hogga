@@ -12,6 +12,9 @@ class LawyerCaseModel extends LawyerCase {
     super.court,
     super.descriptionSnippet,
     required super.clientName,
+    super.serviceType,
+    super.serviceTypeText,
+    super.chatRoomId,
   });
 
   factory LawyerCaseModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +29,9 @@ class LawyerCaseModel extends LawyerCase {
       court: json['court'],
       descriptionSnippet: json['description_snippet'],
       clientName: json['client_name'] ?? '',
+      serviceType: json['service_type']?.toString() ?? 'article',
+      serviceTypeText: json['service_type_text']?.toString() ?? '',
+      chatRoomId: json['chat_room_id'] as int?,
     );
   }
 }

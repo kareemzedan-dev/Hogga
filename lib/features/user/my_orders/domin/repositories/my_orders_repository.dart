@@ -9,6 +9,7 @@ import '../../data/models/order_model.dart';
 abstract class MyOrderRepository {
   Future<Either<Failure, List<MyOrderData>>>  getOrder({required String type});
   Future<Either<Failure, OrderDetailsData>> getOrderDetails({required int orderId});
+  Future<Either<Failure, String>> payLegalCase({required int orderId});
 }
 
 class MyOrderRepositoryImpl implements MyOrderRepository {
@@ -40,4 +41,15 @@ class MyOrderRepositoryImpl implements MyOrderRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, String>> payLegalCase({required int orderId}) async {
+    try {
+      final paymentUrl = await remoteDataSource.payLegalCase(orderId: orderId);
+      return Right(paymentUrl);
+    } on Failure catch (e) {
+      return Left(e);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

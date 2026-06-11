@@ -55,4 +55,19 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
       getMyOrders(type: 'ongoing');
     }
   }
+
+  Future<void> payLegalCase({required int orderId, required String caseNumber}) async {
+    emit(MyOrderPaymentLoading());
+    final result = await repository.payLegalCase(orderId: orderId);
+    result.fold(
+      (failure) {
+        emit(MyOrderPaymentError(failure.message));
+        restoreOrdersList();
+      },
+      (paymentUrl) {
+        emit(MyOrderPaymentSuccess(paymentUrl, caseNumber));
+        restoreOrdersList();
+      },
+    );
+  }
 }

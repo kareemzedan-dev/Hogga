@@ -76,6 +76,7 @@ class Financials {
   final double totalPrice;
   final String paymentMethod;
   final String paymentStatus;
+  final String? paymentUrl;
 
   Financials({
     required this.subtotal,
@@ -84,7 +85,10 @@ class Financials {
     required this.totalPrice,
     required this.paymentMethod,
     required this.paymentStatus,
+    this.paymentUrl,
   });
+
+  bool get hasPaymentUrl => paymentUrl != null && paymentUrl!.isNotEmpty;
 
   factory Financials.fromJson(Map<String, dynamic> json) {
     return Financials(
@@ -94,6 +98,7 @@ class Financials {
       totalPrice: double.tryParse(json['total_price']?.toString() ?? '0') ?? 0,
       paymentMethod: json['payment_method']?.toString() ?? '',
       paymentStatus: json['payment_status']?.toString() ?? '',
+      paymentUrl: json['payment_url']?.toString(),
     );
   }
 }

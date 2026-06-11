@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import '../../../../core/services/agora_service.dart';
+import 'package:hogga/core/services/agora_service.dart';
+import 'package:hogga/core/theme/app_theme.dart';
 import '../../data/models/call_model.dart';
 import '../bloc/call_cubit.dart';
 import '../bloc/call_state.dart';
-import '../../../../core/theme/app_theme.dart';
 
 class CallScreen extends StatelessWidget {
   final CallModel callModel;

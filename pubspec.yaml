@@ -2,7 +2,7 @@ name: hogga
 description: "Hogga legal services app."
 publish_to: 'none'
 
-version: 1.0.0+3
+version: 1.0.0+5
 
 environment:
   sdk: ^3.9.2
@@ -53,6 +53,8 @@ dependencies:
   agora_rtc_engine: ^6.5.4
   permission_handler: ^12.0.1
   socket_io_client: ^3.1.4
+  laravel_echo: ^1.0.0-beta.1
+  pusher_client: ^2.0.0
 
 dev_dependencies:
   flutter_test:

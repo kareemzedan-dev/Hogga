@@ -7,8 +7,7 @@ import '../models/notification_model.dart';
 
 abstract class NotificationsRepository {
   Future<Either<Failure, List<NotificationModel>>> getNotifications();
-  Future<Either<Failure, void>> markAsRead(int notificationId);
-  Future<Either<Failure, void>> markAllAsRead();
+  Future<Either<Failure, void>> markAsRead(String notificationId);
 }
 
 class NotificationsRepositoryImpl implements NotificationsRepository {
@@ -20,46 +19,53 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   Future<Either<Failure, List<NotificationModel>>> getNotifications() async {
     try {
       final isLawyer = AppPreferences().isProvider;
-      final endpoint = isLawyer ? AppEndPoints.lawyerNotificationsEndPoint : AppEndPoints.notificationsEndPoint;
-      
+      final endpoint = isLawyer
+          ? AppEndPoints.lawyerNotificationsEndPoint
+          : AppEndPoints.notificationsEndPoint;
+
       final response = await apiClient.get(endpoint);
-      if (response.data['success'] == true) {
-        final List data = response.data['data'] ?? [];
-        return Right(data.map((e) => NotificationModel.fromJson(e)).toList());
+      final isSuccess =
+          response.data['success'] == true || response.data['status'] == true;
+      if (!isSuccess) {
+        return Left(
+          ServerFailure(
+            response.data['message']?.toString() ??
+                'Failed to fetch notifications',
+          ),
+        );
       }
-      return Left(ServerFailure(response.data['message'] ?? 'Failed to fetch notifications'));
+
+      final List<dynamic> data = response.data['data'] as List<dynamic>? ?? [];
+      final notifications = data
+          .whereType<Map>()
+          .map((e) => NotificationModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      return Right(notifications);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, void>> markAsRead(int notificationId) async {
+  Future<Either<Failure, void>> markAsRead(String notificationId) async {
     try {
       final isLawyer = AppPreferences().isProvider;
-      final endpoint = isLawyer ? AppEndPoints.lawyerMarkAsReadEndPoint : AppEndPoints.markAsReadEndPoint;
-      
-      final response = await apiClient.post('$endpoint/$notificationId');
-      if (response.data['success'] == true) {
-        return const Right(null);
-      }
-      return Left(ServerFailure(response.data['message'] ?? 'Failed to mark as read'));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> markAllAsRead() async {
-    try {
-      final isLawyer = AppPreferences().isProvider;
-      final endpoint = isLawyer ? AppEndPoints.lawyerMarkAsReadEndPoint : AppEndPoints.markAsReadEndPoint;
+      final endpoint = isLawyer
+          ? '${AppEndPoints.lawyerMarkAsReadEndPoint}/$notificationId'
+          : '${AppEndPoints.markAsReadEndPoint}/$notificationId';
 
       final response = await apiClient.post(endpoint);
-      if (response.data['success'] == true) {
+      final isSuccess =
+          response.data['success'] == true || response.data['status'] == true;
+      if (isSuccess) {
         return const Right(null);
       }
-      return Left(ServerFailure(response.data['message'] ?? 'Failed to mark all as read'));
+
+      return Left(
+        ServerFailure(
+          response.data['message']?.toString() ?? 'Failed to mark as read',
+        ),
+      );
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }

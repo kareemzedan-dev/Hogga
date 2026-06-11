@@ -7,13 +7,13 @@ import 'package:hogga/features/lawyer/cases/data/models/lawyer_case_details_mode
 abstract class CasesRepository {
   Future<Either<Failure, List<LawyerCaseModel>>> getCases({String? type});
   Future<Either<Failure, LawyerCaseDetailsModel>> getCaseDetails(int caseId);
-  Future<Either<Failure, bool>> addCaseSession({
+  Future<Either<Failure, String>> addCaseSession({
     required int caseId,
     required String title,
     required String date,
     required String details,
   });
-  Future<Either<Failure, bool>> uploadCaseDocument({
+  Future<Either<Failure, String>> uploadCaseDocument({
     required int caseId,
     required String title,
     required File document,

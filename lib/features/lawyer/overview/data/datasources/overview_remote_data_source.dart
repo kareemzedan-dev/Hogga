@@ -67,7 +67,7 @@ class OverviewRemoteDataSourceImpl implements OverviewRemoteDataSource {
 
   @override
   Future<bool> updateFcmToken(String fcmToken) async {
-    final response = await apiClient.post(
+    final response = await apiClient.put(
       AppEndPoints.lawyerUpdateTokenEndPoint,
       data: {'fcm_token': fcmToken},
     );

@@ -92,9 +92,25 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
             const SizedBox(height: 8),
 
             Expanded(
-              child: BlocBuilder<MyOrdersCubit, MyOrdersState>(
+              child: BlocConsumer<MyOrdersCubit, MyOrdersState>(
+                listener: (context, state) {
+                  if (state is MyOrderPaymentError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message)),
+                    );
+                  } else if (state is MyOrderPaymentSuccess) {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.paymentWebView,
+                      arguments: {
+                        'paymentUrl': state.paymentUrl,
+                        'caseNumber': state.caseNumber,
+                      },
+                    );
+                  }
+                },
                 builder: (context, state) {
-                  if (state is MyOrdersLoading) {
+                  if (state is MyOrdersLoading || state is MyOrderPaymentLoading) {
                     return const OrderShimmerList();
                   }
         

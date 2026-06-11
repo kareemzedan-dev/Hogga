@@ -69,7 +69,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       title: mainWidget ??
           Text(
             title ?? '',
-            style: context.text.titleLarge?.copyWith(
+            style: context.text.titleMedium?.copyWith(
               color: context.textPrimary,
               fontWeight: FontWeight.bold,
             ),),

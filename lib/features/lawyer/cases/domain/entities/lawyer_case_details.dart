@@ -6,6 +6,9 @@ class LawyerCaseDetails extends Equatable {
   final String caseNumber;
   final String statusKey;
   final String statusText;
+  final String serviceType;
+  final String serviceTypeText;
+  final int? chatRoomId;
   final LawyerCaseClient client;
   final LawyerCaseSessions sessions;
   final List<LawyerCaseDocument> documents;
@@ -16,13 +19,18 @@ class LawyerCaseDetails extends Equatable {
     required this.caseNumber,
     required this.statusKey,
     required this.statusText,
+    this.serviceType = 'article',
+    this.serviceTypeText = '',
+    this.chatRoomId,
     required this.client,
     required this.sessions,
     required this.documents,
   });
 
+  bool get hasChatRoom => chatRoomId != null;
+
   @override
-  List<Object?> get props => [id, title, caseNumber, statusKey, statusText, client, sessions, documents];
+  List<Object?> get props => [id, title, caseNumber, statusKey, statusText, serviceType, serviceTypeText, chatRoomId, client, sessions, documents];
 }
 
 class LawyerCaseClient extends Equatable {

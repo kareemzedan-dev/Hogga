@@ -36,7 +36,7 @@ class CasesRepositoryImpl implements CasesRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> addCaseSession({
+  Future<Either<Failure, String>> addCaseSession({
     required int caseId,
     required String title,
     required String date,
@@ -58,7 +58,7 @@ class CasesRepositoryImpl implements CasesRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> uploadCaseDocument({
+  Future<Either<Failure, String>> uploadCaseDocument({
     required int caseId,
     required String title,
     required File document,

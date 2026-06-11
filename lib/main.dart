@@ -13,18 +13,24 @@ import 'features/shared/auth/presentation/shared/cubit/auth_state.dart';
 import 'features/user/home/presentation/cubit/home_cubit.dart';
 import 'injection_container.dart' as di;
 import 'config/routes/app_routes.dart';
+import 'core/calls/call_coordinator.dart';
+import 'core/navigation/app_navigator.dart';
 import 'core/theme/app_theme.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'core/network/fcm_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:hogga/firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Parallelize independent initialization tasks
   await Future.wait([
-    Firebase.initializeApp(),
+    Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ),
     AppPreferences.init(),
     initializeDateFormatting('ar', null),
   ]);
@@ -32,17 +38,18 @@ void main() async {
   // DI and FCM depend on previous initializations
   await di.init();
   
-  final fcmService = FcmService();
+  final fcmService = FcmService.instance;
   await fcmService.initialize();
+  await CallCoordinator.instance.initialize();
   
   runApp(const MyApp());
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    CallCoordinator.instance.processPendingNavigation();
+  });
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  static final GlobalKey<ScaffoldMessengerState> messengerKey = GlobalKey<ScaffoldMessengerState>();
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +74,7 @@ class MyApp extends StatelessWidget {
                   return BlocListener<AuthCubit, AuthState>(
                     listener: (context, state) {
                       if (state is Unauthenticated) {
-                        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                        AppNavigator.navigatorKey.currentState?.pushNamedAndRemoveUntil(
                           AppRoutes.login,
                           (route) => false,
                         );
@@ -76,8 +83,8 @@ class MyApp extends StatelessWidget {
                     child: MaterialApp(
                       title: 'حُجّة ',
                       debugShowCheckedModeBanner: false,
-                      navigatorKey: navigatorKey,
-                      scaffoldMessengerKey: messengerKey,
+                      navigatorKey: AppNavigator.navigatorKey,
+                      scaffoldMessengerKey: AppNavigator.messengerKey,
                       themeMode: themeMode,
                       locale: locale,
                       supportedLocales: const [

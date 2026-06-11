@@ -40,7 +40,7 @@ class OrderSummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   order.title,
-                  style: context.text.titleMedium?.copyWith(
+                  style: context.text.labelMedium?.copyWith(
                     color: context.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -60,11 +60,11 @@ class OrderSummaryCard extends StatelessWidget {
             AppStrings.consultationHistory.tr(context),
             order.createdAt,
           ),
-          _buildInfoRow(
-            context,
-            AppStrings.selectionType.tr(context),
-            order.selectionType,
-          ),
+          // _buildInfoRow(
+          //   context,
+          //   AppStrings.selectionType.tr(context),
+          //   order.selectionType,
+          // ),
           _buildInfoRow(
             context,
             AppStrings.paymentMethod.tr(context),

@@ -174,7 +174,7 @@ class _LawyerClientsScreenState extends State<LawyerClientsScreen> {
             onPressed: () {
               AppSnackbar.showSuccess(context, messageKey: AppStrings.chatUnderDevelopment);
             },
-            icon: Icon(Icons.chat_bubble_outline, color: context.colors.primary),
+            icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF2D9CDB)),
           ),
         ],
       ),

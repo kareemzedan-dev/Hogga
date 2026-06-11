@@ -28,18 +28,20 @@ class OrderDetailsHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.cream.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  order.caseNumber.isNotEmpty ? order.caseNumber : '#${order.id}',
-                  style: context.text.labelMedium?.copyWith(
-                    color: AppColors.golden,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.cream.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    order.caseNumber.isNotEmpty ? order.caseNumber : '#${order.id}',
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.labelSmall?.copyWith(
+                      color: AppColors.golden,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -55,7 +57,7 @@ class OrderDetailsHeader extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             order.title.isNotEmpty ? order.title : AppStrings.consultationDetails.tr(context),
-            style: context.text.titleMedium?.copyWith(
+            style: context.text.labelSmall?.copyWith(
               color: AppColors.cream,
               fontWeight: FontWeight.bold,
             ),

@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/core/utils/app_strings.dart';
-import 'package:hogga/features/user/bainah_services/data/models/legal_case_models.dart';
-import 'package:hogga/features/user/bainah_services/data/repositories/bainah_repository.dart';
+import 'package:hogga/features/user/hogga_services/data/models/legal_case_models.dart';
+import 'package:hogga/features/user/hogga_services/data/repositories/hogga_repository.dart';
 
 class LegalCaseActionsState extends Equatable {
   final bool isLoading;
@@ -41,7 +41,7 @@ class LegalCaseActionsState extends Equatable {
 }
 
 class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
-  final BainahRepository repository;
+  final hoggaRepository repository;
 
   LegalCaseActionsCubit({required this.repository}) : super(const LegalCaseActionsState());
 

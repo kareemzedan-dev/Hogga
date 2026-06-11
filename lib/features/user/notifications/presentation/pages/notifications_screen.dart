@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
-import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
@@ -26,25 +24,6 @@ class NotificationsScreen extends StatelessWidget {
           AppStrings.notifications.tr(context),
           style: context.theme.appBarTheme.titleTextStyle,
         ),
-        actions: [
-          BlocBuilder<NotificationsCubit, NotificationsState>(
-            builder: (context, state) {
-              if (state is NotificationsLoaded && state.unreadCount > 0) {
-                return TextButton(
-                  onPressed: () => context.read<NotificationsCubit>().markAllAsRead(),
-                  child: Text(
-                    AppStrings.markAllAsRead.tr(context),
-                    style: context.text.labelMedium?.copyWith(
-                      color: context.accentGolden,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<NotificationsCubit, NotificationsState>(
         builder: (context, state) {

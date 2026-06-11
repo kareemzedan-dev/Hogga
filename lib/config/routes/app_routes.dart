@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../features/shared/auth/presentation/shared/screens/welcome/welcom_page.dart';
 import '../../features/shared/onBoarding/on_boarding.dart';
+import '../../features/user/hogga_services/presentation/pages/hub/service_subtypes_screen.dart';
 import '../../features/user/main_screen/pages/main_screen.dart';
 import '../../features/shared/auth/presentation/shared/screens/login/login_screen.dart';
 import '../../features/shared/auth/presentation/user/screens/register/signup_screen.dart';
@@ -12,9 +13,10 @@ import '../../core/utils/app_strings.dart';
 import '../../features/shared/onBoarding/splash.dart';
 import '../../features/user/more/terms_of_use/terms_of_use_screen.dart';
 import '../../features/lawyer/overview/presentation/pages/lawyer_main_screen.dart';
+import 'package:hogga/features/user/wallet/presentation/pages/payment_webview_screen.dart';
 import '../../features/lawyer/bookings/presentation/pages/lawyer_order_details_screen.dart';
 import '../../features/lawyer/cases/presentation/pages/lawyer_case_details_screen.dart';
-import '../../features/user/bainah_services/presentation/pages/lawyer/lawyer_profile_screen.dart';
+import '../../features/user/hogga_services/presentation/pages/lawyer/lawyer_profile_screen.dart';
 import '../../features/lawyer/settings/presentation/pages/lawyer_settings_screen.dart';
 import '../../features/lawyer/documents/presentation/pages/lawyer_documents_screen.dart';
 import '../../features/lawyer/library/presentation/pages/lawyer_legal_library_screen.dart';
@@ -29,44 +31,38 @@ import '../../features/lawyer/proposals/presentation/pages/lawyer_proposals_scre
 import '../../features/lawyer/clients/presentation/pages/lawyer_clients_screen.dart';
 import '../../features/lawyer/bookings/presentation/pages/lawyer_bookings_screen.dart';
 import '../../features/lawyer/services/domain/entities/lawyer_service.dart';
-import '../../features/user/bainah_services/domain/models/lawyer_model.dart';
 import '../../features/shared/auth/presentation/shared/screens/login/phone_login_screen.dart';
 import '../../features/shared/auth/presentation/shared/screens/otp/otp_verification_screen.dart';
 import '../../features/shared/auth/presentation/shared/screens/password/create_password_screen.dart';
 import '../../features/shared/auth/presentation/user/screens/register/register_details_screen.dart';
 import '../../features/shared/auth/presentation/user/screens/register/verify_email_screen.dart';
 import '../../features/chat/presentation/pages/chat_screen.dart';
-import '../../features/chat/presentation/pages/voice_call_screen.dart';
-import '../../features/chat/presentation/pages/video_call_screen.dart';
-
+import '../../features/chat/presentation/pages/chat_list_screen.dart';
+import '../../features/chat/presentation/pages/agora_call_screen.dart';
+import '../../features/chat/presentation/cubit/chat_messages_cubit.dart';
+import '../../features/chat/presentation/cubit/call_cubit.dart';
+import '../../injection_container.dart' as di;
+import 'package:flutter_bloc/flutter_bloc.dart' hide Emitter;
 import '../../features/user/more/about_app/about_app_screen.dart';
 import '../../features/user/more/about_us/about_us_screen.dart';
 import '../../features/user/more/contact_us/contact_us_screen.dart';
 import '../../features/user/more/privacy/privacy_screen.dart';
 import '../../features/user/more/presentation/instructions/instructions_screen.dart';
-
 import '../../features/user/profile/presentation/pages/profile_screen.dart';
-import '../../features/user/profile/presentation/pages/user_wallet_screen.dart';
-
-
-import '../../features/user/bainah_services/presentation/pages/hub/services_hub_screen.dart';
-import '../../features/user/bainah_services/presentation/pages/hub/choose_specialization_screen.dart';
-import '../../features/user/bainah_services/presentation/pages/hub/service_subtypes_screen.dart';
-import '../../features/user/bainah_services/domain/models/booking_flow_args.dart';
-import '../../features/user/bainah_services/presentation/pages/booking/booking_flow_screen.dart';
-import '../../features/user/bainah_services/presentation/pages/lawyer/lawyer_browser_screen.dart';
-import '../../features/user/bainah_services/presentation/pages/lawyer/service_details_screen.dart';
-import '../../features/user/bainah_services/presentation/pages/lawyer/lawyer_search_screen.dart';
-import '../../features/user/bainah_services/presentation/pages/booking/order_confirmed_screen.dart';
+import '../../features/user/wallet/presentation/pages/user_wallet_screen.dart';
+import '../../features/user/wallet/presentation/pages/payment_details_screen.dart';
+import '../../features/user/hogga_services/presentation/pages/hub/services_hub_screen.dart';
+import '../../features/user/hogga_services/presentation/pages/hub/choose_specialization_screen.dart';
+import '../../features/user/hogga_services/domain/models/booking_flow_args.dart';
+import '../../features/user/hogga_services/presentation/pages/booking/booking_flow_screen.dart';
+import '../../features/user/hogga_services/presentation/pages/lawyer/lawyer_browser_screen.dart';
+import '../../features/user/hogga_services/presentation/pages/lawyer/service_details_screen.dart';
+import '../../features/user/hogga_services/presentation/pages/lawyer/lawyer_search_screen.dart';
+import '../../features/user/hogga_services/presentation/pages/booking/order_confirmed_screen.dart';
 import '../../features/user/home/data/models/categories_model.dart';
 import '../../features/user/notifications/presentation/pages/notifications_screen.dart';
-import '../../features/user/notifications/presentation/cubit/notifications_cubit.dart';
-import '../../injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../features/lawyer/subscription/presentation/pages/lawyer_subscription_screen.dart';
-
-import '../../test ui/test_ui_mockup.dart';
 
 class AppRoutes {
   static const String initial = '/';
@@ -85,6 +81,7 @@ class AppRoutes {
   static const String aboutUs = '/about_us';
   static const String aboutApp = '/about_app';
   static const String wallet = '/wallet';
+  static const String paymentDetails = '/payment_details';
   static const String notifications = '/notifications';
 
   static const String splashScreen = '/splashScreen';
@@ -114,6 +111,10 @@ class AppRoutes {
   static const String lawyerCaseDetails = '/lawyer_case_details';
   static const String lawyerDocuments = '/lawyer_documents';
   static const String lawyerLibrary = '/lawyer_library';
+  static const String lawyerChatList = '/lawyer_chat_list';
+  static const String lawyerChat = '/lawyer_chat';
+  static const String lawyerCall = '/lawyer_call';
+  static const String paymentWebView = '/payment_webview';
   static const String lawyerTasks = '/lawyer_tasks';
   static const String lawyerReports = '/lawyer_reports';
   static const String lawyerSearch = '/lawyer_search';
@@ -127,8 +128,25 @@ class AppRoutes {
   static const String lawyerBookings = '/lawyer_bookings';
   static const String lawyerSubscription = '/lawyer_subscription';
   static const String chat = '/chat';
+  static const String chatList = '/chat_list';
   static const String voiceCall = '/voice_call';
   static const String videoCall = '/video_call';
+
+  static bool _isVoiceServiceType(String? type) =>
+      type == 'audio' || type == 'phone';
+
+  static bool _isVideoServiceType(String? type) => type == 'video';
+
+  static bool _isChatServiceType(String? type) =>
+      type == 'chat' || type == 'article';
+
+  static Route<dynamic> _unsupportedCommunicationRoute() {
+    return MaterialPageRoute(
+      builder: (_) => const Scaffold(
+        body: Center(child: Text(AppStrings.noRouteFound)),
+      ),
+    );
+  }
 
   static Route<dynamic>? onGenerateRoute(RouteSettings setting) {
     switch (setting.name) {
@@ -179,6 +197,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       case wallet:
         return MaterialPageRoute(builder: (_) => const UserWalletScreen());
+      case paymentDetails:
+        final id = setting.arguments as int;
+        return MaterialPageRoute(builder: (_) => PaymentDetailsScreen(paymentId: id));
       case notifications:
         return MaterialPageRoute(builder: (_) => const NotificationsScreen());
 
@@ -197,15 +218,33 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const TermsOfUseScreen());
       case instructions:
         return MaterialPageRoute(builder: (_) => const InstructionsScreen());
-
-
       case verifyEmail:
         final email = setting.arguments as String;
         return MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: email));
-
       case resetPassword:
         final phone = setting.arguments as String;
         return MaterialPageRoute(builder: (_) => ResetPasswordScreen(phone: phone));
+      case voiceCall:
+      case videoCall:
+        final args = setting.arguments as Map<String, dynamic>? ?? {};
+        final serviceType = args['serviceType'] as String?;
+        if (setting.name == voiceCall && serviceType != null && !_isVoiceServiceType(serviceType)) {
+          return _unsupportedCommunicationRoute();
+        }
+        if (setting.name == videoCall && serviceType != null && !_isVideoServiceType(serviceType)) {
+          return _unsupportedCommunicationRoute();
+        }
+        final roomId = args['chatRoomId'] as int? ?? 0;
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => di.sl<CallCubit>(),
+            child: AgoraCallScreen(
+              roomId: roomId,
+              lawyerName: args['lawyerName'] as String? ?? 'المحامي',
+              lawyerPhoto: args['lawyerPhoto'] as String?,
+            ),
+          ),
+        );
 
       case servicesHub:
         final initialIndex = (setting.arguments as int?) ?? 0;
@@ -246,6 +285,14 @@ class AppRoutes {
           builder: (_) => LawyerBrowserScreen(
             categoriesItemId: categoriesItemId,
             typeOfBookingFlow: typeOfBookingFlow,
+          ),
+        );
+      case paymentWebView:
+        final args = setting.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => PaymentWebViewScreen(
+            paymentUrl: args?['paymentUrl'] ?? '',
+            caseNumber: args?['caseNumber'] ?? '',
           ),
         );
       case serviceDetails:
@@ -304,14 +351,25 @@ class AppRoutes {
       case AppRoutes.lawyerSubscription:
         return MaterialPageRoute(builder: (_) => const LawyerSubscriptionScreen());
       case chat:
-        final name = setting.arguments as String? ?? "د. أحمد علي";
-        return MaterialPageRoute(builder: (_) => ChatScreen(lawyerName: name));
-      case voiceCall:
-        final name = setting.arguments as String? ?? "أ. سارة محمد";
-        return MaterialPageRoute(builder: (_) => VoiceCallScreen(callerName: name));
-      case videoCall:
-        final name = setting.arguments as String? ?? "د. خالد حسن";
-        return MaterialPageRoute(builder: (_) => VideoCallScreen(callerName: name));
+        final args = setting.arguments as Map<String, dynamic>? ?? {};
+        final serviceType = args['serviceType'] as String?;
+        if (serviceType != null && !_isChatServiceType(serviceType)) {
+          return _unsupportedCommunicationRoute();
+        }
+        final roomId = args['chatRoomId'] as int? ?? 0;
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => di.sl<ChatMessagesCubit>(param1: roomId)..loadMessages(),
+            child: ChatScreen(
+              chatRoomId: roomId,
+              lawyerName: args['lawyerName'] as String? ?? '',
+              lawyerPhoto: args['lawyerPhoto'] as String?,
+              caseTitle: args['caseTitle'] as String?,
+            ),
+          ),
+        );
+      case chatList:
+        return MaterialPageRoute(builder: (_) => const ChatListScreen());
 
       default:
         return MaterialPageRoute(

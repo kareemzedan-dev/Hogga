@@ -5,6 +5,7 @@ import '../../data/repositories/notifications_repository.dart';
 
 abstract class NotificationsState extends Equatable {
   const NotificationsState();
+
   @override
   List<Object?> get props => [];
 }
@@ -17,7 +18,10 @@ class NotificationsLoaded extends NotificationsState {
   final List<NotificationModel> notifications;
   final int unreadCount;
 
-  const NotificationsLoaded({required this.notifications, required this.unreadCount});
+  const NotificationsLoaded({
+    required this.notifications,
+    required this.unreadCount,
+  });
 
   @override
   List<Object?> get props => [notifications, unreadCount];
@@ -25,6 +29,7 @@ class NotificationsLoaded extends NotificationsState {
 
 class NotificationsError extends NotificationsState {
   final String message;
+
   const NotificationsError(this.message);
 
   @override
@@ -41,58 +46,54 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     final result = await repository.getNotifications();
     result.fold(
       (failure) => emit(NotificationsError(failure.message)),
-      (notifications) {
-        final unreadCount = notifications.where((n) => !n.isRead).length;
-        emit(NotificationsLoaded(notifications: notifications, unreadCount: unreadCount));
-      },
+      (notifications) => emit(
+        NotificationsLoaded(
+          notifications: notifications,
+          unreadCount: notifications.where((n) => !n.isRead).length,
+        ),
+      ),
     );
   }
 
-  Future<void> markAsRead(int id) async {
+  Future<void> markAsRead(String id) async {
+    final current = state;
+    if (current is! NotificationsLoaded) {
+      return;
+    }
+
+    final target = current.notifications
+        .where((notification) => notification.id == id)
+        .cast<NotificationModel?>()
+        .firstOrNull;
+    if (target == null || target.isRead) {
+      return;
+    }
+
     final result = await repository.markAsRead(id);
     result.fold(
-      (failure) => null, // Silently fail or handle error
+      (_) => null,
       (_) {
-        if (state is NotificationsLoaded) {
-          final current = state as NotificationsLoaded;
-          final List<NotificationModel> updated = current.notifications.map((NotificationModel n) {
-            if (n.id == id) {
-              return NotificationModel(
-                id: n.id,
-                title: n.title,
-                body: n.body,
-                createdAt: n.createdAt,
-                isRead: true,
-                type: n.type,
-              );
-            }
-            return n;
-          }).toList();
-          final unreadCount = updated.where((n) => !n.isRead).length;
-          emit(NotificationsLoaded(notifications: updated, unreadCount: unreadCount));
-        }
-      },
-    );
-  }
+        final updated = current.notifications.map((notification) {
+          if (notification.id == id) {
+            return notification.copyWith(
+              isRead: true,
+              readAt: DateTime.now().toIso8601String(),
+            );
+          }
+          return notification;
+        }).toList();
 
-  Future<void> markAllAsRead() async {
-    final result = await repository.markAllAsRead();
-    result.fold(
-      (failure) => null,
-      (_) {
-        if (state is NotificationsLoaded) {
-          final current = state as NotificationsLoaded;
-          final List<NotificationModel> updated = current.notifications.map((NotificationModel n) => NotificationModel(
-                id: n.id,
-                title: n.title,
-                body: n.body,
-                createdAt: n.createdAt,
-                isRead: true,
-                type: n.type,
-              )).toList();
-          emit(NotificationsLoaded(notifications: updated, unreadCount: 0));
-        }
+        emit(
+          NotificationsLoaded(
+            notifications: updated,
+            unreadCount: updated.where((n) => !n.isRead).length,
+          ),
+        );
       },
     );
   }
+}
+
+extension<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }

@@ -94,7 +94,7 @@ class LawyerCasesCubit extends Cubit<LawyerCasesState> {
     result.fold(
       (failure) => emit(LawyerCasesError(message: failure.message)),
       (success) {
-        emit(LawyerCaseActionSuccess(message: AppStrings.sessionAddedSuccessfully));
+        emit(LawyerCaseActionSuccess(message: success));
         getCaseDetails(caseId);
       },
     );
@@ -114,7 +114,7 @@ class LawyerCasesCubit extends Cubit<LawyerCasesState> {
     result.fold(
       (failure) => emit(LawyerCasesError(message: failure.message)),
       (success) {
-        emit(LawyerCaseActionSuccess(message: AppStrings.documentUploadedSuccessfully));
+        emit(LawyerCaseActionSuccess(message: success));
         getCaseDetails(caseId);
       },
     );
