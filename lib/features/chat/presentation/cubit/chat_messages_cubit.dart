@@ -36,16 +36,43 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
       final echo = WebSocketService.echo;
       if (echo == null) return;
 
-      // private-chat.{roomId}
-      echo.private('chat.$roomId').listen('.message.sent', (dynamic data) {
+      void onMessageReceived(dynamic data) {
+        print('================ SOCKET EVENT =================');
+        print('RAW DATA: $data');
+        print('===============================================');
+
         final current = state;
-        if (current is! ChatMessagesLoaded) return;
+        if (current is! ChatMessagesLoaded) {
+          print('EVENT RECEIVED BUT CUBIT NOT LOADED');
+          return;
+        }
 
         try {
-          final Map<String, dynamic> payload =
-              Map<String, dynamic>.from(data as Map);
-          // WebSocket payload uses file_path not file_url, and has no is_me
-          // so we derive is_me: sender_type == 'user' means it's me (user side)
+          Map<String, dynamic> payload = Map<String, dynamic>.from(data as Map);
+          
+          if (payload.containsKey('data') && payload['data'] is Map) {
+            payload = Map<String, dynamic>.from(payload['data']);
+          } else if (payload.containsKey('message') && payload['message'] is Map) {
+            payload = Map<String, dynamic>.from(payload['message']);
+          }
+
+          print('========== CHAT MESSAGE RECEIVED ==========');
+          print('ROOM ID: ${payload['chat_room_id']}');
+          print('MESSAGE ID: ${payload['id']}');
+          print('MESSAGE TEXT: ${payload['message']}');
+          print('FULL PAYLOAD: $payload');
+          print('===========================================');
+
+          print('🟡 CUBIT ENTERED');
+          print('Current Room: $roomId');
+          print('Incoming Room: ${payload['chat_room_id']}');
+          print('Should Accept: ${roomId.toString() == payload['chat_room_id']?.toString()}');
+
+          if (payload['chat_room_id'] != null && roomId.toString() != payload['chat_room_id'].toString()) {
+             print('Ignoring message for different room');
+             return;
+          }
+
           if (!payload.containsKey('file_url') && payload.containsKey('file_path')) {
             payload['file_url'] = payload['file_path'];
           }
@@ -54,13 +81,23 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
           }
           final newMsg = ChatMessageModel.fromJson(payload);
 
-          // Avoid duplicates
           final exists = current.messages.any((m) => m.id == newMsg.id);
           if (!exists) {
-            emit(current.copyWith(messages: [newMsg, ...current.messages]));
+            print('🟢 BEFORE INSERT: ${current.messages.length}');
+            final newMessages = [newMsg, ...current.messages];
+            print('🟢 AFTER INSERT: ${newMessages.length}');
+            print('🔵 EMIT STATE: ChatMessagesUpdated');
+            emit(current.copyWith(messages: newMessages));
+          } else {
+            print('Message already exists in list, ignoring');
           }
-        } catch (_) {}
-      });
+        } catch (e) {
+          print('Error parsing WebSocket message: $e');
+        }
+      }
+
+      final channel = echo.private('chat.$roomId');
+      channel.listen('.message.sent', onMessageReceived);
 
       echo.private('chat.$roomId').listen('.messages.read', (dynamic data) {
         final current = state;

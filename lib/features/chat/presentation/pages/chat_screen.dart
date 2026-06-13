@@ -191,6 +191,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 if (state is ChatMessagesLoaded) {
+                  print('🟣 UI REBUILD TRIGGERED');
+                  print('Messages count in UI: ${state.messages.length}');
                   if (state.messages.isEmpty) {
                     return Center(
                       child: Column(
@@ -241,8 +243,10 @@ class _ChatScreenState extends State<ChatScreen> {
             builder: (context, state) {
               final isSending =
                   state is ChatMessagesLoaded && state.isSending;
-              return Container(
-                padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 18.h),
+              return SafeArea(
+                top: false,
+                child: Container(
+                padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 10.h),
                 decoration: BoxDecoration(
                   color: context.cardBg,
                   border:
@@ -322,6 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ],
                 ),
+              ),  // SafeArea
               );
             },
           ),

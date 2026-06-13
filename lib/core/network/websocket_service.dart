@@ -32,6 +32,14 @@ class WebSocketService {
       enableLogging: true,
     );
 
+    _pusher!.onConnectionStateChange((state) {
+      print("🔥 PUSHER STATE CHANGE: ${state?.currentState}");
+    });
+
+    _pusher!.onConnectionError((error) {
+      print("🔥 PUSHER CONNECTION ERROR: ${error?.message} | Exception: ${error?.exception}");
+    });
+
     echo = Echo(
       broadcaster: EchoBroadcasterType.Pusher,
       client: _pusher,

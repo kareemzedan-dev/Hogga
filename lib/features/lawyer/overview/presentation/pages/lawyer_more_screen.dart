@@ -15,6 +15,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import 'package:hogga/core/theme/theme_cubit.dart';
 import 'package:hogga/core/localization/localization_cubit.dart';
+import 'package:hogga/core/widgets/custom_confirmation_sheet.dart';
 
 import 'package:hogga/features/lawyer/subscription/presentation/widgets/account_status_tile.dart';
 import 'package:hogga/injection_container.dart';
@@ -48,8 +49,9 @@ class LawyerMoreScreen extends StatelessWidget {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  const AccountStatusTile(),
-                  Divider(height: 1, color: context.divColor),
+                  // AccountStatusTile hidden - can be re-enabled when needed
+                  // const AccountStatusTile(),
+                  // Divider(height: 1, color: context.divColor),
                   _buildThemeToggle(context),
                   Divider(height: 1, color: context.divColor),
                   _buildLanguageToggle(context),
@@ -61,6 +63,27 @@ class LawyerMoreScreen extends StatelessWidget {
                   _buildListTile(context, AppStrings.termsOfUseTitle.tr(context), Icons.description_outlined, () => Navigator.pushNamed(context, AppRoutes.termsOfUse)),
                   Divider(height: 1, color: context.divColor),
                   _buildListTile(context, AppStrings.contactUs.tr(context), Icons.headset_mic_outlined, () => Navigator.pushNamed(context, AppRoutes.contactUs)),
+                  Divider(height: 1, color: context.divColor),
+                  _buildListTile(context, AppStrings.deleteAccount.tr(context), Icons.delete_forever_rounded, () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => CustomConfirmationSheet(
+                        iconPath: AppAssets.logoutLogo,
+                        title: AppStrings.deleteAccountTitle.tr(context),
+                        subtitle: AppStrings.deleteAccountSubtitle.tr(context),
+                        actionText: AppStrings.deleteAccountAction.tr(context),
+                        onAction: () async {
+                          // TODO: Call delete account API when available
+                          await AppPreferences().logout();
+                          if (context.mounted) {
+                            Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
+                          }
+                        },
+                      ),
+                    );
+                  }, isDestructive: true),
                   Divider(height: 1, color: context.divColor),
                   _buildListTile(context, AppStrings.logout.tr(context), Icons.logout_rounded, () async {
                     await AppPreferences().logout();

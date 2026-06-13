@@ -47,7 +47,6 @@ class _LawyerMainScreenState extends State<LawyerMainScreen> {
       LawyerOverviewScreen(onNavigate: _onItemTapped),
       const LawyerOpportunitiesScreen(isBottomNav: true),
       const LawyerCasesScreen(isBottomNav: true),
-      const LawyerWalletScreen(isBottomNav: true),
       const LawyerMoreScreen(),
     ]);
   }

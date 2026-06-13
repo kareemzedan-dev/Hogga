@@ -135,7 +135,7 @@ class OrderCard extends StatelessWidget {
                       : (order.isPaid ? AppStrings.paidStatus.tr(context) : AppStrings.pendingStatus.tr(context)),
                   color: order.isPaid ? const Color(0xFF27AE60) : const Color(0xFFBF8C1E),
                 ),
-                if (order.hasChatRoom) ...[
+                if (order.hasChatRoom && !order.serviceTypeKey.contains('video') && !order.serviceTypeKey.contains('voice') && !order.serviceTypeKey.contains('audio') && !order.serviceTypeKey.contains('phone')) ...[
                   const SizedBox(width: 8),
                   _buildBadge(
                     context: context,
@@ -236,27 +236,28 @@ class OrderCard extends StatelessWidget {
                   height: 46,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      if (order.serviceTypeKey == 'video') {
+                      final key = order.serviceTypeKey.toLowerCase();
+                      if (key.contains('video')) {
                         Navigator.pushNamed(context, AppRoutes.videoCall, arguments: {'chatRoomId': order.chatRoomId, 'lawyerName': '', 'lawyerPhoto': null, 'serviceType': order.serviceTypeKey});
-                      } else if (order.serviceTypeKey == 'audio' || order.serviceTypeKey == 'phone') {
+                      } else if (key.contains('audio') || key.contains('phone') || key.contains('voice')) {
                         Navigator.pushNamed(context, AppRoutes.voiceCall, arguments: {'chatRoomId': order.chatRoomId, 'lawyerName': '', 'lawyerPhoto': null, 'serviceType': order.serviceTypeKey});
                       } else {
                         Navigator.pushNamed(context, AppRoutes.chat, arguments: {'chatRoomId': order.chatRoomId, 'lawyerName': '', 'caseTitle': order.productName, 'serviceType': order.serviceTypeKey});
                       }
                     },
                     icon: Icon(
-                      order.serviceTypeKey == 'video'
+                      order.serviceTypeKey.toLowerCase().contains('video')
                           ? Icons.videocam_rounded
-                          : (order.serviceTypeKey == 'audio' || order.serviceTypeKey == 'phone'
+                          : (order.serviceTypeKey.toLowerCase().contains('audio') || order.serviceTypeKey.toLowerCase().contains('phone') || order.serviceTypeKey.toLowerCase().contains('voice')
                               ? Icons.phone_in_talk_rounded
                               : Icons.chat_bubble_outline_rounded),
                       size: 18,
                       color: _serviceColor(),
                     ),
                     label: Text(
-                      order.serviceTypeKey == 'video'
+                      order.serviceTypeKey.toLowerCase().contains('video')
                           ? AppStrings.makeVideoCall.tr(context)
-                          : (order.serviceTypeKey == 'audio' || order.serviceTypeKey == 'phone'
+                          : (order.serviceTypeKey.toLowerCase().contains('audio') || order.serviceTypeKey.toLowerCase().contains('phone') || order.serviceTypeKey.toLowerCase().contains('voice')
                               ? AppStrings.makeVoiceCall.tr(context)
                               : AppStrings.enterChat.tr(context)),
                       style: context.text.labelLarge?.copyWith(
@@ -380,32 +381,28 @@ class OrderCard extends StatelessWidget {
   }
 
   IconData _getServiceIcon() {
-    switch (order.serviceTypeKey) {
-      case 'video':
-        return Icons.videocam_outlined;
-      case 'audio':
-      case 'phone':
-        return Icons.phone_outlined;
-      case 'chat':
-        return Icons.chat_outlined;
-      case 'article':
-      default:
-        return Icons.article_outlined;
+    final key = order.serviceTypeKey.toLowerCase();
+    if (key.contains('video')) {
+      return Icons.videocam_outlined;
+    } else if (key.contains('audio') || key.contains('phone') || key.contains('voice')) {
+      return Icons.phone_outlined;
+    } else if (key.contains('chat')) {
+      return Icons.chat_outlined;
+    } else {
+      return Icons.article_outlined;
     }
   }
 
   Color _serviceColor() {
-    switch (order.serviceTypeKey) {
-      case 'video':
-        return const Color(0xFF9B59B6);
-      case 'audio':
-      case 'phone':
-        return const Color(0xFF27AE60);
-      case 'chat':
-        return const Color(0xFF2D9CDB);
-      case 'article':
-      default:
-        return AppColors.golden;
+    final key = order.serviceTypeKey.toLowerCase();
+    if (key.contains('video')) {
+      return const Color(0xFF9B59B6);
+    } else if (key.contains('audio') || key.contains('phone') || key.contains('voice')) {
+      return const Color(0xFF27AE60);
+    } else if (key.contains('chat')) {
+      return const Color(0xFF2D9CDB);
+    } else {
+      return AppColors.golden;
     }
   }
 }

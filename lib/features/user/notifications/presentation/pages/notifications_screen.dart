@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -7,6 +8,8 @@ import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
 import 'package:hogga/features/user/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:hogga/features/user/notifications/data/models/notification_model.dart';
+import 'package:hogga/config/routes/app_routes.dart';
+import 'package:hogga/config/shared_preference/shared_preference.dart';
 import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatelessWidget {
@@ -117,6 +120,24 @@ class _NotificationItem extends StatelessWidget {
       onTap: () {
         if (!notification.isRead) {
           context.read<NotificationsCubit>().markAsRead(notification.id);
+        }
+        
+        final type = notification.type;
+        if (type == 'chat_message') {
+          if (notification.chatRoomId != null) {
+             final isLawyer = AppPreferences().role == 'lawyer';
+             Navigator.pushNamed(context, isLawyer ? AppRoutes.lawyerChat : AppRoutes.chat, arguments: {
+               'chatRoomId': notification.chatRoomId,
+               'lawyerName': '',
+               'caseTitle': '',
+             });
+          }
+        } else if (type == 'order_status' || 
+                   type == 'legal_case_update' || 
+                   type == 'payment' || 
+                   type?.contains('call') == true) {
+          final isLawyer = AppPreferences().role == 'lawyer';
+          Navigator.pushNamed(context, isLawyer ? AppRoutes.lawyerMain : AppRoutes.myOrders);
         }
       },
       child: AnimatedContainer(
@@ -239,5 +260,4 @@ class _NotificationItem extends StatelessWidget {
       child: Icon(icon, color: color, size: 22.sp),
     );
   }
-
 }

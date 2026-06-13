@@ -235,8 +235,10 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
           BlocBuilder<LawyerChatMessagesCubit, ChatMessagesState>(
             builder: (context, state) {
               final isSending = state is ChatMessagesLoaded && state.isSending;
-              return Container(
-                padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 18.h),
+              return SafeArea(
+                top: false,
+                child: Container(
+                padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 10.h),
                 decoration: BoxDecoration(
                   color: context.cardBg,
                   border: Border(
@@ -312,6 +314,7 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
                     ),
                   ],
                 ),
+              ),  // SafeArea
               );
             },
           ),

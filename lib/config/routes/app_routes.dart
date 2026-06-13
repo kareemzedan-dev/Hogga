@@ -37,6 +37,9 @@ import '../../features/shared/auth/presentation/shared/screens/password/create_p
 import '../../features/shared/auth/presentation/user/screens/register/register_details_screen.dart';
 import '../../features/shared/auth/presentation/user/screens/register/verify_email_screen.dart';
 import '../../features/chat/presentation/pages/chat_screen.dart';
+import '../../features/lawyer/chat/presentation/pages/lawyer_chat_screen.dart';
+import '../../features/lawyer/chat/presentation/cubit/lawyer_chat_messages_cubit.dart';
+import '../../features/lawyer/chat/presentation/cubit/lawyer_call_cubit.dart';
 import '../../features/chat/presentation/pages/chat_list_screen.dart';
 import '../../features/chat/presentation/pages/agora_call_screen.dart';
 import '../../features/chat/presentation/cubit/chat_messages_cubit.dart';
@@ -364,6 +367,26 @@ class AppRoutes {
               chatRoomId: roomId,
               lawyerName: args['lawyerName'] as String? ?? '',
               lawyerPhoto: args['lawyerPhoto'] as String?,
+              caseTitle: args['caseTitle'] as String?,
+            ),
+          ),
+        );
+      case lawyerChat:
+        final args = setting.arguments as Map<String, dynamic>? ?? {};
+        final roomId = args['chatRoomId'] as int? ?? 0;
+        return MaterialPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => di.sl<LawyerChatMessagesCubit>(param1: roomId)..loadMessages(),
+              ),
+              BlocProvider(
+                create: (_) => di.sl<LawyerCallCubit>(),
+              ),
+            ],
+            child: LawyerChatScreen(
+              chatRoomId: roomId,
+              clientName: args['clientName'] as String? ?? '',
               caseTitle: args['caseTitle'] as String?,
             ),
           ),

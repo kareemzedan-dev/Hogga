@@ -7,8 +7,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hogga/config/shared_preference/shared_preference.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/calls/call_coordinator.dart';
+import 'package:hogga/core/calls/incoming_call_payload.dart';
 import 'package:hogga/core/navigation/app_navigator.dart';
 import 'package:hogga/firebase_options.dart';
 
@@ -35,7 +37,7 @@ class FcmService {
   bool _isInitialized = false;
 
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
-    'high_importance_channel_v2',
+    'high_importance_channel_v3',
     'High Importance Notifications',
     description: 'This channel is used for important notifications.',
     importance: Importance.max,
@@ -46,7 +48,7 @@ class FcmService {
 
   static const AndroidNotificationChannel _incomingCallChannel =
       AndroidNotificationChannel(
-    'incoming_call_channel_v2',
+    'incoming_call_channel_v3',
     'Incoming Call Notifications',
     description: 'This channel is used for incoming call notifications.',
     importance: Importance.max,
@@ -134,7 +136,7 @@ class FcmService {
     await _localNotificationsPlugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        log('Local notification clicked: ${response.payload}');
+        log('Local notification clicked: ${response.payload} actionId=${response.actionId}');
         if (response.payload == null || response.payload!.isEmpty) {
           _openNotificationsInbox();
           return;
@@ -142,6 +144,26 @@ class FcmService {
 
         try {
           final payload = jsonDecode(response.payload!) as Map<String, dynamic>;
+          final actionId = response.actionId;
+
+          // Handle call action buttons
+          if (actionId == 'accept_call') {
+            CallCoordinator.instance.handleRemotePayload(payload);
+            // Cancel the ongoing notification
+            if (response.id != null) {
+              _localNotificationsPlugin.cancel(id: response.id!);
+            }
+            return;
+          } else if (actionId == 'decline_call') {
+            // Decline: update status and dismiss notification
+            final callPayload = IncomingCallPayload.fromMap(payload);
+            CallCoordinator.instance.updateCallStatus(callPayload, 'declined');
+            if (response.id != null) {
+              _localNotificationsPlugin.cancel(id: response.id!);
+            }
+            return;
+          }
+
           _handleNotificationNavigation(payload);
         } catch (_) {
           _openNotificationsInbox();
@@ -168,6 +190,25 @@ class FcmService {
     }
 
     final isIncomingCall = message.data['type']?.toString() == 'incoming_call';
+
+    // Build action buttons for incoming calls
+    List<AndroidNotificationAction>? actions;
+    if (isIncomingCall) {
+      actions = const [
+        AndroidNotificationAction(
+          'decline_call',
+          '❌ رفض',
+          showsUserInterface: false,
+          cancelNotification: true,
+        ),
+        AndroidNotificationAction(
+          'accept_call',
+          '✅ رد',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+      ];
+    }
 
     await _localNotificationsPlugin.show(
       id: notification.hashCode,
@@ -197,6 +238,7 @@ class FcmService {
           ticker: notification.title,
           ongoing: isIncomingCall,
           autoCancel: !isIncomingCall,
+          actions: actions,
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,
@@ -220,8 +262,31 @@ class FcmService {
   Stream<String> get onTokenRefresh => _fcm.onTokenRefresh;
 
   Future<void> _handleNotificationNavigation(Map<String, dynamic> data) async {
-    if (data['type']?.toString() == 'incoming_call') {
+    final navigator = AppNavigator.navigatorKey.currentState;
+    if (navigator == null) return;
+
+    final type = data['type']?.toString();
+
+    if (type == 'incoming_call') {
       await CallCoordinator.instance.handleRemotePayload(data);
+      return;
+    } else if (type == 'chat_message') {
+      final roomId = data['chat_room_id']?.toString();
+      if (roomId != null) {
+        final isLawyer = AppPreferences().role == 'lawyer';
+        navigator.pushNamed(isLawyer ? AppRoutes.lawyerChat : AppRoutes.chat, arguments: {
+          'chatRoomId': int.tryParse(roomId) ?? 0,
+          'lawyerName': '',
+          'caseTitle': '',
+        });
+        return;
+      }
+    } else if (type == 'order_status' || 
+               type == 'legal_case_update' || 
+               type == 'payment' || 
+               type?.contains('call') == true) { // Covers missed_call, video_call, etc.
+      final isLawyer = AppPreferences().role == 'lawyer';
+      navigator.pushNamed(isLawyer ? AppRoutes.lawyerMain : AppRoutes.myOrders);
       return;
     }
 
@@ -230,10 +295,8 @@ class FcmService {
 
   void _openNotificationsInbox() {
     final navigator = AppNavigator.navigatorKey.currentState;
-    if (navigator == null) {
-      return;
+    if (navigator != null) {
+      navigator.pushNamed(AppRoutes.notifications);
     }
-
-    navigator.pushNamed(AppRoutes.notifications);
   }
 }
