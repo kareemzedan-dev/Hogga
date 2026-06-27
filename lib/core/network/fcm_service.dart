@@ -36,8 +36,10 @@ class FcmService {
   StreamSubscription<RemoteMessage>? _messageOpenedAppSub;
   bool _isInitialized = false;
 
+  // NOTE: Channel ID is versioned — bump version when changing importance/sound
+  // to force Android to recreate it (Android caches channel settings)
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
-    'high_importance_channel_v3',
+    'high_importance_channel_v4',
     'High Importance Notifications',
     description: 'This channel is used for important notifications.',
     importance: Importance.max,
@@ -48,7 +50,7 @@ class FcmService {
 
   static const AndroidNotificationChannel _incomingCallChannel =
       AndroidNotificationChannel(
-    'incoming_call_channel_v3',
+    'incoming_call_channel_v4',
     'Incoming Call Notifications',
     description: 'This channel is used for incoming call notifications.',
     importance: Importance.max,
@@ -89,15 +91,25 @@ class FcmService {
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       log('Got a message whilst in the foreground!');
       log('Message data: ${message.data}');
+      log('Message notification: ${message.notification}');
 
-      if (message.data['type']?.toString() == 'incoming_call') {
+      final type = message.data['type']?.toString();
+      final isCall = type == 'incoming_call' || type == 'audio_call' || type == 'video_call';
+
+      if (isCall) {
+        // For incoming calls: show notification with action buttons AND handle coordinator
+        unawaited(showLocalNotification(message));
         unawaited(CallCoordinator.instance.handleRemotePayload(message.data));
         return;
       }
 
+      // For all other messages: show local notification
+      // Works for both notification+data messages AND data-only messages
       if (message.notification != null) {
-        log('Message also contained a notification: ${message.notification}');
         unawaited(showLocalNotification(message));
+      } else {
+        // Data-only message: build a synthetic notification from data fields
+        unawaited(_showFromDataPayload(message.data));
       }
     });
 
@@ -185,11 +197,21 @@ class FcmService {
 
   Future<void> showLocalNotification(RemoteMessage message) async {
     final RemoteNotification? notification = message.notification;
-    if (notification == null) {
-      return;
-    }
 
-    final isIncomingCall = message.data['type']?.toString() == 'incoming_call';
+    // Get title/body from notification field OR from data payload
+    final String title = notification?.title ??
+        message.data['title']?.toString() ??
+        message.data['body']?.toString() ??
+        '';
+    final String body = notification?.body ??
+        message.data['body']?.toString() ??
+        message.data['message']?.toString() ??
+        '';
+
+    if (title.isEmpty && body.isEmpty) return;
+
+    final type = message.data['type']?.toString();
+    final isIncomingCall = type == 'incoming_call' || type == 'audio_call' || type == 'video_call';
 
     // Build action buttons for incoming calls
     List<AndroidNotificationAction>? actions;
@@ -211,9 +233,9 @@ class FcmService {
     }
 
     await _localNotificationsPlugin.show(
-      id: notification.hashCode,
-      title: notification.title,
-      body: notification.body,
+      id: message.hashCode,
+      title: title,
+      body: body,
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           isIncomingCall ? _incomingCallChannel.id : _channel.id,
@@ -221,7 +243,7 @@ class FcmService {
           channelDescription: isIncomingCall
               ? _incomingCallChannel.description
               : _channel.description,
-          icon: message.notification?.android?.smallIcon ?? 'ic_stat_hoga_dark',
+          icon: notification?.android?.smallIcon ?? 'ic_stat_hoga_dark',
           importance: Importance.max,
           priority: Priority.high,
           sound: isIncomingCall
@@ -235,7 +257,7 @@ class FcmService {
           fullScreenIntent: isIncomingCall,
           category: isIncomingCall ? AndroidNotificationCategory.call : null,
           visibility: NotificationVisibility.public,
-          ticker: notification.title,
+          ticker: title,
           ongoing: isIncomingCall,
           autoCancel: !isIncomingCall,
           actions: actions,
@@ -247,6 +269,68 @@ class FcmService {
         ),
       ),
       payload: jsonEncode(message.data),
+    );
+  }
+
+  /// Show a local notification from data-only FCM messages (no notification field)
+  Future<void> _showFromDataPayload(Map<String, dynamic> data) async {
+    final title = data['title']?.toString() ?? data['body']?.toString() ?? '';
+    final body = data['body']?.toString() ?? data['message']?.toString() ?? '';
+    if (title.isEmpty && body.isEmpty) return;
+
+    final type = data['type']?.toString();
+    final isIncomingCall = type == 'incoming_call' || type == 'audio_call' || type == 'video_call';
+    List<AndroidNotificationAction>? actions;
+    if (isIncomingCall) {
+      actions = const [
+        AndroidNotificationAction(
+          'decline_call',
+          '❌ رفض',
+          showsUserInterface: false,
+          cancelNotification: true,
+        ),
+        AndroidNotificationAction(
+          'accept_call',
+          '✅ رد',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+      ];
+    }
+
+    await _localNotificationsPlugin.show(
+      id: data.hashCode,
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          isIncomingCall ? _incomingCallChannel.id : _channel.id,
+          isIncomingCall ? _incomingCallChannel.name : _channel.name,
+          channelDescription: isIncomingCall
+              ? _incomingCallChannel.description
+              : _channel.description,
+          icon: 'ic_stat_hoga_dark',
+          importance: Importance.max,
+          priority: Priority.high,
+          sound: isIncomingCall
+              ? const RawResourceAndroidNotificationSound('incoming_call')
+              : null,
+          playSound: true,
+          enableVibration: true,
+          fullScreenIntent: isIncomingCall,
+          category: isIncomingCall ? AndroidNotificationCategory.call : null,
+          visibility: NotificationVisibility.public,
+          ongoing: isIncomingCall,
+          autoCancel: !isIncomingCall,
+          actions: actions,
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: jsonEncode(data),
     );
   }
 
@@ -267,7 +351,7 @@ class FcmService {
 
     final type = data['type']?.toString();
 
-    if (type == 'incoming_call') {
+    if (type == 'incoming_call' || type == 'audio_call' || type == 'video_call') {
       await CallCoordinator.instance.handleRemotePayload(data);
       return;
     } else if (type == 'chat_message') {
@@ -286,7 +370,11 @@ class FcmService {
                type == 'payment' || 
                type?.contains('call') == true) { // Covers missed_call, video_call, etc.
       final isLawyer = AppPreferences().role == 'lawyer';
-      navigator.pushNamed(isLawyer ? AppRoutes.lawyerMain : AppRoutes.myOrders);
+      if (isLawyer) {
+        navigator.pushNamed(AppRoutes.lawyerMain, arguments: 2);
+      } else {
+        navigator.pushNamed(AppRoutes.myOrders);
+      }
       return;
     }
 

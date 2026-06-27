@@ -26,8 +26,11 @@ import 'package:hogga/features/lawyer/proposals/presentation/cubit/lawyer_propos
 
 import '../../../../../config/routes/app_routes.dart';
 import '../../../../../core/utils/app_colors.dart';
+import 'package:hogga/core/network/notification_permission_helper.dart';
 class LawyerMainScreen extends StatefulWidget {
-  const LawyerMainScreen({super.key});
+  final int initialIndex;
+  
+  const LawyerMainScreen({super.key, this.initialIndex = 0});
 
   @override
   State<LawyerMainScreen> createState() => _LawyerMainScreenState();
@@ -35,7 +38,7 @@ class LawyerMainScreen extends StatefulWidget {
 
 class _LawyerMainScreenState extends State<LawyerMainScreen> {
   int _selectedIndex = 0;
-  final PageController _pageController = PageController();
+  late PageController _pageController;
   DateTime? _lastBackPressTime;
 
   final List<Widget> _screens = [];
@@ -43,12 +46,20 @@ class _LawyerMainScreenState extends State<LawyerMainScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: _selectedIndex);
     _screens.addAll([
       LawyerOverviewScreen(onNavigate: _onItemTapped),
       const LawyerOpportunitiesScreen(isBottomNav: true),
       const LawyerCasesScreen(isBottomNav: true),
       const LawyerMoreScreen(),
     ]);
+    // Check notification permission + heads-up after screen renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        NotificationPermissionHelper.checkAndPromptIfNeeded(context);
+      }
+    });
   }
 
   void _onItemTapped(int index) {

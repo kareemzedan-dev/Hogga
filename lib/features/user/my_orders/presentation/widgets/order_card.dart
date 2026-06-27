@@ -24,6 +24,7 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCancelled = order.status == 'canceled' || order.status == 'cancelled';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: HoggaCard(
@@ -228,7 +229,7 @@ class OrderCard extends StatelessWidget {
             const SizedBox(height: 18),
 
             // ── Action buttons ──
-            if (order.hasChatRoom)
+            if (order.hasChatRoom && !isCancelled)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SizedBox(
@@ -274,7 +275,7 @@ class OrderCard extends StatelessWidget {
                 ),
               ),
 
-            if (order.paymentStatus == 'pending' && order.status != 'canceled')
+            if (order.paymentStatus == 'pending' && !isCancelled)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SizedBox(
@@ -310,7 +311,7 @@ class OrderCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               height: 50,
-              child: (order.paymentStatus == 'pending' && order.status != 'canceled')
+              child: (order.paymentStatus == 'pending' && !isCancelled)
                   ? OutlinedButton(
                       onPressed: onTap,
                       style: OutlinedButton.styleFrom(

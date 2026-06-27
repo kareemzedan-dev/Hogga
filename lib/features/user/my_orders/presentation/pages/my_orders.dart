@@ -162,7 +162,7 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                             isPrevious: _activeTab == 1,
                             onTap: () async {
                               final cubit = context.read<MyOrdersCubit>();
-                              await Navigator.push(
+                              final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => MultiBlocProvider(
@@ -174,10 +174,13 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                                   ),
                                 ),
                               );
-                              // State is still intact since details used its own cubit
-                              // but refresh just in case user cancelled/modified the order
+                              // If result is true, an action like cancel occurred, so refresh the list
                               if (context.mounted) {
-                                cubit.restoreOrdersList();
+                                if (result == true) {
+                                  cubit.getMyOrders(type: _activeTab == 0 ? 'ongoing' : 'previous');
+                                } else {
+                                  cubit.restoreOrdersList();
+                                }
                               }
                             },
                           );

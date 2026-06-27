@@ -308,7 +308,8 @@ class AppRoutes {
       case AppRoutes.lawyerOnboarding:
         return MaterialPageRoute(builder: (_) => const LawyerOnboardingScreen());
       case AppRoutes.lawyerMain:
-        return MaterialPageRoute(builder: (_) => const LawyerMainScreen());
+        final initialIndex = setting.arguments as int? ?? 0;
+        return MaterialPageRoute(builder: (_) => LawyerMainScreen(initialIndex: initialIndex));
       case AppRoutes.lawyerOrderDetails:
         return MaterialPageRoute(builder: (_) => const LawyerOrderDetailsScreen(), settings: setting);
       case AppRoutes.lawyerProfile:

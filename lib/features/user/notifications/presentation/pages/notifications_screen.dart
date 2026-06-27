@@ -137,7 +137,11 @@ class _NotificationItem extends StatelessWidget {
                    type == 'payment' || 
                    type?.contains('call') == true) {
           final isLawyer = AppPreferences().role == 'lawyer';
-          Navigator.pushNamed(context, isLawyer ? AppRoutes.lawyerMain : AppRoutes.myOrders);
+          if (isLawyer) {
+            Navigator.pushNamed(context, AppRoutes.lawyerMain, arguments: 2);
+          } else {
+            Navigator.pushNamed(context, AppRoutes.myOrders);
+          }
         }
       },
       child: AnimatedContainer(

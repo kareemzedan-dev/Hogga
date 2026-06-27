@@ -11,6 +11,7 @@ import 'package:hogga/core/widgets/app_snackbar.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/localization/localization_cubit.dart';
+import 'package:hogga/core/network/notification_permission_helper.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
@@ -33,6 +34,12 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _selectedIndex = widget.initialIndex;
     _pageController = PageController(initialPage: _selectedIndex);
+    // Check notification permission + heads-up after screen renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        NotificationPermissionHelper.checkAndPromptIfNeeded(context);
+      }
+    });
   }
 
   @override
