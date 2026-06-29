@@ -65,8 +65,11 @@ class ChatRemoteDataSource {
     await apiClient.post(AppEndPoints.connectCall(callId));
   }
 
-  Future<void> endCall(int callId) async {
-    await apiClient.post(AppEndPoints.endCall(callId));
+  Future<int> endCall(int callId) async {
+    final response = await apiClient.post(AppEndPoints.endCall(callId));
+    // API returns duration in seconds in data.duration
+    final duration = response.data?['data']?['duration'];
+    return (duration is num && duration > 0) ? duration.toInt() : 0;
   }
 
   Future<void> updateCallStatus(int callId, String status) async {

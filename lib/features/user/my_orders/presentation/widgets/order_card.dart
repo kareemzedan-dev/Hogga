@@ -148,6 +148,12 @@ class OrderCard extends StatelessWidget {
               ],
             ),
 
+            // ── Call Duration Info (audio/video only) ──
+            if (order.isCallType && order.callDuration != null) ...[ 
+              const SizedBox(height: 10),
+              _buildCallDurationBanner(context),
+            ],
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Divider(height: 1, thickness: 0.8, color: context.divColor),
@@ -405,5 +411,62 @@ class OrderCard extends StatelessWidget {
     } else {
       return AppColors.golden;
     }
+  }
+
+  Widget _buildCallDurationBanner(BuildContext context) {
+    final cd = order.callDuration!;
+    final total = cd.safeTotalMinutes;
+    final remaining = cd.safeRemainingMinutes;
+    final used = cd.safeUsedMinutes;
+    final progress = total > 0 ? (used / total).clamp(0.0, 1.0) : 0.0;
+    final color = _serviceColor();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.timer_outlined, size: 14, color: color),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  AppStrings.callMinutes.tr(context),
+                  style: context.text.labelSmall?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              Text(
+                '${remaining.toStringAsFixed(0)} / ${total.toStringAsFixed(0)} ${AppStrings.minutesLabel.tr(context)}',
+                style: context.text.labelSmall?.copyWith(
+                  color: context.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: 1.0 - progress,
+              minHeight: 6,
+              backgroundColor: color.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -32,6 +32,9 @@ class MyOrderData {
   // Service type
   final String serviceTypeKey;
   final String serviceTypeText;
+  // Duration (for audio/video calls)
+  final int? duration;
+  final CallDuration? callDuration;
   // Chat
   final int? chatRoomId;
   final String? paymentUrl;
@@ -51,6 +54,8 @@ class MyOrderData {
     this.paymentStatusText = '',
     this.serviceTypeKey = 'article',
     this.serviceTypeText = '',
+    this.duration,
+    this.callDuration,
     this.chatRoomId,
     this.paymentUrl,
   });
@@ -58,6 +63,7 @@ class MyOrderData {
   bool get isPaid => paymentStatus == 'paid';
   bool get hasChatRoom => chatRoomId != null;
   bool get hasPaymentUrl => paymentUrl != null && paymentUrl!.isNotEmpty;
+  bool get isCallType => serviceTypeKey == 'audio' || serviceTypeKey == 'video';
 
   factory MyOrderData.fromJson(Map<String, dynamic> json) {
     final dateString = json['date']?.toString();
@@ -78,8 +84,40 @@ class MyOrderData {
       paymentStatusText: json['payment_status_text']?.toString() ?? '',
       serviceTypeKey: json['service_type_key']?.toString() ?? 'article',
       serviceTypeText: json['service_type_text']?.toString() ?? '',
+      duration: json['duration'] as int?,
+      callDuration: json['call_duration'] != null
+          ? CallDuration.fromJson(Map<String, dynamic>.from(json['call_duration'] as Map))
+          : null,
       chatRoomId: json['chat_room_id'] as int?,
       paymentUrl: json['payment_url']?.toString(),
     );
   }
+}
+
+class CallDuration {
+  final double totalMinutes;
+  final double usedMinutes;
+  final double usedSeconds;
+  final double remainingMinutes;
+
+  const CallDuration({
+    required this.totalMinutes,
+    required this.usedMinutes,
+    required this.usedSeconds,
+    required this.remainingMinutes,
+  });
+
+  factory CallDuration.fromJson(Map<String, dynamic> json) {
+    return CallDuration(
+      totalMinutes: (json['total_minutes'] as num?)?.toDouble() ?? 0,
+      usedMinutes: (json['used_minutes'] as num?)?.toDouble() ?? 0,
+      usedSeconds: (json['used_seconds'] as num?)?.toDouble() ?? 0,
+      remainingMinutes: (json['remaining_minutes'] as num?)?.toDouble() ?? 0,
+    );
+  }
+
+  /// Returns remaining minutes (never negative)
+  double get safeRemainingMinutes => remainingMinutes.clamp(0, double.infinity);
+  double get safeTotalMinutes => totalMinutes.clamp(0, double.infinity);
+  double get safeUsedMinutes => usedMinutes.clamp(0, double.infinity);
 }

@@ -27,7 +27,7 @@ class LawyerChatRepository {
 
   Future<void> connectCall(int callId) => remoteDataSource.connectCall(callId);
 
-  Future<void> endCall(int callId) => remoteDataSource.endCall(callId);
+  Future<int> endCall(int callId) => remoteDataSource.endCall(callId);
 
   Future<void> updateCallStatus(int callId, String status) =>
       remoteDataSource.updateCallStatus(callId, status);

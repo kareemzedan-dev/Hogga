@@ -26,6 +26,8 @@ class ItemCategoryData {
   final String name;
   final String? description;
   final String price;
+  final String? serviceType;
+  final int? duration;
 
   ItemCategoryData({
     required this.id,
@@ -33,7 +35,11 @@ class ItemCategoryData {
     required this.name,
     this.description,
     required this.price,
+    this.serviceType,
+    this.duration,
   });
+
+  bool get isCallType => serviceType == 'audio' || serviceType == 'video';
 
   factory ItemCategoryData.fromJson(Map<String, dynamic> json) {
     return ItemCategoryData(
@@ -42,6 +48,8 @@ class ItemCategoryData {
       name: json['name'] ?? '',
       description: json['description'],
       price: json['price']?.toString() ?? '0.00',
+      serviceType: json['service_type']?.toString(),
+      duration: json['duration'] as int?,
     );
   }
 }

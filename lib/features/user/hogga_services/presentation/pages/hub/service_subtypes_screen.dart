@@ -145,6 +145,18 @@ class ServiceSubtypesScreen extends StatelessWidget {
   }
 
   Widget _buildItemCard(BuildContext context, ItemCategoryData item) {
+    final isCall = item.isCallType;
+    final serviceColor = item.serviceType == 'video'
+        ? const Color(0xFF2196F3)
+        : item.serviceType == 'audio'
+            ? const Color(0xFF4CAF50)
+            : Theme.of(context).primaryColor;
+    final serviceIcon = item.serviceType == 'video'
+        ? Icons.videocam_rounded
+        : item.serviceType == 'audio'
+            ? Icons.phone_in_talk_rounded
+            : Icons.description_outlined;
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -180,12 +192,12 @@ class ServiceSubtypesScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                color: serviceColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.gavel_rounded,
-                color: Theme.of(context).primaryColor,
+                serviceIcon,
+                color: serviceColor,
                 size: 20,
               ),
             ),
@@ -211,10 +223,32 @@ class ServiceSubtypesScreen extends StatelessWidget {
                       style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontSize: 11.sp),
                     ),
                   ],
+                  if (isCall && item.duration != null) ...[
+                    AppSizes.h(6),
+                    Row(
+                      children: [
+                        Icon(Icons.timer_outlined, size: 12, color: serviceColor),
+                        AppSizes.w(4),
+                        Text(
+                          '${item.duration} ${AppStrings.minutesLabel.tr(context)}',
+                          style: context.text.labelSmall?.copyWith(
+                            color: serviceColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 14, color: context.textSecondary),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Icon(Icons.arrow_forward_ios, size: 14, color: context.textSecondary),
+              ],
+            ),
           ],
         ),
       ),

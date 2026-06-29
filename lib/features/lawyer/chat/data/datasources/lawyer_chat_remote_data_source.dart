@@ -61,8 +61,10 @@ class LawyerChatRemoteDataSource {
     await apiClient.post(AppEndPoints.lawyerConnectCall(callId));
   }
 
-  Future<void> endCall(int callId) async {
-    await apiClient.post(AppEndPoints.lawyerEndCall(callId));
+  Future<int> endCall(int callId) async {
+    final response = await apiClient.post(AppEndPoints.lawyerEndCall(callId));
+    final duration = response.data?['data']?['duration'];
+    return (duration is num && duration > 0) ? duration.toInt() : 0;
   }
 
   Future<void> updateCallStatus(int callId, String status) async {

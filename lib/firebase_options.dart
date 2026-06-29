@@ -59,10 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAuc0nkCJn_ky18gexgOGVjYwZE9dksFV4',
-    appId: '1:1085294513517:ios:6868de897b0274061ade64',
+    appId: '1:1085294513517:ios:f78e1d8a64ac5eab1ade64',
     messagingSenderId: '1085294513517',
     projectId: 'hogga-74daa',
     storageBucket: 'hogga-74daa.firebasestorage.app',
-    iosBundleId: 'com.hogga.app.hogga',
+    iosBundleId: 'com.hoggaapp.app',
   );
+
 }

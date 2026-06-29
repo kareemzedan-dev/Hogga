@@ -18,7 +18,10 @@ class CallConnected extends CallState {
   CallConnected(this.callToken);
 }
 
-class CallEnded extends CallState {}
+class CallEnded extends CallState {
+  final int usedSeconds;
+  CallEnded({this.usedSeconds = 0});
+}
 
 class CallError extends CallState {
   final String message;
@@ -50,12 +53,13 @@ class CallCubit extends Cubit<CallState> {
   }
 
   Future<void> endCall(int callId) async {
+    int usedSeconds = 0;
     try {
-      await repository.endCall(callId);
+      usedSeconds = await repository.endCall(callId);
     } catch (e) {
       // Ignored
     } finally {
-      emit(CallEnded());
+      emit(CallEnded(usedSeconds: usedSeconds));
     }
   }
 

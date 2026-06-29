@@ -144,10 +144,80 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
   }
 
   void _endCall(int callId) {
+    _callTimer?.cancel();
     context.read<CallCubit>().endCall(callId);
-    if (mounted) {
-      Navigator.pop(context);
-    }
+  }
+
+  void _showCallSummaryDialog(int usedSeconds) {
+    final usedMinutes = (usedSeconds / 60).ceil();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: context.pageBg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: AppColors.golden.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.call_end_rounded, color: AppColors.golden, size: 30),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppStrings.callEnded.tr(context),
+              style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: context.chipBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.timer_outlined, size: 18, color: AppColors.golden),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${AppStrings.callDurationLabel.tr(context)}: $usedMinutes ${AppStrings.minutesLabel.tr(context)}',
+                    style: context.text.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: context.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                if (mounted) Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.golden,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                AppStrings.ok.tr(context),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _onToggleMute() {
@@ -181,6 +251,8 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
       listener: (context, state) {
         if (state is CallTokenLoaded) {
           _initAgora(state.callToken);
+        } else if (state is CallEnded) {
+          _showCallSummaryDialog(state.usedSeconds);
         } else if (state is CallError) {
           AppSnackbar.showError(context, message: state.message);
           Navigator.pop(context);

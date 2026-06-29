@@ -722,6 +722,9 @@ class AppStrings {
   static const String consultationBooking = 'consultationBooking';
   static const String since = 'since';
   static const String minutesLabel = 'minutesLabel';
+  static const String callMinutes = 'callMinutes';
+  static const String callEnded = 'callEnded';
+  static const String callDurationLabel = 'callDurationLabel';
   static const String performanceReports = 'performanceReports';
   static const String weekly = 'weekly';
   static const String monthly = 'monthly';

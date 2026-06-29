@@ -1,3 +1,5 @@
+import 'package:hogga/features/user/my_orders/data/models/order_model.dart';
+
 class OrderDetailsResponse {
   final OrderDetailsData data;
 
@@ -25,6 +27,8 @@ class OrderDetailsData {
   final List<CaseDocument> documents;
   final List<CaseProposal> proposals;
   final String createdAt;
+  final int? duration;
+  final CallDuration? callDuration;
 
   OrderDetailsData({
     required this.id,
@@ -39,6 +43,8 @@ class OrderDetailsData {
     required this.documents,
     required this.proposals,
     required this.createdAt,
+    this.duration,
+    this.callDuration,
   });
 
   factory OrderDetailsData.fromJson(Map<String, dynamic> json) {
@@ -65,6 +71,10 @@ class OrderDetailsData {
           .map((e) => CaseProposal.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
       createdAt: json['created_at']?.toString() ?? '',
+      duration: json['duration'] as int?,
+      callDuration: json['call_duration'] != null
+          ? CallDuration.fromJson(Map<String, dynamic>.from(json['call_duration'] as Map))
+          : null,
     );
   }
 }
