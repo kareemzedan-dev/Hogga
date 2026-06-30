@@ -6,7 +6,16 @@ import '../localization/app_localizations.dart';
 
 class AppSnackbar {
   static void showError(BuildContext context, {String? messageKey, String? message}) {
-    final displayMessage = message ?? (messageKey != null ? AppLocalizations.of(context)!.translate(messageKey) : '');
+    String displayMessage = '';
+    if (message != null) {
+      if (!message.contains(' ') && message.length > 2 && message[0].toLowerCase() == message[0]) {
+        displayMessage = AppLocalizations.of(context)?.translate(message) ?? message;
+      } else {
+        displayMessage = message;
+      }
+    } else if (messageKey != null) {
+      displayMessage = AppLocalizations.of(context)?.translate(messageKey) ?? '';
+    }
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -59,7 +68,16 @@ class AppSnackbar {
   }
 
   static void showSuccess(BuildContext context, {String? messageKey, String? message}) {
-    final displayMessage = message ?? (messageKey != null ? AppLocalizations.of(context)!.translate(messageKey) : '');
+    String displayMessage = '';
+    if (message != null) {
+      if (!message.contains(' ') && message.length > 2 && message[0].toLowerCase() == message[0]) {
+        displayMessage = AppLocalizations.of(context)?.translate(message) ?? message;
+      } else {
+        displayMessage = message;
+      }
+    } else if (messageKey != null) {
+      displayMessage = AppLocalizations.of(context)?.translate(messageKey) ?? '';
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

@@ -50,6 +50,7 @@ class SubCategory extends Equatable {
   final bool? isActive;
   final String? price;
   final String? serviceType;
+  final int? duration;
 
   const SubCategory({
     this.id,
@@ -64,7 +65,10 @@ class SubCategory extends Equatable {
     this.isActive,
     this.price,
     this.serviceType,
+    this.duration,
   });
+
+  bool get isCallType => serviceType == 'audio' || serviceType == 'video';
 
   /// Returns the correct name based on locale ('ar' or 'en')
   String localizedName(String languageCode) {
@@ -93,6 +97,7 @@ class SubCategory extends Equatable {
       isActive: json['is_active'] == true || json['is_active'] == 1,
       price: json['price']?.toString(),
       serviceType: json['service_type'] as String?,
+      duration: json['duration'] as int?,
     );
   }
 
@@ -110,9 +115,10 @@ class SubCategory extends Equatable {
       'is_active': isActive,
       'price': price,
       'service_type': serviceType,
+      'duration': duration,
     };
   }
 
   @override
-  List<Object?> get props => [id, categoryId, name, nameAr, nameEn, description, sortOrder, isActive, price, serviceType];
+  List<Object?> get props => [id, categoryId, name, nameAr, nameEn, description, sortOrder, isActive, price, serviceType, duration];
 }

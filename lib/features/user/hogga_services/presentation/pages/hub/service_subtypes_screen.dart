@@ -170,6 +170,8 @@ class ServiceSubtypesScreen extends StatelessWidget {
             subCategoryName: subCategoryName,
             childCategoryName: childCategoryName,
             itemName: item.name,
+            duration: item.duration,
+            isCallType: isCall,
           ),
         );
       },

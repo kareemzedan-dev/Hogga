@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/utils/app_strings.dart';
 
 import '../../domin/repositories/my_orders_repository.dart';
 import '../../data/models/order_model.dart';
@@ -53,6 +52,16 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
       emit(MyOrdersLoaded(currentOrders!));
     } else {
       getMyOrders(type: 'ongoing');
+    }
+  }
+
+  /// Immediately removes an order from the local cache and updates the UI.
+  void removeOrderById(int orderId) {
+    if (currentOrders != null) {
+      currentOrders = currentOrders!.where((o) => o.id != orderId).toList();
+      // Also update all cached tabs
+      cachedOrders.updateAll((key, list) => list.where((o) => o.id != orderId).toList());
+      emit(MyOrdersLoaded(currentOrders!));
     }
   }
 

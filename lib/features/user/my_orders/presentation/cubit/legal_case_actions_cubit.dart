@@ -63,7 +63,7 @@ class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
       (response) => emit(
         state.copyWith(
           isLoading: false,
-          successMessage: response.message.isNotEmpty ? response.message : AppStrings.documentUploadedSuccessfully,
+          successMessage: AppStrings.documentUploadedSuccessfully,
           actionType: 'upload',
         ),
       ),
@@ -78,7 +78,7 @@ class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
       (response) => emit(
         state.copyWith(
           isLoading: false,
-          successMessage: response.message.isNotEmpty ? response.message : AppStrings.operationSuccess,
+          successMessage: AppStrings.operationSuccess,
           actionType: 'cancel',
         ),
       ),
@@ -93,7 +93,7 @@ class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
       (response) => emit(
         state.copyWith(
           isLoading: false,
-          successMessage: response.message.isNotEmpty ? response.message : AppStrings.operationSuccess,
+          successMessage: AppStrings.operationSuccess,
           actionType: 'accept',
         ),
       ),

@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../../../../core/constants/end_points.dart';
 import '../../../../../core/errors/failures.dart';
 import '../../../../../core/network/api_client.dart';
+import '../../../../../core/utils/app_strings.dart';
 import '../models/item_category_model.dart';
 import '../models/legal_case_models.dart';
 
@@ -103,7 +104,11 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
       );
       return LegalCaseResponse.fromJson(response.data);
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? e.message ?? 'Failed to upload files';
+      var message = e.response?.data['message']?.toString() ?? e.message ?? 'Failed to upload files';
+      if (message.contains('must be a file of type') || 
+          (message.contains('files.') && message.contains('type'))) {
+        message = AppStrings.unsupportedFileFormat;
+      }
       throw ServerFailure(message);
     } catch (e) {
       throw ServerFailure(e.toString());

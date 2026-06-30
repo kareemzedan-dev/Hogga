@@ -6,6 +6,8 @@ class BookingFlowArgs {
   final String subCategoryName;
   final String childCategoryName;
   final String itemName;
+  final int? duration;
+  final bool isCallType;
 
   BookingFlowArgs({
     required this.itemCategoryId,
@@ -15,5 +17,7 @@ class BookingFlowArgs {
     required this.subCategoryName,
     required this.childCategoryName,
     required this.itemName,
+    this.duration,
+    this.isCallType = false,
   });
 }

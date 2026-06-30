@@ -14,76 +14,8 @@ class NotificationPermissionHelper {
   /// Call this after FCM is initialized (e.g. in splash or home screen).
   /// Shows a dialog if heads-up notifications appear to be blocked.
   static Future<void> checkAndPromptIfNeeded(BuildContext context) async {
-    if (!Platform.isAndroid) return;
-
-    final androidPlugin = _plugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-    if (androidPlugin == null) return;
-
-    // Check basic notification permission (Android 13+)
-    final notifEnabled = await androidPlugin.areNotificationsEnabled();
-    if (notifEnabled == false) {
-      // Notifications completely disabled — request permission
-      await Permission.notification.request();
-      return;
-    }
-
-    // Check if the high-importance channel allows heads-up
-    final channels = await androidPlugin.getNotificationChannels();
-    final channel = channels?.firstWhere(
-      (c) => c.id == 'high_importance_channel_v3',
-      orElse: () => AndroidNotificationChannel(
-        'high_importance_channel_v3',
-        'Notifications',
-        importance: Importance.min,
-      ),
-    );
-
-    // If the channel importance was downgraded by user below "high", heads-up won't show
-    final channelImportance = channel?.importance ?? Importance.min;
-    final isHeadsUpBlocked =
-        channelImportance.value < Importance.high.value;
-
-    if (!context.mounted) return;
-
-    if (isHeadsUpBlocked) {
-      _showSettingsDialog(
-        context,
-        title: 'تفعيل الإشعارات الفورية',
-        message:
-            'يبدو أن الإشعارات الفورية (Pop-up) مُعطَّلة.\n\n'
-            'لتفعيلها:\n'
-            '١. اضغط "إعدادات الإشعارات"\n'
-            '٢. اختر "حجة" أو اسم التطبيق\n'
-            '٣. فعِّل "الإشعارات المنبثقة" أو "Floating Notifications"\n'
-            '٤. فعِّل "عرض على شاشة القفل"',
-        settingsType: _SettingsType.channel,
-      );
-      return;
-    }
-
-    // Xiaomi-specific: check if MIUI/HyperOS is detected
-    if (_isMiui()) {
-      // We can't programmatically check MIUI popup setting,
-      // so we show a one-time guidance dialog
-      final shown = _miuiDialogShown;
-      if (!shown) {
-        _miuiDialogShown = true;
-        _showSettingsDialog(
-          context,
-          title: 'تنبيه لأجهزة شاومي',
-          message:
-              'إذا لم تظهر الإشعارات فوق الشاشة، يرجى:\n\n'
-              '١. اضغط "إعدادات التطبيق"\n'
-              '٢. ابحث عن "الإشعارات" ← "حجة"\n'
-              '٣. فعِّل "إشعارات منبثقة" (Pop-up notifications)\n'
-              '٤. فعِّل "إشعارات عائمة" (Floating notifications)\n'
-              '٥. فعِّل "التشغيل التلقائي" (Autostart)',
-          settingsType: _SettingsType.app,
-        );
-      }
-    }
+    // Hidden based on user request
+    return;
   }
 
   static bool _miuiDialogShown = false;

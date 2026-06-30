@@ -24,6 +24,8 @@ class RequestDetailsStep extends StatefulWidget {
   final ValueChanged<bool>? onRemoteAttendanceChanged;
   final TextEditingController? governorateController;
   final TextEditingController? cityController;
+  final int? duration;
+  final bool isCallType;
 
   const RequestDetailsStep({
     super.key,
@@ -39,6 +41,8 @@ class RequestDetailsStep extends StatefulWidget {
     this.onRemoteAttendanceChanged,
     this.governorateController,
     this.cityController,
+    this.duration,
+    this.isCallType = false,
   });
 
   @override
@@ -155,6 +159,31 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
                     ],
                   ),
                 ),
+                if (widget.isCallType && widget.duration != null) ...[
+                  AppSizes.h(12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF27AE60).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF27AE60).withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.timer_outlined, size: 16, color: Color(0xFF27AE60)),
+                        AppSizes.w(6),
+                        Text(
+                          '${widget.duration} ${AppStrings.minutesLabel.tr(context)}',
+                          style: context.text.labelMedium?.copyWith(
+                            color: const Color(0xFF27AE60),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 Divider(color: AppColors.golden.withValues(alpha: 0.2), thickness: 1, height: 24),
 
                 BookingFieldLabel(AppStrings.requestTitle.tr(context)),

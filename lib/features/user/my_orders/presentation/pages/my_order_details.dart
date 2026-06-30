@@ -57,11 +57,14 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
             final type = actionState.actionType;
             context.read<LegalCaseActionsCubit>().clearMessages();
             if (type == 'cancel') {
-              Navigator.pop(context, true);
+              // Pop back with the cancelled orderId so parent removes it from list immediately
+              Navigator.pop(context, {'cancelled': true, 'orderId': widget.orderId});
             } else {
-              Future.delayed(const Duration(milliseconds: 500), () {
+              // For uploads and other actions, reload details immediately
+              final cubit = context.read<MyOrdersCubit>();
+              Future.delayed(const Duration(milliseconds: 300), () {
                 if (mounted) {
-                  context.read<MyOrdersCubit>().getOrderDetails(orderId: widget.orderId);
+                  cubit.getOrderDetails(orderId: widget.orderId);
                 }
               });
             }
@@ -250,7 +253,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   },
                   backgroundColor: AppColors.error,
                   textColor: Colors.white,
-                  text: AppStrings.cancelOrder.tr(context),
+                  text: AppStrings.confirm.tr(context),
                 ),
               ),
             ],
@@ -266,103 +269,117 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (bottomSheetContext) {
-        final actionCubit = this.context.read<LegalCaseActionsCubit>();
-        final myOrdersCubit = this.context.read<MyOrdersCubit>();
+        final actionCubit = context.read<LegalCaseActionsCubit>();
+        final myOrdersCubit = context.read<MyOrdersCubit>();
         return MultiBlocProvider(
           providers: [
             BlocProvider.value(value: actionCubit),
             BlocProvider.value(value: myOrdersCubit),
           ],
-          child: BlocBuilder<MyOrdersCubit, MyOrdersState>(
-            builder: (context, state) {
-              final order = context.read<MyOrdersCubit>().lastLoadedDetails;
-            
-            if (order == null && state is MyOrderDetailsLoading) {
-              return const Center(child: Padding(
-                padding: EdgeInsets.all(40),
-                child: CircularProgressIndicator(),
-              ));
-            }
-            
-            if (order == null) return const SizedBox();
-            
-            return Container(
-              decoration: BoxDecoration(
-                color: context.pageBg,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppStrings.attachedDocuments.tr(context),
-                            style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      if (state is MyOrderDetailsLoading)
-                        const Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 30),
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      else if (order.documents.isEmpty)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 30),
-                            child: Column(
-                              children: [
-                                Icon(Icons.folder_open_outlined, size: 48, color: context.textSecondary.withValues(alpha: 0.5)),
-                                const SizedBox(height: 12),
-                                Text(
-                                  AppStrings.noDataFound.tr(context),
-                                  style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
-                                ),
-                              ],
+          child: BlocListener<LegalCaseActionsCubit, LegalCaseActionsState>(
+            listener: (context, actionState) {
+              if (actionState.successMessage != null &&
+                  actionState.successMessage!.isNotEmpty &&
+                  actionState.actionType == 'upload') {
+                // Reload order details so newly uploaded files appear immediately in the sheet
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  final sheetCubit = myOrdersCubit;
+                  if (sheetCubit.isClosed) return;
+                  sheetCubit.getOrderDetails(orderId: orderId);
+                });
+              }
+            },
+            child: BlocBuilder<MyOrdersCubit, MyOrdersState>(
+              builder: (context, state) {
+                final order = context.read<MyOrdersCubit>().lastLoadedDetails;
+              
+              if (order == null && state is MyOrderDetailsLoading) {
+                return const Center(child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: CircularProgressIndicator(),
+                ));
+              }
+              
+              if (order == null) return const SizedBox();
+              
+              return Container(
+                decoration: BoxDecoration(
+                  color: context.pageBg,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              AppStrings.attachedDocuments.tr(context),
+                              style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.close),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        if (state is MyOrderDetailsLoading)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 30),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        else if (order.documents.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 30),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.folder_open_outlined, size: 48, color: context.textSecondary.withValues(alpha: 0.5)),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    AppStrings.noDataFound.tr(context),
+                                    style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: MediaQuery.of(context).size.height * 0.4,
+                            ),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: order.documents.length,
+                              separatorBuilder: (_, __) => const SizedBox(height: 12),
+                              itemBuilder: (context, index) => _buildDocumentCard(order.documents[index]),
                             ),
                           ),
-                        )
-                      else
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight: MediaQuery.of(context).size.height * 0.4,
-                          ),
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: order.documents.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) => _buildDocumentCard(order.documents[index]),
-                          ),
+                        const SizedBox(height: 24),
+                        CustomButton(
+                          onPressed: () {
+                            _pickFilesAndUpload(order.id, actionCubit);
+                          },
+                          icon: Icons.add_circle_outline,
+                          isLoading: context.watch<LegalCaseActionsCubit>().state.isLoading,
+                          text: AppStrings.uploadDocuments.tr(context),
                         ),
-                      const SizedBox(height: 24),
-                      CustomButton(
-                        onPressed: () {
-                          _pickFilesAndUpload(order.id, actionCubit);
-                        },
-                        icon: Icons.add_circle_outline,
-                        isLoading: context.watch<LegalCaseActionsCubit>().state.isLoading,
-                        text: AppStrings.uploadDocuments.tr(context),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
-        ));
+              );
+            },
+          )),
+        );
       },
     );
   }
@@ -447,13 +464,6 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     }
   }
 
-  Future<void> _callNumber(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    final launched = await launchUrl(uri);
-    if (!launched && mounted) {
-      AppSnackbar.showError(context, messageKey: AppStrings.errorServer);
-    }
-  }
 
   Future<void> _pickFilesAndUpload(int caseId, LegalCaseActionsCubit actionCubit) async {
     final result = await FilePicker.platform.pickFiles(

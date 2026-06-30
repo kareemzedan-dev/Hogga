@@ -46,6 +46,9 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
         listener: (context, state) {
           if (state is LawyerCaseActionSuccess) {
             AppSnackbar.showSuccess(context, message: state.message);
+            if (args != null && args['id'] != null) {
+              context.read<LawyerCasesCubit>().getCaseDetails(args['id'] as int);
+            }
           } else if (state is LawyerCasesError) {
             AppSnackbar.showError(context, message: state.message);
           }

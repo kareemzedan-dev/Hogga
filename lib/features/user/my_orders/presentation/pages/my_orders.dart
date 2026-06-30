@@ -174,10 +174,18 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                                   ),
                                 ),
                               );
-                              // If result is true, an action like cancel occurred, so refresh the list
                               if (context.mounted) {
-                                if (result == true) {
-                                  cubit.getMyOrders(type: _activeTab == 0 ? 'ongoing' : 'previous');
+                                if (result is Map && result['cancelled'] == true) {
+                                  // Remove the cancelled order immediately from the list without a network call
+                                  final cancelledId = result['orderId'] as int?;
+                                  if (cancelledId != null) {
+                                    cubit.removeOrderById(cancelledId);
+                                  }
+                                  // Force refresh from server in the background to update all lists/status
+                                  cubit.getMyOrders(
+                                    type: _activeTab == 0 ? 'ongoing' : 'finished',
+                                    forceRefresh: true,
+                                  );
                                 } else {
                                   cubit.restoreOrdersList();
                                 }

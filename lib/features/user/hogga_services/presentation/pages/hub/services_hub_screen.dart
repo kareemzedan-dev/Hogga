@@ -291,6 +291,33 @@ class _ServicesHubScreenState extends State<ServicesHubScreen> with TickerProvid
                       ),
                     ),
                   ],
+                  if (subCategory.isCallType && subCategory.duration != null) ...[
+                    Row(
+                      children: [
+                        Text(
+                          "${AppStrings.callDurationLabel.tr(context)}:",
+                          style: context.text.labelSmall?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.timer_outlined,
+                          size: 14,
+                          color: Color(0xFF27AE60),
+                        ),
+                        AppSizes.w(4),
+                        Text(
+                          '${subCategory.duration} ${AppStrings.minutesLabel.tr(context)}',
+                          style: context.text.labelSmall?.copyWith(
+                            color: const Color(0xFF27AE60),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

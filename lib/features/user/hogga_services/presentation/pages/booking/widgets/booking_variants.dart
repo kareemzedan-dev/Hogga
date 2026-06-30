@@ -21,6 +21,8 @@ class BookingFlowAdminCore extends StatefulWidget {
   final TextEditingController detailsController;
   final VoidCallback onNext;
   final bool isValid;
+  final int? duration;
+  final bool isCallType;
 
   const BookingFlowAdminCore({
     super.key,
@@ -31,6 +33,8 @@ class BookingFlowAdminCore extends StatefulWidget {
     required this.detailsController,
     required this.onNext,
     required this.isValid,
+    this.duration,
+    this.isCallType = false,
   });
 
   @override
@@ -53,6 +57,31 @@ class _BookingFlowAdminCoreState extends State<BookingFlowAdminCore> {
                 Text(widget.categoryTitle, style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 AppSizes.h(4),
                 Text(widget.categoryDesc, style: context.text.bodySmall?.copyWith(color: context.textSecondary)),
+                if (widget.isCallType && widget.duration != null) ...[
+                  AppSizes.h(12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF27AE60).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF27AE60).withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.timer_outlined, size: 16, color: Color(0xFF27AE60)),
+                        AppSizes.w(6),
+                        Text(
+                          '${widget.duration} ${AppStrings.minutesLabel.tr(context)}',
+                          style: context.text.labelMedium?.copyWith(
+                            color: const Color(0xFF27AE60),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 Divider(color: AppColors.golden.withValues(alpha: 0.2), thickness: 1, height: 32),
                 if (widget.items.isNotEmpty)
                   ListView.separated(
@@ -149,6 +178,8 @@ class BookingFlowProviderCore extends StatefulWidget {
   final TextEditingController detailsController;
   final VoidCallback onNext;
   final bool isValid;
+  final int? duration;
+  final bool isCallType;
 
   const BookingFlowProviderCore({
     super.key,
@@ -159,6 +190,8 @@ class BookingFlowProviderCore extends StatefulWidget {
     required this.detailsController,
     required this.onNext,
     required this.isValid,
+    this.duration,
+    this.isCallType = false,
   });
 
   @override
@@ -182,6 +215,31 @@ class _BookingFlowProviderCoreState extends State<BookingFlowProviderCore> {
                 Text(widget.categoryTitle, style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 AppSizes.h(4),
                 Text(widget.categoryDesc, style: context.text.bodySmall?.copyWith(color: context.textSecondary)),
+                if (widget.isCallType && widget.duration != null) ...[
+                  AppSizes.h(12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF27AE60).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF27AE60).withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.timer_outlined, size: 16, color: Color(0xFF27AE60)),
+                        AppSizes.w(6),
+                        Text(
+                          '${widget.duration} ${AppStrings.minutesLabel.tr(context)}',
+                          style: context.text.labelMedium?.copyWith(
+                            color: const Color(0xFF27AE60),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 Divider(color: AppColors.golden.withValues(alpha: 0.2), thickness: 1, height: 32),
                 if (widget.items.isNotEmpty)
                   ListView.separated(

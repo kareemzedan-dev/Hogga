@@ -232,9 +232,10 @@ class OrderCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 18),
+            if ((order.hasChatRoom && !isCancelled) || (order.paymentStatus == 'pending' && !isCancelled)) ...[
+              const SizedBox(height: 18),
+            ],
 
-            // ── Action buttons ──
             if (order.hasChatRoom && !isCancelled)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -314,43 +315,6 @@ class OrderCard extends StatelessWidget {
                 ),
               ),
 
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: (order.paymentStatus == 'pending' && !isCancelled)
-                  ? OutlinedButton(
-                      onPressed: onTap,
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: Text(
-                        AppStrings.consultationDetails.tr(context),
-                        style: context.text.labelLarge?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    )
-                  : ElevatedButton(
-                      onPressed: onTap,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.cream,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: Text(
-                        AppStrings.consultationDetails.tr(context),
-                        style: context.text.labelLarge?.copyWith(
-                          color: AppColors.cream,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-            ),
           ],
         ),
       ),
@@ -422,10 +386,10 @@ class OrderCard extends StatelessWidget {
     final color = _serviceColor();
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -433,15 +397,15 @@ class OrderCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.timer_outlined, size: 14, color: color),
-              const SizedBox(width: 6),
+              Icon(Icons.timer_outlined, size: 12, color: color),
+              const SizedBox(width: 5),
               Expanded(
                 child: Text(
                   AppStrings.callMinutes.tr(context),
                   style: context.text.labelSmall?.copyWith(
                     color: color,
                     fontWeight: FontWeight.w600,
-                    fontSize: 11,
+                    fontSize: 10,
                   ),
                 ),
               ),
@@ -450,17 +414,17 @@ class OrderCard extends StatelessWidget {
                 style: context.text.labelSmall?.copyWith(
                   color: context.textPrimary,
                   fontWeight: FontWeight.bold,
-                  fontSize: 11,
+                  fontSize: 10,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 5),
           ClipRRect(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: 1.0 - progress,
-              minHeight: 6,
+              minHeight: 4,
               backgroundColor: color.withValues(alpha: 0.15),
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
