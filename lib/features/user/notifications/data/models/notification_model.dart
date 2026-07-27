@@ -14,6 +14,9 @@ class NotificationModel extends Equatable {
   final int? businessId;
   final int? chatRoomId;
   final String? channelName;
+  final int? callId;
+  final String? serviceType;
+  final String? callerName;
 
   const NotificationModel({
     required this.id,
@@ -29,6 +32,9 @@ class NotificationModel extends Equatable {
     this.businessId,
     this.chatRoomId,
     this.channelName,
+    this.callId,
+    this.serviceType,
+    this.callerName,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -46,7 +52,8 @@ class NotificationModel extends Equatable {
     return NotificationModel(
       id: json['id']?.toString() ?? '',
       title: payload['title']?.toString() ?? json['title']?.toString() ?? '',
-      body: payload['body']?.toString() ??
+      body:
+          payload['body']?.toString() ??
           payload['message']?.toString() ??
           json['body']?.toString() ??
           '',
@@ -56,19 +63,28 @@ class NotificationModel extends Equatable {
       isRead: readAt != null && readAt.isNotEmpty,
       readAt: readAt,
       type: payload['type']?.toString() ?? json['type']?.toString(),
-      actionType: meta['action_type']?.toString(),
-      caseId: _toInt(meta['case_id']),
+      actionType:
+          meta['action_type']?.toString() ?? payload['action_type']?.toString(),
+      caseId: _firstInt([
+        meta['case_id'],
+        payload['case_id'],
+        json['case_id'],
+        meta['legal_case_id'],
+        payload['legal_case_id'],
+        json['legal_case_id'],
+      ]),
       caseNumber: meta['case_number']?.toString(),
       businessId: _toInt(payload['id']),
       chatRoomId: _toInt(payload['chat_room_id']),
       channelName: payload['channel_name']?.toString(),
+      callId: _toInt(payload['call_id'] ?? json['call_id']),
+      serviceType: payload['service_type']?.toString(),
+      callerName:
+          payload['caller_name']?.toString() ?? payload['caller']?.toString(),
     );
   }
 
-  NotificationModel copyWith({
-    bool? isRead,
-    String? readAt,
-  }) {
+  NotificationModel copyWith({bool? isRead, String? readAt}) {
     return NotificationModel(
       id: id,
       title: title,
@@ -83,6 +99,9 @@ class NotificationModel extends Equatable {
       businessId: businessId,
       chatRoomId: chatRoomId,
       channelName: channelName,
+      callId: callId,
+      serviceType: serviceType,
+      callerName: callerName,
     );
   }
 
@@ -96,20 +115,33 @@ class NotificationModel extends Equatable {
     return int.tryParse(value.toString());
   }
 
+  static int? _firstInt(List<dynamic> values) {
+    for (final value in values) {
+      final parsed = _toInt(value);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+    return null;
+  }
+
   @override
   List<Object?> get props => [
-        id,
-        title,
-        body,
-        createdAt,
-        isRead,
-        type,
-        readAt,
-        actionType,
-        caseId,
-        caseNumber,
-        businessId,
-        chatRoomId,
-        channelName,
-      ];
+    id,
+    title,
+    body,
+    createdAt,
+    isRead,
+    type,
+    readAt,
+    actionType,
+    caseId,
+    caseNumber,
+    businessId,
+    chatRoomId,
+    channelName,
+    callId,
+    serviceType,
+    callerName,
+  ];
 }

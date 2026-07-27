@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:hogga/config/shared_preference/shared_preference.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/widgets/app_snakbar.dart';
@@ -20,9 +18,14 @@ import 'widgets/booking_variants.dart';
 /// 3-step booking flow: Request Details → Lawyer Mode → Payment
 class BookingFlowScreen extends StatefulWidget {
   final BookingFlowArgs args;
-  final int? typeOfBookingFlow; // 0 for main, 1 for provider core fixed, 2 for provider core, 3 admin core
+  final int?
+  typeOfBookingFlow; // 0 for main, 1 for provider core fixed, 2 for provider core, 3 admin core
 
-  const BookingFlowScreen({super.key, required this.args, required this.typeOfBookingFlow});
+  const BookingFlowScreen({
+    super.key,
+    required this.args,
+    required this.typeOfBookingFlow,
+  });
 
   @override
   State<BookingFlowScreen> createState() => _BookingFlowScreenState();
@@ -44,7 +47,8 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
   TextEditingController? _governorateController;
   TextEditingController? _cityController;
 
-  String get _draftKey => 'draft_booking_${widget.args.childCategoryId}_${widget.args.itemCategoryId}';
+  String get _draftKey =>
+      'draft_booking_${widget.args.childCategoryId}_${widget.args.itemCategoryId}';
 
   // Step 2 state
   int? _lawyerMode; // 0 = broadcast, 1 = manual
@@ -91,9 +95,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
     _promoController.removeListener(_saveDraft);
     _governorateController?.removeListener(_saveDraft);
     _cityController?.removeListener(_saveDraft);
-    
+
     _serviceRequestCubit.close();
-    
+
     _titleController.dispose();
     _detailsController.dispose();
     _promoController.dispose();
@@ -115,8 +119,12 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
         _paymentMethod = (data['paymentMethod'] as int?) ?? 0;
         _promoController.text = data['promoCode'] ?? '';
         _canAttendRemotely = data['canAttendRemotely'] ?? false;
-        if (_governorateController != null) _governorateController!.text = data['governorate'] ?? '';
-        if (_cityController != null) _cityController!.text = data['city'] ?? '';
+        if (_governorateController != null) {
+          _governorateController!.text = data['governorate'] ?? '';
+        }
+        if (_cityController != null) {
+          _cityController!.text = data['city'] ?? '';
+        }
 
         final lawyerIds = data['selectedLawyerIds'];
         if (lawyerIds is List) {
@@ -152,11 +160,12 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
     AppPreferences().saveDraft(_draftKey, jsonEncode(data));
   }
 
-
-
   Future<void> _submitRequest() async {
     if (_selectionType == 'select' && _selectedLawyerIds.isEmpty) {
-      AppSnackbar.showError(context, messageKey: AppStrings.pleaseSelectAtLeastOneLawyer);
+      AppSnackbar.showError(
+        context,
+        messageKey: AppStrings.pleaseSelectAtLeastOneLawyer,
+      );
       return;
     }
 
@@ -166,7 +175,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
       description: _detailsController.text.trim(),
       selectionType: _selectionType,
       lawyerIds: _selectedLawyerIds.map(int.parse).toList(),
-      couponCode: _promoController.text.trim().isEmpty ? null : _promoController.text.trim(),
+      couponCode: _promoController.text.trim().isEmpty
+          ? null
+          : _promoController.text.trim(),
       paymentMethod: _paymentMethodValue,
     );
 
@@ -174,14 +185,20 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
   }
 
   void _nextPage() {
-    _pageController.nextPage(duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _prevPage() {
     if (_currentStep == 0) {
       Navigator.pop(context);
     } else {
-      _pageController.previousPage(duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -190,13 +207,15 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
     return BlocProvider.value(
       value: _serviceRequestCubit,
       child: BlocListener<ServiceRequestCubit, ServiceRequestState>(
-        listenWhen: (previous, current) => previous.isSubmitting && !current.isSubmitting,
+        listenWhen: (previous, current) =>
+            previous.isSubmitting && !current.isSubmitting,
         listener: (context, state) async {
           if (state.errorMessage != null) {
             AppSnackbar.showError(context, message: state.errorMessage!);
           } else if (state.createdCase != null) {
             AppPreferences().clearDraft(_draftKey);
             final caseNum = state.createdCase!.caseNumber ?? '';
+            final caseId = state.createdCase!.caseId;
             final paymentUrl = state.createdCase!.paymentUrl;
 
             if (paymentUrl != null && paymentUrl.isNotEmpty) {
@@ -207,6 +226,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   arguments: {
                     'paymentUrl': paymentUrl,
                     'caseNumber': caseNum,
+                    'caseId': caseId,
                   },
                 );
               }
@@ -216,7 +236,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   context,
                   AppRoutes.orderConfirmed,
                   (route) => false,
-                  arguments: {'caseNumber': caseNum},
+                  arguments: {'caseNumber': caseNum, 'caseId': caseId},
                 );
               }
             }
@@ -258,7 +278,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
               total: total,
               isSubmitting: isSubmitting,
               onComplete: _submitRequest,
-              serviceName: widget.args.itemName ?? widget.args.subCategoryName ?? '',
+              serviceName: widget.args.itemName.isNotEmpty
+                  ? widget.args.itemName
+                  : widget.args.subCategoryName,
             );
 
             final lawyerModeStepWidget = LawyerModeStep(
@@ -266,28 +288,46 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
               selectedLawyersCount: _selectedLawyerIds.length,
               servicePrice: _servicePrice,
               currency: AppStrings.currencySymbol.tr(context),
-              isProviderFlow: widget.typeOfBookingFlow == 1 || widget.typeOfBookingFlow == 2,
+              isProviderFlow:
+                  widget.typeOfBookingFlow == 1 ||
+                  widget.typeOfBookingFlow == 2,
               onModeChanged: (m) async {
                 setState(() => _lawyerMode = m);
                 _saveDraft();
                 if (m == 1) {
-                  final result = await Navigator.pushNamed(context, AppRoutes.lawyerBrowser, arguments: {
-                    'categories_item_id': widget.args.childCategoryId,
-                    'typeOfBookingFlow': widget.typeOfBookingFlow,
-                  });
+                  final result = await Navigator.pushNamed(
+                    context,
+                    AppRoutes.lawyerBrowser,
+                    arguments: {
+                      'categories_item_id': widget.args.childCategoryId,
+                      'typeOfBookingFlow': widget.typeOfBookingFlow,
+                    },
+                  );
                   if (result != null && result is Iterable) {
-                    setState(() => _selectedLawyerIds = result.map((e) => e.toString()).toSet());
+                    setState(
+                      () => _selectedLawyerIds = result
+                          .map((e) => e.toString())
+                          .toSet(),
+                    );
                     _saveDraft();
                   }
                 }
               },
               onBrowseLawyers: () async {
-                final result = await Navigator.pushNamed(context, AppRoutes.lawyerBrowser, arguments: {
-                  'categories_item_id': widget.args.childCategoryId,
-                  'typeOfBookingFlow': widget.typeOfBookingFlow,
-                });
+                final result = await Navigator.pushNamed(
+                  context,
+                  AppRoutes.lawyerBrowser,
+                  arguments: {
+                    'categories_item_id': widget.args.childCategoryId,
+                    'typeOfBookingFlow': widget.typeOfBookingFlow,
+                  },
+                );
                 if (result != null && result is Iterable) {
-                  setState(() => _selectedLawyerIds = result.map((e) => e.toString()).toSet());
+                  setState(
+                    () => _selectedLawyerIds = result
+                        .map((e) => e.toString())
+                        .toSet(),
+                  );
                   _saveDraft();
                 }
               },
@@ -302,25 +342,36 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   detailsController: _detailsController,
                   onNext: _nextPage,
                   categoryTitle: widget.args.subCategoryName,
-                  categoryDesc: '${widget.args.childCategoryName} - ${widget.args.itemName}',
+                  categoryDesc:
+                      '${widget.args.childCategoryName} - ${widget.args.itemName}',
                   items: const [],
-                  isValid: _titleController.text.isNotEmpty && _detailsController.text.isNotEmpty,
+                  isValid:
+                      _titleController.text.isNotEmpty &&
+                      _detailsController.text.isNotEmpty,
                   duration: widget.args.duration,
                   isCallType: widget.args.isCallType,
                 ),
                 paymentStepWidget,
               ];
-            } else if (widget.typeOfBookingFlow == 1 || widget.typeOfBookingFlow == 2) {
-              stepKeys = [AppStrings.stepSendRequest, AppStrings.stepChooseLawyer, AppStrings.stepPayment];
+            } else if (widget.typeOfBookingFlow == 1 ||
+                widget.typeOfBookingFlow == 2) {
+              stepKeys = [
+                AppStrings.stepSendRequest,
+                AppStrings.stepChooseLawyer,
+                AppStrings.stepPayment,
+              ];
               stepWidgets = [
                 BookingFlowProviderCore(
                   titleController: _titleController,
                   detailsController: _detailsController,
                   onNext: _nextPage,
                   categoryTitle: widget.args.subCategoryName,
-                  categoryDesc: '${widget.args.childCategoryName} - ${widget.args.itemName}',
+                  categoryDesc:
+                      '${widget.args.childCategoryName} - ${widget.args.itemName}',
                   items: const [],
-                  isValid: _titleController.text.isNotEmpty && _detailsController.text.isNotEmpty,
+                  isValid:
+                      _titleController.text.isNotEmpty &&
+                      _detailsController.text.isNotEmpty,
                   duration: widget.args.duration,
                   isCallType: widget.args.isCallType,
                 ),
@@ -328,13 +379,18 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                 paymentStepWidget,
               ];
             } else {
-              stepKeys = [AppStrings.stepSendRequest, AppStrings.stepChooseLawyer, AppStrings.stepPayment];
+              stepKeys = [
+                AppStrings.stepSendRequest,
+                AppStrings.stepChooseLawyer,
+                AppStrings.stepPayment,
+              ];
               stepWidgets = [
                 RequestDetailsStep(
                   titleController: _titleController,
                   detailsController: _detailsController,
                   showInfoDialog: !_infoDialogShown,
-                  onInfoDialogDismissed: () => setState(() => _infoDialogShown = true),
+                  onInfoDialogDismissed: () =>
+                      setState(() => _infoDialogShown = true),
                   onNext: _nextPage,
                   subCategoryName: widget.args.subCategoryName,
                   childCategoryName: widget.args.childCategoryName,
@@ -378,7 +434,10 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                 ),
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(46),
-                  child: BookingStepProgressBar(currentStep: _currentStep, steps: stepKeys),
+                  child: BookingStepProgressBar(
+                    currentStep: _currentStep,
+                    steps: stepKeys,
+                  ),
                 ),
               ),
               body: PageView(

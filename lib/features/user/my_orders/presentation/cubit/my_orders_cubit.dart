@@ -11,12 +11,13 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
   List<MyOrderData>? currentOrders;
   Map<String, List<MyOrderData>> cachedOrders = {};
   OrderDetailsData? lastLoadedDetails;
-  
-  MyOrdersCubit({
-    required this.repository,
-  }) : super(MyOrdersInitial());
 
-  Future<void> getMyOrders({required String type, bool forceRefresh = false}) async {
+  MyOrdersCubit({required this.repository}) : super(MyOrdersInitial());
+
+  Future<void> getMyOrders({
+    required String type,
+    bool forceRefresh = false,
+  }) async {
     if (!forceRefresh && cachedOrders.containsKey(type)) {
       currentOrders = cachedOrders[type];
       emit(MyOrdersLoaded(cachedOrders[type]!));
@@ -25,26 +26,22 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
 
     emit(MyOrdersLoading());
     final result = await repository.getOrder(type: type);
-    result.fold(
-      (failure) => emit(MyOrdersError(failure.message)),
-      (orders) {
-        cachedOrders[type] = orders;
-        currentOrders = orders;
-        emit(MyOrdersLoaded(orders));
-      },
-    );
+    result.fold((failure) => emit(MyOrdersError(failure.message)), (orders) {
+      cachedOrders[type] = orders;
+      currentOrders = orders;
+      emit(MyOrdersLoaded(orders));
+    });
   }
 
   Future<void> getOrderDetails({required int orderId}) async {
     emit(MyOrderDetailsLoading());
     final result = await repository.getOrderDetails(orderId: orderId);
-    result.fold(
-      (failure) => emit(MyOrderDetailsError(failure.message)),
-      (details) {
-        lastLoadedDetails = details;
-        emit(MyOrderDetailsLoaded(details));
-      },
-    );
+    result.fold((failure) => emit(MyOrderDetailsError(failure.message)), (
+      details,
+    ) {
+      lastLoadedDetails = details;
+      emit(MyOrderDetailsLoaded(details));
+    });
   }
 
   void restoreOrdersList() {
@@ -60,12 +57,17 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
     if (currentOrders != null) {
       currentOrders = currentOrders!.where((o) => o.id != orderId).toList();
       // Also update all cached tabs
-      cachedOrders.updateAll((key, list) => list.where((o) => o.id != orderId).toList());
+      cachedOrders.updateAll(
+        (key, list) => list.where((o) => o.id != orderId).toList(),
+      );
       emit(MyOrdersLoaded(currentOrders!));
     }
   }
 
-  Future<void> payLegalCase({required int orderId, required String caseNumber}) async {
+  Future<void> payLegalCase({
+    required int orderId,
+    required String caseNumber,
+  }) async {
     emit(MyOrderPaymentLoading());
     final result = await repository.payLegalCase(orderId: orderId);
     result.fold(
@@ -74,7 +76,7 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
         restoreOrdersList();
       },
       (paymentUrl) {
-        emit(MyOrderPaymentSuccess(paymentUrl, caseNumber));
+        emit(MyOrderPaymentSuccess(paymentUrl, caseNumber, orderId));
         restoreOrdersList();
       },
     );

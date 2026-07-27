@@ -1,13 +1,15 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:hogga/core/calls/incoming_call_payload.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/widgets/app_snakbar.dart';
 import 'package:hogga/core/widgets/custom_network_image.dart';
 import 'package:hogga/core/utils/app_strings.dart';
+import 'package:hogga/features/shared/call/presentation/widgets/call_summary_dialog.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../data/models/call_token_model.dart';
 import '../cubit/call_cubit.dart';
@@ -16,12 +18,14 @@ class AgoraCallScreen extends StatefulWidget {
   final int roomId;
   final String lawyerName;
   final String? lawyerPhoto;
+  final bool isIncoming;
 
   const AgoraCallScreen({
     super.key,
     required this.roomId,
     required this.lawyerName,
     this.lawyerPhoto,
+    this.isIncoming = false,
   });
 
   @override
@@ -36,7 +40,10 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
   bool _speaker = false;
   bool _videoEnabled = true;
   Timer? _callTimer;
+  Timer? _ringingTimer;
   int _callDuration = 0;
+  bool _isEndingCall = false;
+  bool _summaryShown = false;
 
   @override
   void initState() {
@@ -48,6 +55,7 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
   @override
   void dispose() {
     _callTimer?.cancel();
+    _ringingTimer?.cancel();
     _disposeAgora();
     super.dispose();
   }
@@ -69,6 +77,31 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
     });
   }
 
+  void _startRingingTimeout(int callId) {
+    if (widget.isIncoming) {
+      return;
+    }
+
+    _ringingTimer?.cancel();
+    _ringingTimer = Timer(IncomingCallPayload.ringingTimeout, () {
+      unawaited(_markCallMissed(callId));
+    });
+  }
+
+  Future<void> _markCallMissed(int callId) async {
+    if (_remoteUid != null || _isEndingCall || !mounted) {
+      return;
+    }
+
+    _isEndingCall = true;
+    final callCubit = context.read<CallCubit>();
+    await callCubit.updateCallStatus(callId, 'missed');
+    await _disposeAgora();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   Future<void> _disposeAgora() async {
     if (_engine != null) {
       await _engine!.leaveChannel();
@@ -86,10 +119,12 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
 
     // Create RtcEngine instance
     _engine = createAgoraRtcEngine();
-    await _engine!.initialize(RtcEngineContext(
-      appId: callToken.appId,
-      channelProfile: ChannelProfileType.channelProfileCommunication,
-    ));
+    await _engine!.initialize(
+      RtcEngineContext(
+        appId: callToken.appId,
+        channelProfile: ChannelProfileType.channelProfileCommunication,
+      ),
+    );
 
     // Register event handlers
     _engine!.registerEventHandler(
@@ -100,8 +135,10 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
           });
           // Call backend to connect
           context.read<CallCubit>().connectCall(callToken);
+          _startRingingTimeout(callToken.callId);
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+          _ringingTimer?.cancel();
           setState(() {
             _remoteUid = remoteUid;
           });
@@ -109,14 +146,18 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
             _startTimer();
           }
         },
-        onUserOffline: (RtcConnection connection, int remoteUid,
-            UserOfflineReasonType reason) {
-          setState(() {
-            _remoteUid = null;
-          });
-          _callTimer?.cancel();
-          _endCall(callToken.callId);
-        },
+        onUserOffline:
+            (
+              RtcConnection connection,
+              int remoteUid,
+              UserOfflineReasonType reason,
+            ) {
+              setState(() {
+                _remoteUid = null;
+              });
+              _callTimer?.cancel();
+              _endCall(callToken.callId);
+            },
       ),
     );
 
@@ -144,79 +185,31 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
   }
 
   void _endCall(int callId) {
+    if (_isEndingCall) {
+      return;
+    }
+
+    _isEndingCall = true;
     _callTimer?.cancel();
+    _ringingTimer?.cancel();
     context.read<CallCubit>().endCall(callId);
   }
 
   void _showCallSummaryDialog(int usedSeconds) {
-    final usedMinutes = (usedSeconds / 60).ceil();
-    showDialog(
+    if (_summaryShown || !mounted) {
+      return;
+    }
+
+    _summaryShown = true;
+    final effectiveSeconds = usedSeconds > 0 ? usedSeconds : _callDuration;
+    showCallSummaryDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: context.pageBg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: AppColors.golden.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.call_end_rounded, color: AppColors.golden, size: 30),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              AppStrings.callEnded.tr(context),
-              style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: context.chipBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.timer_outlined, size: 18, color: AppColors.golden),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${AppStrings.callDurationLabel.tr(context)}: $usedMinutes ${AppStrings.minutesLabel.tr(context)}',
-                    style: context.text.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: context.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                if (mounted) Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.golden,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: Text(
-                AppStrings.ok.tr(context),
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        ],
-      ),
+      usedSeconds: effectiveSeconds,
+      onDone: () {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      },
     );
   }
 
@@ -274,9 +267,11 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
           );
         }
 
-        final CallTokenModel? callToken =
-            (state is CallTokenLoaded) ? state.callToken : 
-            (state is CallConnected) ? state.callToken : null;
+        final CallTokenModel? callToken = (state is CallTokenLoaded)
+            ? state.callToken
+            : (state is CallConnected)
+            ? state.callToken
+            : null;
 
         if (callToken == null) return const SizedBox();
 
@@ -293,7 +288,9 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
                     controller: VideoViewController.remote(
                       rtcEngine: _engine!,
                       canvas: VideoCanvas(uid: _remoteUid),
-                      connection: RtcConnection(channelId: callToken.channelName),
+                      connection: RtcConnection(
+                        channelId: callToken.channelName,
+                      ),
                     ),
                   )
                 else
@@ -327,7 +324,8 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(60),
-                          child: widget.lawyerPhoto != null &&
+                          child:
+                              widget.lawyerPhoto != null &&
                                   widget.lawyerPhoto!.isNotEmpty
                               ? CustomNetworkImage(
                                   imageUrl: widget.lawyerPhoto!,
@@ -338,8 +336,11 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
                               : const CircleAvatar(
                                   radius: 60,
                                   backgroundColor: Colors.white12,
-                                  child: Icon(Icons.person,
-                                      size: 60, color: Colors.white24),
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 60,
+                                    color: Colors.white24,
+                                  ),
                                 ),
                         ),
                       ),
@@ -357,7 +358,9 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
                             ? "${AppStrings.connected.tr(context)} ${_formatDuration(_callDuration)}"
                             : AppStrings.calling.tr(context),
                         style: const TextStyle(
-                            color: AppColors.golden, letterSpacing: 1.2),
+                          color: AppColors.golden,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                       const Spacer(flex: 3),
                     ],
@@ -399,11 +402,14 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
                     children: [
                       Text(
                         widget.lawyerName,
-                        style: context.text.titleLarge
-                            ?.copyWith(color: Colors.white),
+                        style: context.text.titleLarge?.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                       Text(
-                        _remoteUid != null ? AppStrings.connected.tr(context) : AppStrings.calling.tr(context),
+                        _remoteUid != null
+                            ? AppStrings.connected.tr(context)
+                            : AppStrings.calling.tr(context),
                         style: const TextStyle(color: AppColors.golden),
                       ),
                     ],
@@ -457,8 +463,12 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
     );
   }
 
-  Widget _buildCallAction(IconData icon, String label,
-      {Color color = Colors.white24, VoidCallback? onPressed}) {
+  Widget _buildCallAction(
+    IconData icon,
+    String label, {
+    Color color = Colors.white24,
+    VoidCallback? onPressed,
+  }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -471,7 +481,10 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
       ],
     );
   }

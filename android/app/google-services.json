@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1085294513517",
-    "project_id": "hogga-74daa",
-    "storage_bucket": "hogga-74daa.firebasestorage.app"
+    "project_number": "1020097706745",
+    "project_id": "hogga-app",
+    "storage_bucket": "hogga-app.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1085294513517:android:0065fd9ebc23cba11ade64",
+        "mobilesdk_app_id": "1:1020097706745:android:5eb1a7d90e3e2e59c08028",
         "android_client_info": {
           "package_name": "com.hogga.app.hogga"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCSCfnO9IAsbjIhZqpETSi3LWP8BEypdng"
+          "current_key": "AIzaSyAfggYygNqT6BjMt2TW3vo1_AsG9YJ42uE"
         }
       ],
       "services": {

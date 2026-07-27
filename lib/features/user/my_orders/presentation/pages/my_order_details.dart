@@ -55,11 +55,11 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
           if (actionState.successMessage != null && actionState.successMessage!.isNotEmpty) {
             AppSnackbar.showSuccess(context, message: actionState.successMessage);
             final type = actionState.actionType;
-            context.read<LegalCaseActionsCubit>().clearMessages();
             if (type == 'cancel') {
-              // Pop back with the cancelled orderId so parent removes it from list immediately
-              Navigator.pop(context, {'cancelled': true, 'orderId': widget.orderId});
+              context.read<LegalCaseActionsCubit>().clearMessages();
+              Navigator.of(context).pop({'cancelled': true, 'orderId': widget.orderId});
             } else {
+              context.read<LegalCaseActionsCubit>().clearMessages();
               // For uploads and other actions, reload details immediately
               final cubit = context.read<MyOrdersCubit>();
               Future.delayed(const Duration(milliseconds: 300), () {

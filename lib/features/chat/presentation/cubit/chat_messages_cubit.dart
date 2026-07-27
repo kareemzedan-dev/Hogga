@@ -1,29 +1,41 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hogga/core/network/fcm_service.dart';
 import 'package:hogga/core/network/websocket_service.dart';
-import '../../data/repositories/chat_repository.dart';
+
 import '../../data/models/chat_message_model.dart';
+import '../../data/repositories/chat_repository.dart';
 import 'chat_messages_state.dart';
+import 'chat_socket_helpers.dart';
 
 class ChatMessagesCubit extends Cubit<ChatMessagesState> {
   final ChatRepository repository;
   final int roomId;
 
   int _currentPage = 1;
+  bool _wasSocketDisconnected = false;
+  bool _isSyncingLatest = false;
+  StreamSubscription<String>? _socketStateSub;
+  StreamSubscription<Map<String, dynamic>>? _foregroundMessageSub;
 
   ChatMessagesCubit({required this.repository, required this.roomId})
-      : super(ChatMessagesInitial());
+    : super(ChatMessagesInitial());
 
   Future<void> loadMessages() async {
     emit(ChatMessagesLoading());
     try {
       _currentPage = 1;
       final response = await repository.getMessages(roomId, page: 1);
-      emit(ChatMessagesLoaded(
-        messages: response.messages,
-        hasMore: response.pagination.hasMore,
-        counterparty: response.counterparty,
-      ));
+      emit(
+        ChatMessagesLoaded(
+          messages: response.messages,
+          hasMore: response.pagination.hasMore,
+          counterparty: response.counterparty,
+        ),
+      );
       _subscribeToChannel();
     } catch (e) {
       emit(ChatMessagesError(e.toString()));
@@ -37,73 +49,39 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
       if (echo == null) return;
 
       void onMessageReceived(dynamic data) {
-        print('================ SOCKET EVENT =================');
-        print('RAW DATA: $data');
-        print('===============================================');
-
         final current = state;
         if (current is! ChatMessagesLoaded) {
-          print('EVENT RECEIVED BUT CUBIT NOT LOADED');
+          log('User chat event received before messages loaded');
           return;
         }
 
         try {
-          Map<String, dynamic> payload = Map<String, dynamic>.from(data as Map);
-          
-          if (payload.containsKey('data') && payload['data'] is Map) {
-            payload = Map<String, dynamic>.from(payload['data']);
-          } else if (payload.containsKey('message') && payload['message'] is Map) {
-            payload = Map<String, dynamic>.from(payload['message']);
+          final payload = buildChatMessagePayload(
+            data,
+            roomId: roomId,
+            currentSenderType: 'user',
+          );
+          if (payload == null) {
+            log('Ignoring user chat socket payload: $data');
+            return;
           }
 
-          print('========== CHAT MESSAGE RECEIVED ==========');
-          print('ROOM ID: ${payload['chat_room_id']}');
-          print('MESSAGE ID: ${payload['id']}');
-          print('MESSAGE TEXT: ${payload['message']}');
-          print('FULL PAYLOAD: $payload');
-          print('===========================================');
-
-          print('🟡 CUBIT ENTERED');
-          print('Current Room: $roomId');
-          print('Incoming Room: ${payload['chat_room_id']}');
-          print('Should Accept: ${roomId.toString() == payload['chat_room_id']?.toString()}');
-
-          if (payload['chat_room_id'] != null && roomId.toString() != payload['chat_room_id'].toString()) {
-             print('Ignoring message for different room');
-             return;
-          }
-
-          if (!payload.containsKey('file_url') && payload.containsKey('file_path')) {
-            payload['file_url'] = payload['file_path'];
-          }
-          if (!payload.containsKey('is_me')) {
-            payload['is_me'] = payload['sender_type'] == 'user';
-          }
           final newMsg = ChatMessageModel.fromJson(payload);
-
           final exists = current.messages.any((m) => m.id == newMsg.id);
           if (!exists) {
-            print('🟢 BEFORE INSERT: ${current.messages.length}');
-            final newMessages = [newMsg, ...current.messages];
-            print('🟢 AFTER INSERT: ${newMessages.length}');
-            print('🔵 EMIT STATE: ChatMessagesUpdated');
-            emit(current.copyWith(messages: newMessages));
+            emit(current.copyWith(messages: [newMsg, ...current.messages]));
           } else {
-            print('Message already exists in list, ignoring');
+            log('User chat message already exists: ${newMsg.id}');
           }
         } catch (e) {
-          print('Error parsing WebSocket message: $e');
+          log('Error parsing user chat socket message: $e');
         }
       }
 
-      final channel = echo.private('chat.$roomId');
-      channel.listen('.message.sent', onMessageReceived);
-
-      echo.private('chat.$roomId').listen('.messages.read', (dynamic data) {
+      void onMessagesRead(dynamic data) {
         final current = state;
         if (current is! ChatMessagesLoaded) return;
 
-        // Mark all messages as read
         final updated = current.messages.map((m) {
           return ChatMessageModel(
             id: m.id,
@@ -118,14 +96,98 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
           );
         }).toList();
         emit(current.copyWith(messages: updated));
-      });
-    } catch (_) {
-      // WebSocket unavailable, fallback silently
+      }
+
+      final channel = echo.private('chat.$roomId');
+      bindChatSocketEvents(
+        channel: channel,
+        roomId: roomId,
+        onMessage: onMessageReceived,
+        onRead: onMessagesRead,
+        logLabel: 'User chat',
+      );
+      _listenToSocketReconnect();
+      _listenToForegroundChatNotifications();
+    } catch (e) {
+      log('User chat socket subscribe failed: $e');
+    }
+  }
+
+  void _listenToSocketReconnect() {
+    _socketStateSub?.cancel();
+    _socketStateSub = WebSocketService.connectionStates.listen((state) {
+      final normalized = state.toUpperCase();
+      if (normalized == 'CONNECTED') {
+        if (_wasSocketDisconnected) {
+          unawaited(_syncLatestMessages());
+        }
+        _wasSocketDisconnected = false;
+        return;
+      }
+
+      if (normalized == 'RECONNECTING' ||
+          normalized == 'CONNECTING' ||
+          normalized == 'DISCONNECTED') {
+        _wasSocketDisconnected = true;
+      }
+    });
+  }
+
+  void _listenToForegroundChatNotifications() {
+    _foregroundMessageSub?.cancel();
+    _foregroundMessageSub = FcmService.instance.foregroundMessages.listen((
+      data,
+    ) {
+      if (data['type']?.toString() != 'chat_message') {
+        return;
+      }
+
+      final payloadRoomId = intFromAny(
+        data['chat_room_id'] ?? data['chatRoomId'],
+      );
+      if (payloadRoomId != roomId) {
+        log(
+          'Ignoring user foreground chat FCM for room $payloadRoomId while room $roomId is open',
+        );
+        return;
+      }
+
+      unawaited(_syncLatestMessages());
+    });
+  }
+
+  Future<void> _syncLatestMessages() async {
+    final current = state;
+    if (current is! ChatMessagesLoaded || _isSyncingLatest) {
+      return;
+    }
+
+    _isSyncingLatest = true;
+    try {
+      final response = await repository.getMessages(roomId, page: 1);
+      final latestIds = response.messages.map((m) => m.id).toSet();
+      final olderCached = current.messages
+          .where((m) => !latestIds.contains(m.id))
+          .toList();
+
+      emit(
+        current.copyWith(
+          messages: [...response.messages, ...olderCached],
+          hasMore: response.pagination.hasMore,
+          counterparty: response.counterparty,
+        ),
+      );
+    } catch (e) {
+      log('User chat reconnect sync failed: $e');
+    } finally {
+      _isSyncingLatest = false;
     }
   }
 
   @override
   Future<void> close() {
+    _socketStateSub?.cancel();
+    _foregroundMessageSub?.cancel();
     try {
       WebSocketService.echo?.leave('chat.$roomId');
     } catch (_) {}
@@ -136,18 +198,22 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
     final current = state;
     if (current is! ChatMessagesLoaded ||
         !current.hasMore ||
-        current.isLoadingMore) { return; }
+        current.isLoadingMore) {
+      return;
+    }
 
     emit(current.copyWith(isLoadingMore: true));
     try {
       _currentPage++;
       final response = await repository.getMessages(roomId, page: _currentPage);
       final combined = [...current.messages, ...response.messages];
-      emit(current.copyWith(
-        messages: combined,
-        hasMore: response.pagination.hasMore,
-        isLoadingMore: false,
-      ));
+      emit(
+        current.copyWith(
+          messages: combined,
+          hasMore: response.pagination.hasMore,
+          isLoadingMore: false,
+        ),
+      );
     } catch (e) {
       _currentPage--;
       emit(current.copyWith(isLoadingMore: false));
@@ -161,13 +227,17 @@ class ChatMessagesCubit extends Cubit<ChatMessagesState> {
 
     emit(current.copyWith(isSending: true));
     try {
-      final newMsg =
-          await repository.sendMessage(roomId, message: message, file: file);
-      // Insert optimistically (WebSocket will also push it but we deduplicate)
-      emit(current.copyWith(
-        messages: [newMsg, ...current.messages],
-        isSending: false,
-      ));
+      final newMsg = await repository.sendMessage(
+        roomId,
+        message: message,
+        file: file,
+      );
+      emit(
+        current.copyWith(
+          messages: [newMsg, ...current.messages],
+          isSending: false,
+        ),
+      );
     } catch (e) {
       emit(current.copyWith(isSending: false));
       rethrow;

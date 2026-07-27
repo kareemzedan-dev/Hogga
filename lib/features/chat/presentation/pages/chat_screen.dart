@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -60,12 +59,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty) {
+      return;
+    }
     _messageController.clear();
     try {
       await context.read<ChatMessagesCubit>().sendMessage(message: text);
     } catch (_) {
-      if (mounted) AppSnackbar.showError(context, message: AppStrings.failedToSendMessage.tr(context));
+      if (!mounted) {
+        return;
+      }
+      AppSnackbar.showError(
+        context,
+        message: AppStrings.failedToSendMessage.tr(context),
+      );
     }
   }
 
@@ -74,14 +81,24 @@ class _ChatScreenState extends State<ChatScreen> {
       type: FileType.custom,
       allowedExtensions: ['pdf', 'png', 'jpg', 'jpeg', 'webp'],
     );
-    if (result == null || result.files.isEmpty) return;
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
     final path = result.files.first.path;
-    if (path == null) return;
+    if (path == null || !mounted) {
+      return;
+    }
 
     try {
       await context.read<ChatMessagesCubit>().sendMessage(file: File(path));
     } catch (_) {
-      if (mounted) AppSnackbar.showError(context, message: AppStrings.failedToSendFile.tr(context));
+      if (!mounted) {
+        return;
+      }
+      AppSnackbar.showError(
+        context,
+        message: AppStrings.failedToSendFile.tr(context),
+      );
     }
   }
 
@@ -94,15 +111,18 @@ class _ChatScreenState extends State<ChatScreen> {
         elevation: 0.5,
         shadowColor: context.divColor,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded,
-              size: 18.sp, color: context.textPrimary),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 18.sp,
+            color: context.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: BlocBuilder<ChatMessagesCubit, ChatMessagesState>(
           builder: (context, state) {
             String name = widget.lawyerName;
             String? photo = widget.lawyerPhoto;
-            
+
             if (state is ChatMessagesLoaded && state.counterparty != null) {
               name = state.counterparty!.name;
               photo = state.counterparty!.photo;
@@ -159,7 +179,6 @@ class _ChatScreenState extends State<ChatScreen> {
             );
           },
         ),
-
       ),
       body: Column(
         children: [
@@ -168,7 +187,8 @@ class _ChatScreenState extends State<ChatScreen> {
               builder: (context, state) {
                 if (state is ChatMessagesLoading) {
                   return const Center(
-                      child: CircularProgressIndicator(color: AppColors.golden));
+                    child: CircularProgressIndicator(color: AppColors.golden),
+                  );
                 }
 
                 if (state is ChatMessagesError) {
@@ -176,8 +196,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline,
-                            size: 48.sp, color: AppColors.error),
+                        Icon(
+                          Icons.error_outline,
+                          size: 48.sp,
+                          color: AppColors.error,
+                        ),
                         SizedBox(height: 12.h),
                         Text(state.message),
                         TextButton(
@@ -191,21 +214,22 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 if (state is ChatMessagesLoaded) {
-                  print('🟣 UI REBUILD TRIGGERED');
-                  print('Messages count in UI: ${state.messages.length}');
                   if (state.messages.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.chat_bubble_outline_rounded,
-                              size: 64.sp,
-                              color: context.textSecondary.withValues(alpha: 0.4)),
+                          Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 64.sp,
+                            color: context.textSecondary.withValues(alpha: 0.4),
+                          ),
                           SizedBox(height: 16.h),
                           Text(
                             AppStrings.startConversationWithLawyer.tr(context),
-                            style: context.text.bodyMedium
-                                ?.copyWith(color: context.textSecondary),
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -215,8 +239,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   return ListView.builder(
                     controller: _scrollController,
                     reverse: true,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 12.h,
+                    ),
                     itemCount:
                         state.messages.length + (state.isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
@@ -224,8 +250,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         return const Padding(
                           padding: EdgeInsets.all(16),
                           child: Center(
-                              child: CircularProgressIndicator(
-                                  color: AppColors.golden)),
+                            child: CircularProgressIndicator(
+                              color: AppColors.golden,
+                            ),
+                          ),
                         );
                       }
                       return _ChatBubble(message: state.messages[index]);
@@ -241,92 +269,115 @@ class _ChatScreenState extends State<ChatScreen> {
           // Input bar
           BlocBuilder<ChatMessagesCubit, ChatMessagesState>(
             builder: (context, state) {
-              final isSending =
-                  state is ChatMessagesLoaded && state.isSending;
+              final isSending = state is ChatMessagesLoaded && state.isSending;
               return SafeArea(
                 top: false,
                 child: Container(
-                padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 10.h),
-                decoration: BoxDecoration(
-                  color: context.cardBg,
-                  border:
-                      Border(top: BorderSide(color: context.divColor, width: 0.5)),
-                ),
-                child: Row(
-                  children: [
-                    // Attach button
-                    IconButton(
-                      onPressed: isSending ? null : _sendFile,
-                      icon: Icon(Icons.attach_file_rounded,
+                  padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 10.h),
+                  decoration: BoxDecoration(
+                    color: context.cardBg,
+                    border: Border(
+                      top: BorderSide(color: context.divColor, width: 0.5),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Attach button
+                      IconButton(
+                        onPressed: isSending ? null : _sendFile,
+                        icon: Icon(
+                          Icons.attach_file_rounded,
                           color: isSending
                               ? context.textSecondary
                               : AppColors.golden,
-                          size: 22.sp),
-                      style: IconButton.styleFrom(
-                        backgroundColor:
-                            AppColors.golden.withValues(alpha: 0.08),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r)),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    // Text field
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 0.w),
-                        height: 44.h,
-                        decoration: BoxDecoration(
-                          color: context.pageBg,
-                          borderRadius: BorderRadius.circular(22.r),
-                          border: Border.all(color: context.divColor),
+                          size: 22.sp,
                         ),
-                        child: TextField(
-                          controller: _messageController,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) => _sendMessage(),
-                          style: context.text.bodyMedium
-                              ?.copyWith(color: context.textPrimary),
-                          decoration: InputDecoration(
-                            hintText: AppStrings.typeYourMessage.tr(context),
-                            hintStyle: TextStyle(
-                                color: context.textSecondary, fontSize: 13.sp),
-                            border: InputBorder.none,
-                            isDense: true,
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.golden.withValues(
+                            alpha: 0.08,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 8.w),
-                    // Send button
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      child: isSending
-                          ? SizedBox(
-                              width: 44.w,
-                              height: 44.w,
-                              child: const Padding(
-                                padding: EdgeInsets.all(10),
-                                child: CircularProgressIndicator(
-                                    color: AppColors.golden, strokeWidth: 2),
+                      SizedBox(width: 8.w),
+                      // Text field
+                      Expanded(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            minHeight: 42.h,
+                            maxHeight: 112.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: context.pageBg,
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(color: context.divColor),
+                          ),
+                          child: TextField(
+                            controller: _messageController,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => _sendMessage(),
+                            minLines: 1,
+                            maxLines: 4,
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.textPrimary,
+                              fontSize: 12.sp,
+                              height: 1.35,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: AppStrings.typeYourMessage.tr(context),
+                              hintStyle: TextStyle(
+                                color: context.textSecondary,
+                                fontSize: 12.sp,
                               ),
-                            )
-                          : GestureDetector(
-                              onTap: _sendMessage,
-                              child: Container(
-                                width: 44.w,
-                                height: 44.w,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.send_rounded,
-                                    color: Colors.white, size: 20.sp),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 14.w,
+                                vertical: 11.h,
                               ),
                             ),
-                    ),
-                  ],
-                ),
-              ),  // SafeArea
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      // Send button
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        child: isSending
+                            ? SizedBox(
+                                width: 44.w,
+                                height: 44.w,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.golden,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : GestureDetector(
+                                onTap: _sendMessage,
+                                child: Container(
+                                  width: 44.w,
+                                  height: 44.w,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.send_rounded,
+                                    color: Colors.white,
+                                    size: 20.sp,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                ), // SafeArea
               );
             },
           ),
@@ -349,8 +400,9 @@ class _ChatBubble extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: 10.h),
       child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.start : MainAxisAlignment.end,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Flexible(
@@ -358,9 +410,7 @@ class _ChatBubble extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
               constraints: BoxConstraints(maxWidth: 0.72.sw),
               decoration: BoxDecoration(
-                color: isMe
-                    ? AppColors.primary
-                    : context.cardBg,
+                color: isMe ? AppColors.primary : context.cardBg,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(18.r),
                   topRight: Radius.circular(18.r),
@@ -435,8 +485,10 @@ class _ChatBubble extends StatelessWidget {
   Widget _buildAttachment(BuildContext context, bool isMe) {
     if (message.isImage) {
       return GestureDetector(
-        onTap: () => launchUrl(Uri.parse(message.fileUrl!),
-            mode: LaunchMode.externalApplication),
+        onTap: () => launchUrl(
+          Uri.parse(message.fileUrl!),
+          mode: LaunchMode.externalApplication,
+        ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12.r),
           child: Image.network(
@@ -457,8 +509,10 @@ class _ChatBubble extends StatelessWidget {
 
     // PDF or other file
     return GestureDetector(
-      onTap: () => launchUrl(Uri.parse(message.fileUrl!),
-          mode: LaunchMode.externalApplication),
+      onTap: () => launchUrl(
+        Uri.parse(message.fileUrl!),
+        mode: LaunchMode.externalApplication,
+      ),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
@@ -480,7 +534,9 @@ class _ChatBubble extends StatelessWidget {
             SizedBox(width: 8.w),
             Flexible(
               child: Text(
-                message.isPdf ? AppStrings.pdfFile.tr(context) : AppStrings.attachment.tr(context),
+                message.isPdf
+                    ? AppStrings.pdfFile.tr(context)
+                    : AppStrings.attachment.tr(context),
                 style: TextStyle(
                   color: isMe ? Colors.white : AppColors.golden,
                   fontSize: 12.sp,

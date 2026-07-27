@@ -1,23 +1,19 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hogga/config/shared_preference/shared_preference.dart';
+import 'package:hogga/core/calls/call_screen_launcher.dart';
 import 'package:hogga/core/calls/incoming_call_payload.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
-import 'package:hogga/features/chat/presentation/cubit/call_cubit.dart';
-import 'package:hogga/features/chat/presentation/pages/agora_call_screen.dart';
-import 'package:hogga/features/lawyer/chat/presentation/cubit/lawyer_call_cubit.dart';
-import 'package:hogga/features/lawyer/chat/presentation/pages/lawyer_agora_call_screen.dart';
-import 'package:hogga/injection_container.dart' as di;
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class IncomingCallScreen extends StatefulWidget {
   final IncomingCallPayload payload;
   final Future<void> Function(IncomingCallPayload payload, String status)?
-      onStatusChanged;
+  onStatusChanged;
 
   const IncomingCallScreen({
     super.key,
@@ -30,18 +26,27 @@ class IncomingCallScreen extends StatefulWidget {
 }
 
 class _IncomingCallScreenState extends State<IncomingCallScreen> {
+  final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   Timer? _timeoutTimer;
   bool _handled = false;
+  bool _isAccepting = false;
+  bool _isDeclining = false;
 
   @override
   void initState() {
     super.initState();
-    _timeoutTimer = Timer(const Duration(seconds: 30), _markMissedAndClose);
+    _timeoutTimer = Timer(
+      IncomingCallPayload.ringingTimeout,
+      _markMissedAndClose,
+    );
   }
 
   @override
   void dispose() {
     _timeoutTimer?.cancel();
+    unawaited(_cancelCallNotification());
     super.dispose();
   }
 
@@ -51,9 +56,27 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     }
 
     _handled = true;
-    await widget.onStatusChanged?.call(widget.payload, 'missed');
+    unawaited(_notifyStatus('missed'));
+    await _cancelCallNotification();
     if (mounted) {
       Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _cancelCallNotification() async {
+    for (final id in widget.payload.notificationIds) {
+      await _localNotificationsPlugin.cancel(id: id);
+      for (final tag in widget.payload.notificationTags) {
+        await _localNotificationsPlugin.cancel(id: id, tag: tag);
+      }
+    }
+  }
+
+  Future<void> _notifyStatus(String status) async {
+    try {
+      await widget.onStatusChanged?.call(widget.payload, status);
+    } catch (e) {
+      log('Incoming call status update failed ($status): $e');
     }
   }
 
@@ -63,8 +86,12 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     }
 
     _handled = true;
+    if (mounted) {
+      setState(() => _isDeclining = true);
+    }
     _timeoutTimer?.cancel();
-    await widget.onStatusChanged?.call(widget.payload, 'declined');
+    unawaited(_notifyStatus('declined'));
+    await _cancelCallNotification();
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -76,7 +103,11 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     }
 
     _handled = true;
+    if (mounted) {
+      setState(() => _isAccepting = true);
+    }
     _timeoutTimer?.cancel();
+    await _cancelCallNotification();
 
     if (!mounted) {
       return;
@@ -84,35 +115,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
 
     final navigator = Navigator.of(context);
     navigator.pop();
-
-    final isProvider = AppPreferences().isProvider;
-    if (isProvider) {
-      navigator.push(
-        MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => di.sl<LawyerCallCubit>(),
-            child: LawyerAgoraCallScreen(
-              roomId: widget.payload.chatRoomId,
-              clientName: widget.payload.callerName,
-              isVideo: widget.payload.isVideo,
-            ),
-          ),
-        ),
-      );
-      return;
-    }
-
-    navigator.push(
-      MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) => di.sl<CallCubit>(),
-          child: AgoraCallScreen(
-            roomId: widget.payload.chatRoomId,
-            lawyerName: widget.payload.callerName,
-          ),
-        ),
-      ),
-    );
+    await pushIncomingAgoraCall(navigator: navigator, payload: widget.payload);
   }
 
   @override
@@ -133,10 +136,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white12,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.golden,
-                      width: 2,
-                    ),
+                    border: Border.all(color: AppColors.golden, width: 2),
                   ),
                   child: Icon(
                     widget.payload.isVideo
@@ -173,21 +173,27 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                 ),
                 const Spacer(),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _CallActionButton(
-                      icon: Icons.call_end_rounded,
-                      label: AppStrings.end.tr(context),
-                      color: AppColors.error,
-                      onTap: _decline,
+                    Expanded(
+                      child: _CallActionButton(
+                        icon: Icons.call_end_rounded,
+                        label: 'رفض',
+                        color: AppColors.error,
+                        isLoading: _isDeclining,
+                        onTap: _decline,
+                      ),
                     ),
-                    _CallActionButton(
-                      icon: widget.payload.isVideo
-                          ? Icons.videocam_rounded
-                          : Icons.call_rounded,
-                      label: 'رد',
-                      color: Colors.green,
-                      onTap: _accept,
+                    SizedBox(width: 14.w),
+                    Expanded(
+                      child: _CallActionButton(
+                        icon: widget.payload.isVideo
+                            ? Icons.videocam_rounded
+                            : Icons.call_rounded,
+                        label: 'رد',
+                        color: const Color(0xFF1DB954),
+                        isLoading: _isAccepting,
+                        onTap: _accept,
+                      ),
                     ),
                   ],
                 ),
@@ -205,39 +211,68 @@ class _CallActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
+  final bool isLoading;
 
   const _CallActionButton({
     required this.icon,
     required this.label,
     required this.color,
     required this.onTap,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(40.r),
-          child: Container(
-            width: 74.w,
-            height: 74.w,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isLoading ? null : () => unawaited(onTap()),
+        borderRadius: BorderRadius.circular(18.r),
+        child: Ink(
+          height: 64.h,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.18),
+              width: 1.2,
             ),
-            child: Icon(icon, color: Colors.white, size: 32.sp),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.35),
+                blurRadius: 18,
+                offset: Offset(0, 8.h),
+              ),
+            ],
+          ),
+          child: Center(
+            child: isLoading
+                ? SizedBox(
+                    width: 22.w,
+                    height: 22.w,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(icon, color: Colors.white, size: 22.sp),
+                      SizedBox(width: 8.w),
+                      Text(
+                        label,
+                        style: context.text.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
-        SizedBox(height: 12.h),
-        Text(
-          label,
-          style: context.text.bodyMedium?.copyWith(color: Colors.white),
-        ),
-      ],
+      ),
     );
   }
 }

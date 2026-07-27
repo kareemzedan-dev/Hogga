@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:hogga/config/shared_preference/shared_preference.dart';
+import 'package:hogga/core/calls/call_screen_launcher.dart';
 import 'package:hogga/core/calls/incoming_call_payload.dart';
 import 'package:hogga/core/navigation/app_navigator.dart';
 import 'package:hogga/core/network/websocket_service.dart';
@@ -42,6 +44,7 @@ class CallCoordinator {
     _isInitialized = false;
     _subscribedRooms.clear();
     _roomCallerNames.clear();
+    WebSocketService.dispose();
     await initialize();
   }
 
@@ -57,7 +60,7 @@ class CallCoordinator {
 
   Future<void> handleRemotePayload(Map<String, dynamic> data) async {
     final type = data['type']?.toString() ?? '';
-    if (type != 'incoming_call') {
+    if (!_isIncomingCallType(type)) {
       return;
     }
 
@@ -81,14 +84,49 @@ class CallCoordinator {
   ) async {
     try {
       if (AppPreferences().isProvider) {
-        await di.sl<LawyerChatRepository>()
-            .updateCallStatus(payload.callId, status);
+        await di.sl<LawyerChatRepository>().updateCallStatus(
+          payload.callId,
+          status,
+        );
       } else {
         await di.sl<ChatRepository>().updateCallStatus(payload.callId, status);
       }
     } catch (e) {
       log('Failed to update call status: $e');
     }
+  }
+
+  Future<void> acceptIncomingCall(IncomingCallPayload payload) async {
+    _pendingPayload = null;
+    _dismissIncomingCall();
+
+    final navigator = AppNavigator.navigatorKey.currentState;
+    if (navigator == null) {
+      _pendingPayload = payload;
+      return;
+    }
+
+    _isShowingIncomingCall = false;
+    _activeCallId = payload.callId;
+    await pushIncomingAgoraCall(navigator: navigator, payload: payload);
+    _activeCallId = null;
+  }
+
+  Future<void> declineIncomingCall(IncomingCallPayload payload) async {
+    _pendingPayload = null;
+    await updateCallStatus(payload, 'declined');
+    dismissIncomingCall(payload.callId);
+  }
+
+  void dismissIncomingCall([int? callId]) {
+    if (callId != null &&
+        callId > 0 &&
+        _activeCallId != null &&
+        _activeCallId != callId) {
+      return;
+    }
+    _dismissIncomingCall();
+    _activeCallId = null;
   }
 
   void _subscribeToCallEvents(List<ChatRoomModel> rooms) {
@@ -105,12 +143,15 @@ class CallCoordinator {
       }
 
       final channel = echo.private('chat.${room.chatRoomId}');
-      channel.listen('call.event', (dynamic data) {
-        _handleSocketCallEvent(data);
-      });
-      channel.listen('.call.event', (dynamic data) {
-        _handleSocketCallEvent(data);
-      });
+      for (final event in [
+        '.call.event',
+        'call.event',
+        'App\\Events\\CallEvent',
+      ]) {
+        channel.listen(event, (dynamic data) {
+          _handleSocketCallEvent(data);
+        });
+      }
     }
   }
 
@@ -123,13 +164,16 @@ class CallCoordinator {
 
   void _handleSocketCallEvent(dynamic rawData) {
     try {
-      final map = Map<String, dynamic>.from(rawData as Map);
+      final map = _mapFromSocketData(rawData);
+      if (map == null) {
+        log('Socket call event ignored: $rawData');
+        return;
+      }
       final action = map['action']?.toString() ?? '';
       final status = map['status']?.toString() ?? '';
 
       if (action == 'initiated' || status == 'initiated') {
-        final roomId =
-            int.tryParse(map['chat_room_id']?.toString() ?? '') ?? 0;
+        final roomId = int.tryParse(map['chat_room_id']?.toString() ?? '') ?? 0;
         handleRemotePayload({
           ...map,
           'type': 'incoming_call',
@@ -140,10 +184,13 @@ class CallCoordinator {
         return;
       }
 
-      final callId =
-          int.tryParse(map['call_id']?.toString() ?? '') ?? 0;
+      final callId = int.tryParse(map['call_id']?.toString() ?? '') ?? 0;
       if (_activeCallId == callId &&
-          {'ended', 'declined', 'missed'}.contains(action.isNotEmpty ? action : status)) {
+          {
+            'ended',
+            'declined',
+            'missed',
+          }.contains(action.isNotEmpty ? action : status)) {
         _dismissIncomingCall();
       }
     } catch (e) {
@@ -185,5 +232,31 @@ class CallCoordinator {
       return;
     }
     navigator.pop();
+  }
+
+  bool _isIncomingCallType(String type) {
+    return type == 'incoming_call' ||
+        type == 'audio_call' ||
+        type == 'video_call';
+  }
+
+  Map<String, dynamic>? _mapFromSocketData(dynamic rawData) {
+    if (rawData is Map<String, dynamic>) {
+      return Map<String, dynamic>.from(rawData);
+    }
+    if (rawData is Map) {
+      return Map<String, dynamic>.from(rawData);
+    }
+    if (rawData is String) {
+      try {
+        final decoded = jsonDecode(rawData);
+        if (decoded is Map) {
+          return Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
   }
 }

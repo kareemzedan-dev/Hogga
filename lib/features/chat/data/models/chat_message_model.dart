@@ -29,16 +29,37 @@ class ChatMessageModel {
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
     return ChatMessageModel(
-      id: json['id'] ?? 0,
-      senderId: json['sender_id'] ?? 0,
+      id: _toInt(json['id']) ?? 0,
+      senderId: _toInt(json['sender_id']) ?? 0,
       senderType: json['sender_type']?.toString() ?? '',
       message: json['message']?.toString(),
       fileUrl: json['file_url']?.toString(),
       fileType: json['file_type']?.toString() ?? 'text',
-      isRead: json['is_read'] == true,
-      isMe: json['is_me'] == true,
+      isRead: _toBool(json['is_read']),
+      isMe: _toBool(json['is_me']),
       createdAt: json['created_at']?.toString() ?? '',
     );
+  }
+
+  static int? _toInt(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    return int.tryParse(value.toString());
+  }
+
+  static bool _toBool(dynamic value) {
+    if (value is bool) {
+      return value;
+    }
+    final normalized = value?.toString().toLowerCase();
+    return normalized == 'true' || normalized == '1';
   }
 }
 
@@ -111,11 +132,18 @@ class ChatMessagesResponse {
           .toList(),
       pagination: json['pagination'] != null
           ? ChatPaginationModel.fromJson(
-              Map<String, dynamic>.from(json['pagination']))
-          : ChatPaginationModel(total: 0, perPage: 20, currentPage: 1, lastPage: 1),
+              Map<String, dynamic>.from(json['pagination']),
+            )
+          : ChatPaginationModel(
+              total: 0,
+              perPage: 20,
+              currentPage: 1,
+              lastPage: 1,
+            ),
       counterparty: json['counterparty'] != null
           ? CounterpartyModel.fromJson(
-              Map<String, dynamic>.from(json['counterparty']))
+              Map<String, dynamic>.from(json['counterparty']),
+            )
           : null,
     );
   }

@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCSCfnO9IAsbjIhZqpETSi3LWP8BEypdng',
-    appId: '1:1085294513517:android:0065fd9ebc23cba11ade64',
-    messagingSenderId: '1085294513517',
-    projectId: 'hogga-74daa',
-    storageBucket: 'hogga-74daa.firebasestorage.app',
+    apiKey: 'AIzaSyAfggYygNqT6BjMt2TW3vo1_AsG9YJ42uE',
+    appId: '1:1020097706745:android:5eb1a7d90e3e2e59c08028',
+    messagingSenderId: '1020097706745',
+    projectId: 'hogga-app',
+    storageBucket: 'hogga-app.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAuc0nkCJn_ky18gexgOGVjYwZE9dksFV4',
-    appId: '1:1085294513517:ios:f78e1d8a64ac5eab1ade64',
-    messagingSenderId: '1085294513517',
-    projectId: 'hogga-74daa',
-    storageBucket: 'hogga-74daa.firebasestorage.app',
+    apiKey: 'AIzaSyA2cIrEI3FqgxkyGhC_HB84E_GutokU-ow',
+    appId: '1:1020097706745:ios:16beb7b0a74f44d3c08028',
+    messagingSenderId: '1020097706745',
+    projectId: 'hogga-app',
+    storageBucket: 'hogga-app.firebasestorage.app',
     iosBundleId: 'com.hoggaapp.app',
   );
 

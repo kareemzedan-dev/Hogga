@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
@@ -8,7 +7,26 @@ import 'package:hogga/config/routes/app_routes.dart';
 
 class OrderConfirmedScreen extends StatelessWidget {
   final String caseNumber;
-  const OrderConfirmedScreen({super.key, required this.caseNumber});
+  final int? caseId;
+
+  const OrderConfirmedScreen({
+    super.key,
+    required this.caseNumber,
+    this.caseId,
+  });
+
+  void _openOrder(BuildContext context) {
+    if (caseId != null && caseId! > 0) {
+      Navigator.pushNamed(context, AppRoutes.myOrderDetails, arguments: caseId);
+      return;
+    }
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.myOrders,
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,23 +56,26 @@ class OrderConfirmedScreen extends StatelessWidget {
                 AppStrings.orderSentSuccessfully.tr(context),
                 textAlign: TextAlign.center,
                 style: context.text.titleLarge?.copyWith(
-                      color: context.textPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                  color: context.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               AppSizes.h(12),
               Text(
                 AppStrings.orderProcessingDesc.tr(context),
                 textAlign: TextAlign.center,
                 style: context.text.bodyMedium?.copyWith(
-                      color: context.textSecondary,
-                      height: 1.6,
-                    ),
+                  color: context.textSecondary,
+                  height: 1.6,
+                ),
               ),
               AppSizes.h(24),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: context.cardBg,
                   borderRadius: BorderRadius.circular(12),
@@ -89,16 +110,20 @@ class OrderConfirmedScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to order details or tracking
-                  },
+                  onPressed: () => _openOrder(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: AppColors.cream,
+                    foregroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child:  Text(
+                  child: Text(
                     AppStrings.trackOrder.tr(context),
-                    style: context.text.bodyLarge?.copyWith(color: Colors.white),
+                    style: context.text.bodyLarge?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
@@ -108,15 +133,21 @@ class OrderConfirmedScreen extends StatelessWidget {
                 height: 48,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.main, (route) => false);
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRoutes.main,
+                      (route) => false,
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: context.divColor),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child:  Text(
+                  child: Text(
                     AppStrings.backToHome.tr(context),
-                    style:context.text.bodyLarge,
+                    style: context.text.bodyLarge,
                   ),
                 ),
               ),

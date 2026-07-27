@@ -1195,6 +1195,12 @@ class AppStrings {
   static const String upcomingSessions = 'upcomingSessions';
   static const String previousSessions = 'previousSessions';
   static const String completePaymentNow = 'completePaymentNow';
+  static const String paymentScreenTitle = 'paymentScreenTitle';
+  static const String paymentFailedDialogTitle = 'paymentFailedDialogTitle';
+  static const String paymentFailedDialogMessage = 'paymentFailedDialogMessage';
+  static const String cancelPaymentDialogTitle = 'cancelPaymentDialogTitle';
+  static const String cancelPaymentDialogMessage = 'cancelPaymentDialogMessage';
+  static const String continuePayment = 'continuePayment';
   static const String makeVideoCall = 'makeVideoCall';
   static const String makeVoiceCall = 'makeVoiceCall';
   static const String enterChat = 'enterChat';

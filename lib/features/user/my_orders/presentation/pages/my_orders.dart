@@ -22,7 +22,8 @@ class MyOrdersView extends StatefulWidget {
   State<MyOrdersView> createState() => _MyOrdersViewState();
 }
 
-class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClientMixin {
+class _MyOrdersViewState extends State<MyOrdersView>
+    with AutomaticKeepAliveClientMixin {
   int _activeTab = 0;
 
   @override
@@ -56,11 +57,12 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
         backgroundColor: context.pageBg,
       ),
       body: SafeArea(
-
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.horizontalPadding),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.horizontalPadding,
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -70,7 +72,9 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                       isSelected: _activeTab == 0,
                       onTap: () {
                         setState(() => _activeTab = 0);
-                        context.read<MyOrdersCubit>().getMyOrders(type: 'ongoing');
+                        context.read<MyOrdersCubit>().getMyOrders(
+                          type: 'ongoing',
+                        );
                       },
                     ),
                   ),
@@ -82,7 +86,9 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                       isSelected: _activeTab == 1,
                       onTap: () {
                         setState(() => _activeTab = 1);
-                        context.read<MyOrdersCubit>().getMyOrders(type: 'finished');
+                        context.read<MyOrdersCubit>().getMyOrders(
+                          type: 'finished',
+                        );
                       },
                     ),
                   ),
@@ -95,9 +101,9 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
               child: BlocConsumer<MyOrdersCubit, MyOrdersState>(
                 listener: (context, state) {
                   if (state is MyOrderPaymentError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(state.message)));
                   } else if (state is MyOrderPaymentSuccess) {
                     Navigator.pushNamed(
                       context,
@@ -105,15 +111,17 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                       arguments: {
                         'paymentUrl': state.paymentUrl,
                         'caseNumber': state.caseNumber,
+                        'caseId': state.caseId,
                       },
                     );
                   }
                 },
                 builder: (context, state) {
-                  if (state is MyOrdersLoading || state is MyOrderPaymentLoading) {
+                  if (state is MyOrdersLoading ||
+                      state is MyOrderPaymentLoading) {
                     return const OrderShimmerList();
                   }
-        
+
                   if (state is MyOrdersError) {
                     return CustomErrorState(
                       message: state.message,
@@ -123,35 +131,44 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                       ),
                     );
                   }
-        
+
                   if (state is MyOrdersLoaded) {
                     final filteredOrders = state.orders;
-        
+
                     if (filteredOrders.isEmpty) {
                       return RefreshIndicator(
-                        onRefresh: () async => context.read<MyOrdersCubit>().getMyOrders(
-                          type: _activeTab == 0 ? 'ongoing' : 'finished',
-                          forceRefresh: true,
-                        ),
+                        onRefresh: () async =>
+                            context.read<MyOrdersCubit>().getMyOrders(
+                              type: _activeTab == 0 ? 'ongoing' : 'finished',
+                              forceRefresh: true,
+                            ),
                         color: AppColors.golden,
                         child: CustomEmptyState(
                           title: AppStrings.noOrdersInSection.tr(context),
-                          subtitle: (_activeTab == 0 
-                              ? AppStrings.noActiveOrdersSubtitle 
-                              : AppStrings.emptyOrderHistory).tr(context),
-                          icon: _activeTab == 0 ? Icons.assignment_outlined : Icons.assignment_turned_in_outlined,
+                          subtitle:
+                              (_activeTab == 0
+                                      ? AppStrings.noActiveOrdersSubtitle
+                                      : AppStrings.emptyOrderHistory)
+                                  .tr(context),
+                          icon: _activeTab == 0
+                              ? Icons.assignment_outlined
+                              : Icons.assignment_turned_in_outlined,
                         ),
                       );
                     }
-        
+
                     return RefreshIndicator(
-                      onRefresh: () async => context.read<MyOrdersCubit>().getMyOrders(
-                        type: _activeTab == 0 ? 'ongoing' : 'finished',
-                        forceRefresh: true,
-                      ),
+                      onRefresh: () async =>
+                          context.read<MyOrdersCubit>().getMyOrders(
+                            type: _activeTab == 0 ? 'ongoing' : 'finished',
+                            forceRefresh: true,
+                          ),
                       color: AppColors.golden,
                       child: ListView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: context.horizontalPadding, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.horizontalPadding,
+                          vertical: 8,
+                        ),
                         itemCount: filteredOrders.length,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
@@ -167,15 +184,21 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                                 MaterialPageRoute(
                                   builder: (_) => MultiBlocProvider(
                                     providers: [
-                                      BlocProvider(create: (_) => di.sl<MyOrdersCubit>()),
-                                      BlocProvider(create: (_) => di.sl<LegalCaseActionsCubit>()),
+                                      BlocProvider(
+                                        create: (_) => di.sl<MyOrdersCubit>(),
+                                      ),
+                                      BlocProvider(
+                                        create: (_) =>
+                                            di.sl<LegalCaseActionsCubit>(),
+                                      ),
                                     ],
                                     child: OrderDetailsView(orderId: order.id),
                                   ),
                                 ),
                               );
                               if (context.mounted) {
-                                if (result is Map && result['cancelled'] == true) {
+                                if (result is Map &&
+                                    result['cancelled'] == true) {
                                   // Remove the cancelled order immediately from the list without a network call
                                   final cancelledId = result['orderId'] as int?;
                                   if (cancelledId != null) {
@@ -183,7 +206,9 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                                   }
                                   // Force refresh from server in the background to update all lists/status
                                   cubit.getMyOrders(
-                                    type: _activeTab == 0 ? 'ongoing' : 'finished',
+                                    type: _activeTab == 0
+                                        ? 'ongoing'
+                                        : 'finished',
                                     forceRefresh: true,
                                   );
                                 } else {
@@ -196,7 +221,7 @@ class _MyOrdersViewState extends State<MyOrdersView> with AutomaticKeepAliveClie
                       ),
                     );
                   }
-        
+
                   return const SizedBox.shrink();
                 },
               ),

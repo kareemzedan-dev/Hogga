@@ -45,7 +45,6 @@ import '../../features/chat/presentation/pages/agora_call_screen.dart';
 import '../../features/chat/presentation/cubit/chat_messages_cubit.dart';
 import '../../features/chat/presentation/cubit/call_cubit.dart';
 import '../../injection_container.dart' as di;
-import 'package:flutter_bloc/flutter_bloc.dart' hide Emitter;
 import '../../features/user/more/about_app/about_app_screen.dart';
 import '../../features/user/more/about_us/about_us_screen.dart';
 import '../../features/user/more/contact_us/contact_us_screen.dart';
@@ -64,6 +63,9 @@ import '../../features/user/hogga_services/presentation/pages/lawyer/lawyer_sear
 import '../../features/user/hogga_services/presentation/pages/booking/order_confirmed_screen.dart';
 import '../../features/user/home/data/models/categories_model.dart';
 import '../../features/user/notifications/presentation/pages/notifications_screen.dart';
+import '../../features/user/my_orders/presentation/cubit/legal_case_actions_cubit.dart';
+import '../../features/user/my_orders/presentation/cubit/my_orders_cubit.dart';
+import '../../features/user/my_orders/presentation/pages/my_order_details.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/lawyer/subscription/presentation/pages/lawyer_subscription_screen.dart';
 
@@ -79,6 +81,7 @@ class AppRoutes {
   static const String lawyerDashboard = '/lawyer_dashboard';
   static const String forgotPassword = '/forgot_password';
   static const String myOrders = '/my_orders';
+  static const String myOrderDetails = '/my_order_details';
   static const String profile = '/profile';
   static const String privacyPolicy = '/privacy_policy';
   static const String aboutUs = '/about_us';
@@ -97,7 +100,6 @@ class AppRoutes {
   static const String contactUs = '/contact_us';
   static const String termsOfUse = '/terms_of_use';
   static const String instructions = '/instructions';
-
 
   static const String servicesHub = '/services_hub';
   static const String chooseSpecialization = '/choose_specialization';
@@ -143,11 +145,17 @@ class AppRoutes {
   static bool _isChatServiceType(String? type) =>
       type == 'chat' || type == 'article';
 
+  static int _routeInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
   static Route<dynamic> _unsupportedCommunicationRoute() {
     return MaterialPageRoute(
-      builder: (_) => const Scaffold(
-        body: Center(child: Text(AppStrings.noRouteFound)),
-      ),
+      builder: (_) =>
+          const Scaffold(body: Center(child: Text(AppStrings.noRouteFound))),
     );
   }
 
@@ -156,7 +164,6 @@ class AppRoutes {
       case initial:
         return MaterialPageRoute(builder: (_) => SplashScreen());
       case login:
-        final isLawyerLogin = (setting.arguments as bool?) ?? false;
         return MaterialPageRoute(builder: (_) => LoginScreen());
       case splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
@@ -179,16 +186,22 @@ class AppRoutes {
         } else {
           phone = args as String;
         }
-        return MaterialPageRoute(builder: (_) => OTPScreen(phone: phone, isForReset: isForReset));
+        return MaterialPageRoute(
+          builder: (_) => OTPScreen(phone: phone, isForReset: isForReset),
+        );
       case createPassword:
         final phone = setting.arguments as String;
-        return MaterialPageRoute(builder: (_) => CreatePasswordScreen(phone: phone));
+        return MaterialPageRoute(
+          builder: (_) => CreatePasswordScreen(phone: phone),
+        );
       case registerDetails:
         final args = setting.arguments as Map<String, String>;
-        return MaterialPageRoute(builder: (_) => RegisterDetailsScreen(
-          phone: args['phone'] ?? '',
-          password: args['password'] ?? '',
-        ));
+        return MaterialPageRoute(
+          builder: (_) => RegisterDetailsScreen(
+            phone: args['phone'] ?? '',
+            password: args['password'] ?? '',
+          ),
+        );
       case forgotPassword:
         return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
       case main:
@@ -202,7 +215,34 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const UserWalletScreen());
       case paymentDetails:
         final id = setting.arguments as int;
-        return MaterialPageRoute(builder: (_) => PaymentDetailsScreen(paymentId: id));
+        return MaterialPageRoute(
+          builder: (_) => PaymentDetailsScreen(paymentId: id),
+        );
+      case myOrders:
+        return MaterialPageRoute(
+          builder: (_) => const MainScreen(initialIndex: 1),
+        );
+      case myOrderDetails:
+        final args = setting.arguments;
+        final orderId = args is int
+            ? args
+            : args is Map
+            ? _routeInt(args['orderId'] ?? args['id'])
+            : 0;
+        if (orderId <= 0) {
+          return MaterialPageRoute(
+            builder: (_) => const MainScreen(initialIndex: 1),
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => di.sl<MyOrdersCubit>()),
+              BlocProvider(create: (_) => di.sl<LegalCaseActionsCubit>()),
+            ],
+            child: OrderDetailsView(orderId: orderId),
+          ),
+        );
       case notifications:
         return MaterialPageRoute(builder: (_) => const NotificationsScreen());
 
@@ -223,18 +263,26 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const InstructionsScreen());
       case verifyEmail:
         final email = setting.arguments as String;
-        return MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: email));
+        return MaterialPageRoute(
+          builder: (_) => VerifyEmailScreen(email: email),
+        );
       case resetPassword:
         final phone = setting.arguments as String;
-        return MaterialPageRoute(builder: (_) => ResetPasswordScreen(phone: phone));
+        return MaterialPageRoute(
+          builder: (_) => ResetPasswordScreen(phone: phone),
+        );
       case voiceCall:
       case videoCall:
         final args = setting.arguments as Map<String, dynamic>? ?? {};
         final serviceType = args['serviceType'] as String?;
-        if (setting.name == voiceCall && serviceType != null && !_isVoiceServiceType(serviceType)) {
+        if (setting.name == voiceCall &&
+            serviceType != null &&
+            !_isVoiceServiceType(serviceType)) {
           return _unsupportedCommunicationRoute();
         }
-        if (setting.name == videoCall && serviceType != null && !_isVideoServiceType(serviceType)) {
+        if (setting.name == videoCall &&
+            serviceType != null &&
+            !_isVideoServiceType(serviceType)) {
           return _unsupportedCommunicationRoute();
         }
         final roomId = args['chatRoomId'] as int? ?? 0;
@@ -251,7 +299,9 @@ class AppRoutes {
 
       case servicesHub:
         final initialIndex = (setting.arguments as int?) ?? 0;
-        return MaterialPageRoute(builder: (_) => ServicesHubScreen(initialIndex: initialIndex));
+        return MaterialPageRoute(
+          builder: (_) => ServicesHubScreen(initialIndex: initialIndex),
+        );
       case chooseSpecialization:
         final args = setting.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
@@ -273,7 +323,9 @@ class AppRoutes {
         );
       case bookingFlow:
         final bfArgs = setting.arguments as BookingFlowArgs;
-        return MaterialPageRoute(builder: (_) => BookingFlowScreen(args: bfArgs,typeOfBookingFlow:0,));
+        return MaterialPageRoute(
+          builder: (_) => BookingFlowScreen(args: bfArgs, typeOfBookingFlow: 0),
+        );
       case lawyerBrowser:
         final args = setting.arguments;
         int? categoriesItemId;
@@ -296,33 +348,55 @@ class AppRoutes {
           builder: (_) => PaymentWebViewScreen(
             paymentUrl: args?['paymentUrl'] ?? '',
             caseNumber: args?['caseNumber'] ?? '',
+            caseId: _routeInt(args?['caseId']),
           ),
         );
       case serviceDetails:
         final serviceId = setting.arguments as int;
-        return MaterialPageRoute(builder: (_) => ServiceDetailsScreen(serviceId: serviceId));
+        return MaterialPageRoute(
+          builder: (_) => ServiceDetailsScreen(serviceId: serviceId),
+        );
       case orderConfirmed:
         final args = setting.arguments as Map<String, dynamic>? ?? {};
         final caseNumber = args['caseNumber'] as String? ?? '';
-        return MaterialPageRoute(builder: (_) => OrderConfirmedScreen(caseNumber: caseNumber));
+        return MaterialPageRoute(
+          builder: (_) => OrderConfirmedScreen(
+            caseNumber: caseNumber,
+            caseId: _routeInt(args['caseId']),
+          ),
+        );
       case AppRoutes.lawyerOnboarding:
-        return MaterialPageRoute(builder: (_) => const LawyerOnboardingScreen());
+        return MaterialPageRoute(
+          builder: (_) => const LawyerOnboardingScreen(),
+        );
       case AppRoutes.lawyerMain:
         final initialIndex = setting.arguments as int? ?? 0;
-        return MaterialPageRoute(builder: (_) => LawyerMainScreen(initialIndex: initialIndex));
+        return MaterialPageRoute(
+          builder: (_) => LawyerMainScreen(initialIndex: initialIndex),
+        );
       case AppRoutes.lawyerOrderDetails:
-        return MaterialPageRoute(builder: (_) => const LawyerOrderDetailsScreen(), settings: setting);
+        return MaterialPageRoute(
+          builder: (_) => const LawyerOrderDetailsScreen(),
+          settings: setting,
+        );
       case AppRoutes.lawyerProfile:
         final providerId = setting.arguments as int;
-        return MaterialPageRoute(builder: (_) => LawyerProfileScreen(providerId: providerId));
+        return MaterialPageRoute(
+          builder: (_) => LawyerProfileScreen(providerId: providerId),
+        );
       case AppRoutes.lawyerSettings:
         return MaterialPageRoute(builder: (_) => const LawyerSettingsScreen());
       case AppRoutes.lawyerCaseDetails:
-        return MaterialPageRoute(builder: (_) => const LawyerCaseDetailsScreen(), settings: setting);
+        return MaterialPageRoute(
+          builder: (_) => const LawyerCaseDetailsScreen(),
+          settings: setting,
+        );
       case AppRoutes.lawyerDocuments:
         return MaterialPageRoute(builder: (_) => const LawyerDocumentsScreen());
       case AppRoutes.lawyerLibrary:
-        return MaterialPageRoute(builder: (_) => const LawyerLegalLibraryScreen());
+        return MaterialPageRoute(
+          builder: (_) => const LawyerLegalLibraryScreen(),
+        );
       case AppRoutes.lawyerTasks:
         return MaterialPageRoute(builder: (_) => const LawyerTasksScreen());
       case AppRoutes.lawyerReports:
@@ -330,7 +404,9 @@ class AppRoutes {
       case AppRoutes.lawyerSearch:
         return MaterialPageRoute(builder: (_) => const LawyerSearchScreen());
       case AppRoutes.lawyerOpportunities:
-        return MaterialPageRoute(builder: (_) => const LawyerOpportunitiesScreen());
+        return MaterialPageRoute(
+          builder: (_) => const LawyerOpportunitiesScreen(),
+        );
       case AppRoutes.lawyerServices:
         return MaterialPageRoute(builder: (_) => const LawyerServicesScreen());
       case AppRoutes.lawyerServiceDetails:
@@ -342,10 +418,14 @@ class AppRoutes {
           ),
         );
       case AppRoutes.lawyerAddService:
-        return MaterialPageRoute(builder: (_) => const LawyerAddServiceScreen());
+        return MaterialPageRoute(
+          builder: (_) => const LawyerAddServiceScreen(),
+        );
       case AppRoutes.lawyerUpdateService:
         final service = setting.arguments as LawyerService;
-        return MaterialPageRoute(builder: (_) => LawyerUpdateServiceScreen(service: service));
+        return MaterialPageRoute(
+          builder: (_) => LawyerUpdateServiceScreen(service: service),
+        );
       case AppRoutes.lawyerProposals:
         return MaterialPageRoute(builder: (_) => const LawyerProposalsScreen());
       case AppRoutes.lawyerClients:
@@ -353,7 +433,9 @@ class AppRoutes {
       case AppRoutes.lawyerBookings:
         return MaterialPageRoute(builder: (_) => const LawyerBookingsScreen());
       case AppRoutes.lawyerSubscription:
-        return MaterialPageRoute(builder: (_) => const LawyerSubscriptionScreen());
+        return MaterialPageRoute(
+          builder: (_) => const LawyerSubscriptionScreen(),
+        );
       case chat:
         final args = setting.arguments as Map<String, dynamic>? ?? {};
         final serviceType = args['serviceType'] as String?;
@@ -363,7 +445,8 @@ class AppRoutes {
         final roomId = args['chatRoomId'] as int? ?? 0;
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (_) => di.sl<ChatMessagesCubit>(param1: roomId)..loadMessages(),
+            create: (_) =>
+                di.sl<ChatMessagesCubit>(param1: roomId)..loadMessages(),
             child: ChatScreen(
               chatRoomId: roomId,
               lawyerName: args['lawyerName'] as String? ?? '',
@@ -379,11 +462,11 @@ class AppRoutes {
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider(
-                create: (_) => di.sl<LawyerChatMessagesCubit>(param1: roomId)..loadMessages(),
+                create: (_) =>
+                    di.sl<LawyerChatMessagesCubit>(param1: roomId)
+                      ..loadMessages(),
               ),
-              BlocProvider(
-                create: (_) => di.sl<LawyerCallCubit>(),
-              ),
+              BlocProvider(create: (_) => di.sl<LawyerCallCubit>()),
             ],
             child: LawyerChatScreen(
               chatRoomId: roomId,
