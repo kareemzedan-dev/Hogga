@@ -32,7 +32,8 @@ class CreateLegalCaseRequest {
       'description': description,
       'selection_type': selectionType,
       if (lawyerIds.isNotEmpty) 'lawyer_ids': lawyerIds,
-      if (couponCode != null && couponCode!.trim().isNotEmpty) 'coupon_code': couponCode,
+      if (couponCode != null && couponCode!.trim().isNotEmpty)
+        'coupon_code': couponCode,
       if (executionDate != null) 'execution_date': executionDate,
       'payment_method': paymentMethod,
       if (minPrice != null) 'min_price': minPrice,
@@ -81,7 +82,8 @@ class CouponData {
       id: json['id'] ?? 0,
       code: json['code']?.toString() ?? '',
       discountType: json['discount_type']?.toString() ?? '',
-      discountValue: double.tryParse(json['discount_value']?.toString() ?? '0') ?? 0,
+      discountValue:
+          double.tryParse(json['discount_value']?.toString() ?? '0') ?? 0,
     );
   }
 }
@@ -98,25 +100,113 @@ class LegalCaseResponse {
   });
 
   factory LegalCaseResponse.fromJson(Map<String, dynamic> json) {
+    final normalizedData = _normalizedData(json);
     return LegalCaseResponse(
       status: json['status'] == true || json['success'] == true,
       message: json['message']?.toString() ?? '',
-      data: json['data'] is Map<String, dynamic>
-          ? Map<String, dynamic>.from(json['data'] as Map)
-          : null,
+      data: normalizedData.isEmpty ? null : normalizedData,
     );
   }
 
   int? get caseId {
-    final raw = data?['case_id'] ?? data?['id'];
+    return _readInt(data, const [
+      ['case_id'],
+      ['legal_case_id'],
+      ['id'],
+      ['case', 'id'],
+      ['legal_case', 'id'],
+      ['order', 'id'],
+    ]);
+  }
+
+  String? get caseNumber => _readString(data, const [
+    ['case_number'],
+    ['number'],
+    ['case', 'case_number'],
+    ['legal_case', 'case_number'],
+    ['order', 'case_number'],
+  ]);
+  double? get minPrice => double.tryParse(data?['min_price']?.toString() ?? '');
+  double? get maxPrice => double.tryParse(data?['max_price']?.toString() ?? '');
+  String? get paymentUrl => _readString(data, const [
+    ['payment_url'],
+    ['payment_link'],
+    ['paymentUrl'],
+    ['redirect_url'],
+    ['checkout_url'],
+    ['invoice_url'],
+    ['url'],
+    ['payment', 'payment_url'],
+    ['payment', 'payment_link'],
+    ['payment', 'redirect_url'],
+    ['payment', 'checkout_url'],
+    ['payment', 'invoice_url'],
+    ['payment', 'url'],
+  ]);
+
+  static Map<String, dynamic> _normalizedData(Map<String, dynamic> json) {
+    final data = json['data'] is Map
+        ? Map<String, dynamic>.from(json['data'] as Map)
+        : <String, dynamic>{};
+
+    for (final key in const [
+      'case_id',
+      'legal_case_id',
+      'case_number',
+      'payment_url',
+      'payment_link',
+      'paymentUrl',
+      'redirect_url',
+      'checkout_url',
+      'invoice_url',
+      'url',
+      'payment',
+      'case',
+      'legal_case',
+      'order',
+    ]) {
+      if (!data.containsKey(key) && json.containsKey(key)) {
+        data[key] = json[key];
+      }
+    }
+
+    return data;
+  }
+
+  static int? _readInt(Map<String, dynamic>? source, List<List<String>> paths) {
+    final raw = _readValue(source, paths);
     if (raw is int) return raw;
     return int.tryParse(raw?.toString() ?? '');
   }
 
-  String? get caseNumber => data?['case_number']?.toString();
-  double? get minPrice => double.tryParse(data?['min_price']?.toString() ?? '');
-  double? get maxPrice => double.tryParse(data?['max_price']?.toString() ?? '');
-  String? get paymentUrl => data?['payment_url']?.toString();
+  static String? _readString(
+    Map<String, dynamic>? source,
+    List<List<String>> paths,
+  ) {
+    final raw = _readValue(source, paths)?.toString().trim();
+    return raw == null || raw.isEmpty || raw == 'null' ? null : raw;
+  }
+
+  static dynamic _readValue(
+    Map<String, dynamic>? source,
+    List<List<String>> paths,
+  ) {
+    if (source == null) return null;
+
+    for (final path in paths) {
+      dynamic current = source;
+      for (final key in path) {
+        if (current is! Map || !current.containsKey(key)) {
+          current = null;
+          break;
+        }
+        current = current[key];
+      }
+      if (current != null) return current;
+    }
+
+    return null;
+  }
 }
 
 class UploadLegalCaseDocumentsRequest {

@@ -1,21 +1,20 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
+import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 
 class CustomErrorState extends StatelessWidget {
   final String? message;
   final VoidCallback onRetry;
 
-  const CustomErrorState({
-    super.key,
-    this.message,
-    required this.onRetry,
-  });
+  const CustomErrorState({super.key, this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final displayMessage = (message ?? AppStrings.noInternetConnection).tr(
+      context,
+    );
+
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 40.w),
@@ -36,7 +35,7 @@ class CustomErrorState extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
             Text(
-              'عذراً، حدث خطأ ما',
+              AppStrings.error.tr(context),
               textAlign: TextAlign.center,
               style: context.text.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -45,7 +44,7 @@ class CustomErrorState extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             Text(
-              message ?? 'يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.',
+              displayMessage,
               textAlign: TextAlign.center,
               style: context.text.bodyMedium?.copyWith(
                 color: context.textSecondary,
@@ -57,7 +56,7 @@ class CustomErrorState extends StatelessWidget {
               onPressed: onRetry,
               icon: Icon(Icons.refresh_rounded, size: 20.sp),
               label: Text(
-                'إعادة المحاولة',
+                AppStrings.retry.tr(context),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
               ),
               style: TextButton.styleFrom(

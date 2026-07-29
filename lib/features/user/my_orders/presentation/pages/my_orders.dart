@@ -2,6 +2,7 @@ import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/utils/app_colors.dart';
+import 'package:hogga/core/widgets/app_snackbar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/features/user/my_orders/presentation/pages/my_order_details.dart';
 import 'package:hogga/features/user/my_orders/presentation/widgets/order_card.dart';
@@ -101,9 +102,7 @@ class _MyOrdersViewState extends State<MyOrdersView>
               child: BlocConsumer<MyOrdersCubit, MyOrdersState>(
                 listener: (context, state) {
                   if (state is MyOrderPaymentError) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(state.message)));
+                    AppSnackbar.showError(context, message: state.message);
                   } else if (state is MyOrderPaymentSuccess) {
                     Navigator.pushNamed(
                       context,

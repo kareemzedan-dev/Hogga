@@ -230,6 +230,13 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   },
                 );
               }
+            } else if (_paymentMethodValue == 'card') {
+              if (mounted) {
+                AppSnackbar.showError(
+                  context,
+                  messageKey: AppStrings.paymentLinkUnavailable,
+                );
+              }
             } else {
               if (mounted) {
                 Navigator.pushNamedAndRemoveUntil(
@@ -299,7 +306,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                     context,
                     AppRoutes.lawyerBrowser,
                     arguments: {
-                      'categories_item_id': widget.args.childCategoryId,
+                      'categories_item_id': widget.args.itemCategoryId,
                       'typeOfBookingFlow': widget.typeOfBookingFlow,
                     },
                   );
@@ -318,7 +325,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   context,
                   AppRoutes.lawyerBrowser,
                   arguments: {
-                    'categories_item_id': widget.args.childCategoryId,
+                    'categories_item_id': widget.args.itemCategoryId,
                     'typeOfBookingFlow': widget.typeOfBookingFlow,
                   },
                 );

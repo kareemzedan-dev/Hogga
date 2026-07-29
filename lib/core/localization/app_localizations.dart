@@ -11,7 +11,8 @@ class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   static final Map<String, Map<String, String>> _localizedValues = {
     'en': {
@@ -66,7 +67,8 @@ class AppLocalizations {
       AppStrings.phoneStepTitle: 'Mobile Number',
       AppStrings.nameStepTitle: 'Register Name',
       AppStrings.passwordStepTitle: 'Create Password',
-      AppStrings.phoneStepSubtitle: 'Enter your mobile number to create a new account',
+      AppStrings.phoneStepSubtitle:
+          'Enter your mobile number to create a new account',
       AppStrings.nameStepSubtitle: 'Write your full name',
       AppStrings.passwordStepSubtitle: 'Choose a secure password',
       AppStrings.createAccountButton: 'Create Account',
@@ -85,10 +87,14 @@ class AppLocalizations {
       AppStrings.sevenMinutesFree: 'You have 7 minutes of free consultation',
       AppStrings.availabilityToday: 'Available today from 10:00 to 23:00',
       AppStrings.howCanWeHelp: 'How can we help you?',
-      AppStrings.legalConsultationDesc: 'Get legal advice from a licensed lawyer to help you understand your legal position and make the right decision.',
-      AppStrings.judiciaryExecutionDesc: 'Specialized services in judiciary and execution include writing legal briefs and lists, pleading and representation before courts, case studies, attending sessions, and following up on execution requests.',
-      AppStrings.businessServicesDesc: 'Legal services to support the business sector include drafting and reviewing contracts and agreements, in addition to registering and protecting trademarks.',
-      AppStrings.otherServicesDesc: 'Various legal and administrative services include reviewing government departments and agencies, and providing other customized services according to the client\'s needs.',
+      AppStrings.legalConsultationDesc:
+          'Get legal advice from a licensed lawyer to help you understand your legal position and make the right decision.',
+      AppStrings.judiciaryExecutionDesc:
+          'Specialized services in judiciary and execution include writing legal briefs and lists, pleading and representation before courts, case studies, attending sessions, and following up on execution requests.',
+      AppStrings.businessServicesDesc:
+          'Legal services to support the business sector include drafting and reviewing contracts and agreements, in addition to registering and protecting trademarks.',
+      AppStrings.otherServicesDesc:
+          'Various legal and administrative services include reviewing government departments and agencies, and providing other customized services according to the client\'s needs.',
       AppStrings.bannerTitle1: 'Your legal consultation starts',
       AppStrings.bannerPrice1: 'From 100 OMR only!',
       AppStrings.bookNow: 'Book Now',
@@ -98,7 +104,8 @@ class AppLocalizations {
       AppStrings.bannerTitle3: 'Integrated legal services',
       AppStrings.bannerPrice3: 'For individuals and companies',
       AppStrings.learnMore: 'Learn More',
-      AppStrings.bannerDesc: 'Talk to a specialized lawyer now through a live video or voice call',
+      AppStrings.bannerDesc:
+          'Talk to a specialized lawyer now through a live video or voice call',
       AppStrings.startCallNow: 'Start call now',
       AppStrings.darkMode: 'Dark Mode',
       AppStrings.lightMode: 'Light Mode',
@@ -112,12 +119,17 @@ class AppLocalizations {
       AppStrings.saveChanges: 'Save Changes',
       AppStrings.changePhoto: 'Change Photo',
       AppStrings.skip: 'Skip',
-      AppStrings.onboardingTitle1: 'Receive offers from the best\nlicensed lawyers',
-      AppStrings.onboardingSubtitle1: 'High-quality legal services\nand consultations',
-      AppStrings.onboardingTitle2: 'Your legal consultations\nat any time and place',
-      AppStrings.onboardingSubtitle2: 'Connect with a specialist lawyer\nvia call or online meeting',
+      AppStrings.onboardingTitle1:
+          'Receive offers from the best\nlicensed lawyers',
+      AppStrings.onboardingSubtitle1:
+          'High-quality legal services\nand consultations',
+      AppStrings.onboardingTitle2:
+          'Your legal consultations\nat any time and place',
+      AppStrings.onboardingSubtitle2:
+          'Connect with a specialist lawyer\nvia call or online meeting',
       AppStrings.onboardingTitle3: 'Follow your case\nstep by step',
-      AppStrings.onboardingSubtitle3: 'Upload documents and follow your\ncase stages completely and transparently',
+      AppStrings.onboardingSubtitle3:
+          'Upload documents and follow your\ncase stages completely and transparently',
       AppStrings.onboardingLawyer1: 'Sultan Al-Balushi',
       AppStrings.onboardingLawyer2: 'Ahmed Al-Rawahi',
       AppStrings.onboardingSpec1: 'Commercial Law',
@@ -145,64 +157,90 @@ class AppLocalizations {
       AppStrings.businessServicesTab: 'Business Services',
       AppStrings.otherServicesTab: 'Other Services',
       AppStrings.immediateConsultation: 'Immediate Consultation',
-      AppStrings.immediateConsultationDesc: 'Instantly connect with a lawyer via voice or video call. No prior booking needed.',
+      AppStrings.immediateConsultationDesc:
+          'Instantly connect with a lawyer via voice or video call. No prior booking needed.',
       AppStrings.writtenConsultation: 'Written Consultation',
-      AppStrings.writtenConsultationDesc: 'Communicate in writing with a lawyer to ask your questions and send documents via chat.',
+      AppStrings.writtenConsultationDesc:
+          'Communicate in writing with a lawyer to ask your questions and send documents via chat.',
       AppStrings.scheduledConsultation: 'Scheduled Consultation',
-      AppStrings.scheduledConsultationDesc: 'Book a consultation with a lawyer of your choice at your preferred time via voice or video call.',
+      AppStrings.scheduledConsultationDesc:
+          'Book a consultation with a lawyer of your choice at your preferred time via voice or video call.',
       AppStrings.legalWritings: 'Legal Writings',
-      AppStrings.legalWritingsDesc: 'Drafting regulations, response memos, lawsuits, appeals, and other legal documents.',
+      AppStrings.legalWritingsDesc:
+          'Drafting regulations, response memos, lawsuits, appeals, and other legal documents.',
       AppStrings.pleadingAndAttorneyship: 'Pleading & Attorneyship',
-      AppStrings.pleadingAndAttorneyshipDesc: 'Appoint a lawyer to represent you in court until a judgment is issued.',
+      AppStrings.pleadingAndAttorneyshipDesc:
+          'Appoint a lawyer to represent you in court until a judgment is issued.',
       AppStrings.sessionAttendance: 'Session Attendance',
-      AppStrings.sessionAttendanceDesc: 'If you are busy, a lawyer can attend the session on your behalf.',
+      AppStrings.sessionAttendanceDesc:
+          'If you are busy, a lawyer can attend the session on your behalf.',
       AppStrings.caseStudy: 'Case Study',
-      AppStrings.caseStudyDesc: 'Detailed study of your case, contracts, and documents for accurate answers.',
+      AppStrings.caseStudyDesc:
+          'Detailed study of your case, contracts, and documents for accurate answers.',
       AppStrings.executionRequests: 'Execution Requests',
-      AppStrings.executionRequestsDesc: 'Filing execution requests and following procedures before the execution court.',
+      AppStrings.executionRequestsDesc:
+          'Filing execution requests and following procedures before the execution court.',
       AppStrings.govAgenciesReview: 'Gov Agencies Review',
-      AppStrings.govAgenciesReviewDesc: 'A lawyer reviews ministries, prosecution, police stations, or any government entity for you.',
+      AppStrings.govAgenciesReviewDesc:
+          'A lawyer reviews ministries, prosecution, police stations, or any government entity for you.',
       AppStrings.otherLegalServices: 'Other Legal Services',
-      AppStrings.otherLegalServicesDesc: 'Any other legal services you wish to obtain from a lawyer.',
+      AppStrings.otherLegalServicesDesc:
+          'Any other legal services you wish to obtain from a lawyer.',
       AppStrings.specPersonalStatus: 'Personal Status',
-      AppStrings.specPersonalStatusDesc: 'Marriage, divorce, alimony, custody, and visitation rights.',
+      AppStrings.specPersonalStatusDesc:
+          'Marriage, divorce, alimony, custody, and visitation rights.',
       AppStrings.specInheritance: 'Inheritance & Estates',
-      AppStrings.specInheritanceDesc: 'Division of inheritance, estates, and execution of wills.',
+      AppStrings.specInheritanceDesc:
+          'Division of inheritance, estates, and execution of wills.',
       AppStrings.specCriminal: 'Criminal',
-      AppStrings.specCriminalDesc: 'Theft, fraud, blackmail, and all criminal offenses.',
+      AppStrings.specCriminalDesc:
+          'Theft, fraud, blackmail, and all criminal offenses.',
       AppStrings.specPublicRights: 'Public Rights',
-      AppStrings.specPublicRightsDesc: 'Financial claims, real estate disputes, and general legal matters.',
+      AppStrings.specPublicRightsDesc:
+          'Financial claims, real estate disputes, and general legal matters.',
       AppStrings.specLabor: 'Labor',
-      AppStrings.specLaborDesc: 'Disputes between employees and employers, wages, and termination.',
+      AppStrings.specLaborDesc:
+          'Disputes between employees and employers, wages, and termination.',
       AppStrings.specCommercial: 'Commercial',
-      AppStrings.specCommercialDesc: 'Commercial transactions, partner disputes, bankruptcy, and liquidation.',
+      AppStrings.specCommercialDesc:
+          'Commercial transactions, partner disputes, bankruptcy, and liquidation.',
       AppStrings.specIntellectualProperty: 'Intellectual Property',
-      AppStrings.specIntellectualPropertyDesc: 'Patents, copyrights, trademarks, and trade secrets.',
+      AppStrings.specIntellectualPropertyDesc:
+          'Patents, copyrights, trademarks, and trade secrets.',
       AppStrings.specAdministrative: 'Administrative',
-      AppStrings.specAdministrativeDesc: 'Cancellation of administrative decisions and claims against government entities.',
+      AppStrings.specAdministrativeDesc:
+          'Cancellation of administrative decisions and claims against government entities.',
       AppStrings.specExecution: 'Execution Cases',
-      AppStrings.specExecutionDesc: 'Execution of judgments, settlement reports, checks, and lease contracts.',
+      AppStrings.specExecutionDesc:
+          'Execution of judgments, settlement reports, checks, and lease contracts.',
       AppStrings.specQuasiJudicial: 'Quasi-Judicial Committees',
-      AppStrings.specQuasiJudicialDesc: 'Traffic violations, customs, taxes, and banking disputes.',
+      AppStrings.specQuasiJudicialDesc:
+          'Traffic violations, customs, taxes, and banking disputes.',
       AppStrings.nextStep: 'Next',
       AppStrings.chooseServiceType: 'Choose Service Type',
       AppStrings.subtypeLawsuit: 'Lawsuit',
-      AppStrings.subtypeLawsuitDesc: 'Formal document submitted to the court to obtain legal rights.',
+      AppStrings.subtypeLawsuitDesc:
+          'Formal document submitted to the court to obtain legal rights.',
       AppStrings.subtypeReplyMemo: 'Response Memo',
-      AppStrings.subtypeReplyMemoDesc: 'Legal document responding to a lawsuit filed against you.',
+      AppStrings.subtypeReplyMemoDesc:
+          'Legal document responding to a lawsuit filed against you.',
       AppStrings.subtypeReplyJoinder: 'Joinder Reply',
-      AppStrings.subtypeReplyJoinderDesc: 'Document for exchanging responses and defenses between parties.',
+      AppStrings.subtypeReplyJoinderDesc:
+          'Document for exchanging responses and defenses between parties.',
       AppStrings.subtypeObjection: 'Objection List',
-      AppStrings.subtypeObjectionDesc: 'Document responding to the lawsuit after the first session.',
+      AppStrings.subtypeObjectionDesc:
+          'Document responding to the lawsuit after the first session.',
       AppStrings.subtypeCassation: 'Cassation List',
-      AppStrings.subtypeCassationDesc: 'Submitted to the Supreme Court to appeal a judgment.',
+      AppStrings.subtypeCassationDesc:
+          'Submitted to the Supreme Court to appeal a judgment.',
       AppStrings.stepSendRequest: 'Send Request',
       AppStrings.stepChooseLawyer: 'Choose Lawyer',
       AppStrings.stepPayment: 'Payment',
       AppStrings.requestTitle: 'Request Title',
       AppStrings.requestTitleHint: 'Please write a clear and concise title',
       AppStrings.requestDetails: 'Request Details',
-      AppStrings.requestDetailsHint: 'Provide as much detail as possible to help the lawyer understand your case...',
+      AppStrings.requestDetailsHint:
+          'Provide as much detail as possible to help the lawyer understand your case...',
       AppStrings.remoteAttendance: 'Can attend remotely?',
       AppStrings.governorate: 'Governorate Name',
       AppStrings.governorateHint: 'Enter governorate name',
@@ -210,15 +248,19 @@ class AppLocalizations {
       AppStrings.cityHint: 'Enter city name',
       AppStrings.infoDialogStepLabel: 'Details & Requirements',
       AppStrings.infoDialogHeading: 'Enter basic details',
-      AppStrings.infoDialogBody: 'Write a general summary without sensitive data. Share details later with the lawyer.',
+      AppStrings.infoDialogBody:
+          'Write a general summary without sensitive data. Share details later with the lawyer.',
       AppStrings.infoDialogConfirm: 'I understand',
       AppStrings.howToSendRequest: 'How do you want to send your request?',
       AppStrings.serviceFee: 'Service Fee',
-      AppStrings.serviceFeeDesc: 'Get price offers from +1000 licensed lawyers and start negotiating easily.',
+      AppStrings.serviceFeeDesc:
+          'Get price offers from +1000 licensed lawyers and start negotiating easily.',
       AppStrings.broadcastToAll: 'Send to all lawyers immediately',
-      AppStrings.broadcastToAllDesc: 'Your request will reach over 584 lawyers ready to respond.',
+      AppStrings.broadcastToAllDesc:
+          'Your request will reach over 584 lawyers ready to respond.',
       AppStrings.chooseLawyersManually: 'Choose lawyers manually',
-      AppStrings.chooseLawyersManuallyDesc: 'Select your preferred lawyers to send directly to them.',
+      AppStrings.chooseLawyersManuallyDesc:
+          'Select your preferred lawyers to send directly to them.',
       AppStrings.searchLawyer: 'Search for a lawyer',
       AppStrings.sortBy: 'Sort by',
       AppStrings.lawyerType: 'Lawyer Type',
@@ -238,12 +280,14 @@ class AppLocalizations {
       AppStrings.serviceValue: 'Service Value:',
       AppStrings.taxValue: 'Tax Value:',
       AppStrings.totalDue: 'Total Due:',
-      AppStrings.paymentDisclaimer: 'To protect your rights, ensure payment is only done within the platform.',
+      AppStrings.paymentDisclaimer:
+          'To protect your rights, ensure payment is only done within the platform.',
       AppStrings.totalAmount: 'Total Amount Due',
       AppStrings.completeOrder: 'Complete Order',
       AppStrings.currencySymbol: 'OMR',
       AppStrings.orderSentSuccessfully: 'Order Sent Successfully',
-      AppStrings.orderProcessingDesc: 'Your order is processing, you will receive offers from lawyers soon.',
+      AppStrings.orderProcessingDesc:
+          'Your order is processing, you will receive offers from lawyers soon.',
       AppStrings.orderNumber: 'Order Number',
       AppStrings.trackOrder: 'Track Order',
       AppStrings.backToHome: 'Back to Home',
@@ -263,7 +307,8 @@ class AppLocalizations {
       AppStrings.lawyerWallet: 'Wallet',
       AppStrings.deleteAccount: 'Delete Account',
       AppStrings.deleteAccountTitle: 'Delete Account',
-      AppStrings.deleteAccountSubtitle: 'Are you sure you want to delete your account? This action cannot be undone.',
+      AppStrings.deleteAccountSubtitle:
+          'Are you sure you want to delete your account? This action cannot be undone.',
       AppStrings.deleteAccountAction: 'Delete My Account',
       AppStrings.totalPayments: 'Total Payments',
       AppStrings.accountActive: 'Account Active',
@@ -272,18 +317,21 @@ class AppLocalizations {
       AppStrings.emailOrPasswordNotValid: 'Email or password is incorrect',
       AppStrings.cancelOrder: 'Cancel',
       AppStrings.cancelCase: 'Cancel',
-      AppStrings.confirmCancelCase: 'Are you sure you want to cancel this case?',
+      AppStrings.confirmCancelCase:
+          'Are you sure you want to cancel this case?',
       AppStrings.contactLegalOffice: 'Contact Legal Office',
       AppStrings.referenceNumber: 'Reference Number',
       AppStrings.consultationSubject: 'Consultation Subject',
-      AppStrings.consultationPlaceholder: 'General legal consultation on regulations.',
+      AppStrings.consultationPlaceholder:
+          'General legal consultation on regulations.',
       AppStrings.attachedDocuments: 'Attached',
       AppStrings.reviewStep: 'Review',
       AppStrings.analysisStep: 'Analysis',
       AppStrings.appointmentStep: 'Appointment',
       AppStrings.executionStep: 'Execution',
       AppStrings.rateConsultation: 'Rate the Consultation',
-      AppStrings.rateConsultationDesc: 'Your opinion helps improve our legal services.',
+      AppStrings.rateConsultationDesc:
+          'Your opinion helps improve our legal services.',
       AppStrings.additionalNotes: 'Additional Notes:',
       AppStrings.writeNotesHint: 'Write your notes here (optional)...',
       AppStrings.financialStatement: 'Financial Statement',
@@ -329,7 +377,8 @@ class AppLocalizations {
       AppStrings.byAmountHighest: 'By Amount (Highest First)',
       AppStrings.onlyBankTransfers: 'Bank Transfers Only',
       AppStrings.noTransactions: 'No Transactions',
-      AppStrings.noTransactionsSubtitle: 'No transactions found in this category.',
+      AppStrings.noTransactionsSubtitle:
+          'No transactions found in this category.',
       AppStrings.income: 'Income',
       AppStrings.expenses: 'Expenses',
       AppStrings.myDailyTasks: 'My Daily Tasks',
@@ -365,18 +414,23 @@ class AppLocalizations {
       AppStrings.confirmAndSendRequest: 'Confirm and Send Request',
       AppStrings.continueAction: 'Continue',
       AppStrings.createAccountTitle: 'Create Your Account',
-      AppStrings.createAccountSubtitle: 'Enter your basic details to start with hogga',
-      AppStrings.otpSentSubtitle: 'Enter the verification code sent to your phone',
-      AppStrings.otpSentNotice: 'Verification code has been sent to the registered phone',
+      AppStrings.createAccountSubtitle:
+          'Enter your basic details to start with hogga',
+      AppStrings.otpSentSubtitle:
+          'Enter the verification code sent to your phone',
+      AppStrings.otpSentNotice:
+          'Verification code has been sent to the registered phone',
       AppStrings.resendCodeAction: 'Resend Code?',
       AppStrings.personalDataTitle: 'Personal Data',
-      AppStrings.personalDataSubtitle: 'This data helps us verify your personal identity',
+      AppStrings.personalDataSubtitle:
+          'This data helps us verify your personal identity',
       AppStrings.fullNameIdHint: 'Full Name (as in ID)',
       AppStrings.civilIdHint: 'Civil ID / National ID',
       AppStrings.requiredError: 'Required',
       AppStrings.fullNameMinError: 'Please enter at least three names',
       AppStrings.professionalDataTitle: 'Professional Data',
-      AppStrings.professionalDataSubtitle: 'Enter your professional legal practice details',
+      AppStrings.professionalDataSubtitle:
+          'Enter your professional legal practice details',
       AppStrings.licenseNumberHint: 'Professional License Number',
       AppStrings.degreeHint: 'Degree of Enrollment',
       AppStrings.experienceYearsHint: 'Years of Experience',
@@ -394,7 +448,8 @@ class AppLocalizations {
           'Please upload clear photos of the required documents to verify professionalism',
       AppStrings.idCardPhoto: 'ID Card Photo',
       AppStrings.licensePhoto: 'Syndicate Card / License Photo',
-      AppStrings.registrationCertOptional: 'Registration Certificate (Optional)',
+      AppStrings.registrationCertOptional:
+          'Registration Certificate (Optional)',
       AppStrings.clickToUpload: 'Click to upload',
       AppStrings.reviewApplicationTitle: 'Review Your Application',
       AppStrings.reviewApplicationSubtitle:
@@ -440,7 +495,8 @@ class AppLocalizations {
       AppStrings.inProgress: 'In Progress',
       AppStrings.noCases: 'No Cases',
       AppStrings.noCasesSubtitle: 'No cases have been assigned to you yet.',
-      AppStrings.noSearchResultsSubtitle: 'Try searching for another word or changing the filter.',
+      AppStrings.noSearchResultsSubtitle:
+          'Try searching for another word or changing the filter.',
       AppStrings.searchByCaseIdOrTitle: 'Search by case ID or title...',
       AppStrings.caseNumber: 'Case Number: {id}',
       AppStrings.courtLabel: 'Court',
@@ -451,10 +507,13 @@ class AppLocalizations {
       AppStrings.scheduleTable: 'Schedule Table',
       AppStrings.noBookings: 'No Bookings',
       AppStrings.noBookingsSubtitle: 'You do not have any upcoming bookings.',
-      AppStrings.availableForConsultations: 'You are available for consultations',
+      AppStrings.availableForConsultations:
+          'You are available for consultations',
       AppStrings.currentlyPaused: 'You are currently paused',
-      AppStrings.profileVisibleNotice: 'Your profile will be visible to clients',
-      AppStrings.profileHiddenNotice: 'Clients will not be able to book new appointments',
+      AppStrings.profileVisibleNotice:
+          'Your profile will be visible to clients',
+      AppStrings.profileHiddenNotice:
+          'Clients will not be able to book new appointments',
       AppStrings.confirmedStatus: 'Confirmed',
       AppStrings.pendingStatus: 'Pending',
       AppStrings.cancelledStatus: 'Cancelled',
@@ -480,12 +539,18 @@ class AppLocalizations {
       AppStrings.egypt: 'Egypt',
       AppStrings.jordan: 'Jordan',
       AppStrings.redirectingToService: 'Redirecting to service request...',
-      AppStrings.chatUnderDevelopmentSubtitle: 'Chat feature is under development',
-      AppStrings.notificationNewRequestDesc: 'You have a new real estate consultation request from Khalid Al-Maamari.',
-      AppStrings.notificationSessionReminderDesc: 'Reminder: You have a session in the Primary Court tomorrow at 9:00 AM.',
-      AppStrings.notificationCaseUpdateDesc: 'Case status #4421 has been updated to "Awaiting Judgment".',
-      AppStrings.notificationNewDocumentDesc: 'The client uploaded "Revised Lawsuit List" in the compensation case.',
-      AppStrings.notificationBookingDesc: 'A new consultation appointment has been booked for next Tuesday.',
+      AppStrings.chatUnderDevelopmentSubtitle:
+          'Chat feature is under development',
+      AppStrings.notificationNewRequestDesc:
+          'You have a new real estate consultation request from Khalid Al-Maamari.',
+      AppStrings.notificationSessionReminderDesc:
+          'Reminder: You have a session in the Primary Court tomorrow at 9:00 AM.',
+      AppStrings.notificationCaseUpdateDesc:
+          'Case status #4421 has been updated to "Awaiting Judgment".',
+      AppStrings.notificationNewDocumentDesc:
+          'The client uploaded "Revised Lawsuit List" in the compensation case.',
+      AppStrings.notificationBookingDesc:
+          'A new consultation appointment has been booked for next Tuesday.',
       AppStrings.omr: 'OMR',
       AppStrings.secondsUnit: 's',
       AppStrings.verifiedSuccessfully: 'Verified Successfully',
@@ -559,17 +624,22 @@ class AppLocalizations {
       AppStrings.errorVerificationFailed: 'Verification failed',
       AppStrings.errorResendOtpFailed: 'Failed to resend activation code',
       AppStrings.errorServer: 'Server error, please try again later',
-      AppStrings.noInternetConnection: 'No internet connection. Please check your network and try again.',
-      AppStrings.requestTimedOut: 'The request took too long. Please try again.',
-      AppStrings.unexpectedError: 'An unexpected error occurred. Please try again.',
+      AppStrings.noInternetConnection:
+          'No internet connection. Please check your network and try again.',
+      AppStrings.requestTimedOut:
+          'The request took too long. Please try again.',
+      AppStrings.unexpectedError:
+          'An unexpected error occurred. Please try again.',
       AppStrings.operationCancelled: 'The operation was cancelled.',
       AppStrings.otpResentSuccessfully: 'OTP resent successfully',
       AppStrings.sessionAddedSuccessfully: 'Session added successfully',
       AppStrings.documentUploadedSuccessfully: 'Document uploaded successfully',
-      AppStrings.withdrawalRequestSubmittedSuccessfully: 'Withdrawal request submitted successfully',
+      AppStrings.withdrawalRequestSubmittedSuccessfully:
+          'Withdrawal request submitted successfully',
       AppStrings.fixed: 'Fixed',
       AppStrings.goToDashboard: 'Go to Dashboard',
-      AppStrings.searchByLawOrLegislation: 'Search for legal text or legislation...',
+      AppStrings.searchByLawOrLegislation:
+          'Search for legal text or legislation...',
       AppStrings.legalCategories: 'Legal Categories',
       AppStrings.latestReferences: 'Latest References',
       AppStrings.criminalLaw: 'Criminal Law',
@@ -602,7 +672,8 @@ class AppLocalizations {
       AppStrings.nextAppointment: 'Next Appointment',
       AppStrings.documents: 'Documents',
       AppStrings.noResults: 'No Results Found',
-      AppStrings.noResultsSubtitle: 'Try searching for another word or changing the search query.',
+      AppStrings.noResultsSubtitle:
+          'Try searching for another word or changing the search query.',
       AppStrings.myCases: 'My Cases',
       AppStrings.mySubscription: 'My Subscriptions',
       AppStrings.serviceName: 'Service Name',
@@ -632,7 +703,8 @@ class AppLocalizations {
       AppStrings.next: 'Next',
       AppStrings.retry: 'Retry',
       AppStrings.weAreHereToHelp: 'We are here to help you',
-      AppStrings.supportTeamReady: 'Our support team is ready to answer your inquiries 24/7.',
+      AppStrings.supportTeamReady:
+          'Our support team is ready to answer your inquiries 24/7.',
       AppStrings.phoneCall: 'Phone Call',
       AppStrings.workingHours: 'Working Hours',
       AppStrings.error: 'Error',
@@ -645,32 +717,47 @@ class AppLocalizations {
       AppStrings.rateAppStore: 'Rate App',
       AppStrings.dataPrivacy: 'Data Privacy',
       AppStrings.emailNotFound: 'Email not found',
-      AppStrings.aboutUsDescription: 'hogga is a platform that connects clients with licensed lawyers easily and securely.',
+      AppStrings.aboutUsDescription:
+          'hogga is a platform that connects clients with licensed lawyers easily and securely.',
       AppStrings.ourGoals: 'Our Goals',
-      AppStrings.ourGoalsContent: 'We aim to facilitate access to justice and legal support for everyone.',
-      AppStrings.linkBetweenUserAndProvider: 'We are the link between you and the legal experts.',
-      AppStrings.aboutUsContent: 'Our team is dedicated to providing high-quality legal consultations through modern technology.',
+      AppStrings.ourGoalsContent:
+          'We aim to facilitate access to justice and legal support for everyone.',
+      AppStrings.linkBetweenUserAndProvider:
+          'We are the link between you and the legal experts.',
+      AppStrings.aboutUsContent:
+          'Our team is dedicated to providing high-quality legal consultations through modern technology.',
       AppStrings.privacyIntroTitle: 'Introduction',
-      AppStrings.privacyIntroContent: 'We care about your privacy and protect your data according to international standards.',
+      AppStrings.privacyIntroContent:
+          'We care about your privacy and protect your data according to international standards.',
       AppStrings.dataWeCollectTitle: 'Data Collection',
-      AppStrings.dataWeCollectContent: 'We collect data necessary to provide and improve our services.',
-      AppStrings.paymentDataNotice: 'Payment data is processed securely through licensed partners.',
+      AppStrings.dataWeCollectContent:
+          'We collect data necessary to provide and improve our services.',
+      AppStrings.paymentDataNotice:
+          'Payment data is processed securely through licensed partners.',
       AppStrings.howWeUseDataTitle: 'Data Usage',
-      AppStrings.howWeUseDataContent: 'Your data is used to match you with lawyers and manage your cases.',
+      AppStrings.howWeUseDataContent:
+          'Your data is used to match you with lawyers and manage your cases.',
       AppStrings.dataSharingTitle: 'Data Sharing',
-      AppStrings.dataSharingContent: 'We only share data with lawyers you choose to work with.',
+      AppStrings.dataSharingContent:
+          'We only share data with lawyers you choose to work with.',
       AppStrings.dataProtectionTitle: 'Data Protection',
-      AppStrings.dataProtectionContent: 'We use advanced encryption to protect your personal information.',
+      AppStrings.dataProtectionContent:
+          'We use advanced encryption to protect your personal information.',
       AppStrings.userRightsTitle: 'Your Rights',
-      AppStrings.userRightsContent: 'You have the right to access, correct, or delete your data at any time.',
+      AppStrings.userRightsContent:
+          'You have the right to access, correct, or delete your data at any time.',
       AppStrings.policyUpdatesTitle: 'Policy Updates',
-      AppStrings.policyUpdatesContent: 'We may update this policy occasionally and will notify you of changes.',
+      AppStrings.policyUpdatesContent:
+          'We may update this policy occasionally and will notify you of changes.',
       AppStrings.firstUserSection: 'User Responsibilities',
-      AppStrings.userObligations: 'Users must provide accurate information and follow platform rules.',
+      AppStrings.userObligations:
+          'Users must provide accurate information and follow platform rules.',
       AppStrings.secondProviderSection: 'Lawyer Responsibilities',
-      AppStrings.providerObligations: 'Lawyers must provide professional advice and maintain confidentiality.',
+      AppStrings.providerObligations:
+          'Lawyers must provide professional advice and maintain confidentiality.',
       AppStrings.thirdGeneralSection: 'General Provisions',
-      AppStrings.generalProvisions: 'These terms govern the use of the hogga platform.',
+      AppStrings.generalProvisions:
+          'These terms govern the use of the hogga platform.',
       AppStrings.mainFeatures: 'Main Features',
       AppStrings.searchNearby: 'Search Nearby Lawyers',
       AppStrings.realReviews: 'Real Client Reviews',
@@ -691,7 +778,8 @@ class AppLocalizations {
       AppStrings.whyZoneApp: 'Why hogga?',
       AppStrings.version: 'Version 1.0.0',
       AppStrings.cancellationPolicyTitle: 'Cancellation Policy',
-      AppStrings.cancellationPolicyContent: 'You can cancel your request before it is accepted by a lawyer.',
+      AppStrings.cancellationPolicyContent:
+          'You can cancel your request before it is accepted by a lawyer.',
       AppStrings.publicOpportunities: 'Public Opportunities',
       AppStrings.myServices: 'My Services',
       AppStrings.addService: 'Add Service',
@@ -712,13 +800,15 @@ class AppLocalizations {
       AppStrings.professionalTools: 'Workspace',
       AppStrings.myProposals: 'My Proposals',
       AppStrings.noProposals: 'No Proposals',
-      AppStrings.noProposalsSubtitle: 'You haven\'t submitted any proposals yet.',
+      AppStrings.noProposalsSubtitle:
+          'You haven\'t submitted any proposals yet.',
       AppStrings.caseNumberLabel: 'Case Number',
       AppStrings.yourOffer: 'Your Offer',
       AppStrings.currencyRial: 'OMR',
       AppStrings.priceRange: 'Price Range',
       AppStrings.deleteProposal: 'Delete Proposal',
-      AppStrings.confirmDeleteProposal: 'Are you sure you want to delete this proposal?',
+      AppStrings.confirmDeleteProposal:
+          'Are you sure you want to delete this proposal?',
       AppStrings.editProposal: 'Edit Proposal',
       AppStrings.optionalDocuments: 'Documents (Optional)',
       AppStrings.addFile: 'Add File',
@@ -749,12 +839,16 @@ class AppLocalizations {
       AppStrings.paymentStatus: 'Payment Status',
       AppStrings.discount: 'Discount',
       AppStrings.receivedProposals: 'Received Proposals',
-      AppStrings.confirmAcceptProposal: 'Are you sure you want to accept the proposal from {name} for {price}?',
+      AppStrings.confirmAcceptProposal:
+          'Are you sure you want to accept the proposal from {name} for {price}?',
       AppStrings.enterDocumentTitles: 'Enter title for each document',
       AppStrings.documentTitle: 'Document Title',
-      AppStrings.pleaseEnterDocumentTitles: 'Please enter a title for each document',
-      AppStrings.pleaseSelectExecutionDate: 'Please select execution date and time',
-      AppStrings.pleaseSelectAtLeastOneLawyer: 'Please select at least one lawyer',
+      AppStrings.pleaseEnterDocumentTitles:
+          'Please enter a title for each document',
+      AppStrings.pleaseSelectExecutionDate:
+          'Please select execution date and time',
+      AppStrings.pleaseSelectAtLeastOneLawyer:
+          'Please select at least one lawyer',
       AppStrings.executionDateTime: 'Execution Date & Time',
       AppStrings.chooseExecutionDateTime: 'Choose execution date and time',
       AppStrings.couponApplied: 'Coupon applied: {code}',
@@ -785,11 +879,14 @@ class AppLocalizations {
       AppStrings.applicationSentSuccess: 'Application sent successfully',
       AppStrings.goToLawyerDashboard: 'Go to Lawyer Dashboard',
       AppStrings.chooseAccountType: 'Choose Account Type',
-      AppStrings.chooseAccountTypeSubtitle: 'Select the account type that suits you.',
-      AppStrings.applicationUnderReviewNotice: 'Registration completed. Your account is now awaiting administration approval before full activation.',
+      AppStrings.chooseAccountTypeSubtitle:
+          'Select the account type that suits you.',
+      AppStrings.applicationUnderReviewNotice:
+          'Registration completed. Your account is now awaiting administration approval before full activation.',
 
       AppStrings.personalPhoto: 'Personal Photo',
-      AppStrings.photoUploadDesc: 'Upload a clear photo in PNG, JPG, or WEBP format.',
+      AppStrings.photoUploadDesc:
+          'Upload a clear photo in PNG, JPG, or WEBP format.',
       AppStrings.nameRequired: 'Name is required',
       AppStrings.validNameRequired: 'Please enter a valid full name.',
       AppStrings.civilId: 'Civil ID',
@@ -797,43 +894,54 @@ class AppLocalizations {
       AppStrings.validExpRequired: 'Please enter a valid number',
       AppStrings.alreadyHaveAccountLogin: 'Already have an account? Login',
       AppStrings.additionalDataTitle: 'Complete Additional Info',
-      AppStrings.additionalDataSubtitle: 'These fields are determined by the server based on your account type. Fields marked with an asterisk are required.',
-      AppStrings.submitAndCompleteRegistration: 'Submit & Complete Registration',
-      AppStrings.allowedFilesDesc: 'Allowed files: PDF, JPG, PNG, WEBP up to 5MB.',
+      AppStrings.additionalDataSubtitle:
+          'These fields are determined by the server based on your account type. Fields marked with an asterisk are required.',
+      AppStrings.submitAndCompleteRegistration:
+          'Submit & Complete Registration',
+      AppStrings.allowedFilesDesc:
+          'Allowed files: PDF, JPG, PNG, WEBP up to 5MB.',
       AppStrings.confirmAccept: 'Confirm Acceptance',
       AppStrings.confirmRefuse: 'Confirm Refusal',
-      AppStrings.areYouSure: 'Are you sure you want to proceed with this action?',
+      AppStrings.areYouSure:
+          'Are you sure you want to proceed with this action?',
       AppStrings.uploadFile: 'Upload {name}',
       AppStrings.chooseFileHint: 'Choose the appropriate file for this field',
       AppStrings.enterNumberHint: 'Enter {name} number',
       AppStrings.enterTextHint: 'Enter {name}',
       AppStrings.required: 'Required',
       AppStrings.optional: 'Optional',
-      AppStrings.chooseSpecsSubtitle: 'You can choose more than one specialization.',
+      AppStrings.chooseSpecsSubtitle:
+          'You can choose more than one specialization.',
       AppStrings.specsSelectedCount: '{count} specializations selected',
       AppStrings.verificationCodeTitle: 'Phone Verification',
       AppStrings.verificationCodeHint: 'Verification Code',
       AppStrings.verifyCodeButton: 'Confirm Code',
-      AppStrings.enterVerificationCode: 'Enter the verification code sent to {phone}',
+      AppStrings.enterVerificationCode:
+          'Enter the verification code sent to {phone}',
       AppStrings.browseOpportunities: 'Browse Available Opportunities',
-      AppStrings.noServicesSubtitle: 'You haven\'t added any legal services yet. Start now by adding your first service.',
+      AppStrings.noServicesSubtitle:
+          'You haven\'t added any legal services yet. Start now by adding your first service.',
       AppStrings.addNewService: 'Add New Service',
       AppStrings.legalRepresentation: 'Legal Representation',
       AppStrings.companyFormation: 'Company Formation',
       AppStrings.pleaseSelectServiceType: 'Please select a service type',
       AppStrings.markAllAsRead: 'Mark all as read',
       AppStrings.noNotifications: 'No notifications',
-      AppStrings.noNotificationsSubtitle: 'We will notify you when there are new updates.',
+      AppStrings.noNotificationsSubtitle:
+          'We will notify you when there are new updates.',
       AppStrings.callNoLongerAvailable: 'This call is no longer available.',
       AppStrings.minutesAgo: '{count} minutes ago',
       AppStrings.hoursAgo: '{count} hours ago',
       AppStrings.daysAgo: '{count} days ago',
       AppStrings.chooseLawyer: 'Choose Lawyer',
-      AppStrings.uploadDocumentsDesc: 'Upload required documents (PDF, JPG, PNG)',
+      AppStrings.uploadDocumentsDesc:
+          'Upload required documents (PDF, JPG, PNG)',
       AppStrings.browseFiles: 'Browse Files',
-      AppStrings.broadcastDesc: 'Your request will reach all available lawyers within minutes',
+      AppStrings.broadcastDesc:
+          'Your request will reach all available lawyers within minutes',
       AppStrings.chooseLawyerManually: 'Choose Lawyers Manually',
-      AppStrings.manualChooseDesc: 'Select your preferred lawyers to send your request to them directly',
+      AppStrings.manualChooseDesc:
+          'Select your preferred lawyers to send your request to them directly',
 
       AppStrings.stepPlatformFees: 'Platform Fees',
       AppStrings.payByCard: 'Pay by Card',
@@ -845,7 +953,8 @@ class AppLocalizations {
 
       AppStrings.selected: 'Selected',
       AppStrings.browseLawyers: 'Browse Lawyers',
-      AppStrings.lawyersReadyDesc: 'More than 100 lawyers ready to respond to you',
+      AppStrings.lawyersReadyDesc:
+          'More than 100 lawyers ready to respond to you',
       AppStrings.serviceNameLabel: 'Service',
       AppStrings.securePayment: 'Secure',
 
@@ -855,7 +964,8 @@ class AppLocalizations {
       AppStrings.consultationLeft: 'Consultations Left',
       AppStrings.choosePackage: 'Choose a Package',
       AppStrings.notVisibleToClients: 'Profile not visible to clients',
-      AppStrings.activateSubscriptionToStart: 'Please activate a subscription to start receiving requests',
+      AppStrings.activateSubscriptionToStart:
+          'Please activate a subscription to start receiving requests',
       AppStrings.subscriptionExpiringSoon: 'Subscription expiring soon',
       AppStrings.renew: 'Renew',
       AppStrings.visibleToClients: 'Profile visible to clients',
@@ -866,16 +976,20 @@ class AppLocalizations {
       AppStrings.notActive: 'Not Active',
       AppStrings.pending: 'Pending',
       AppStrings.refresh: 'Refresh',
-      AppStrings.willNotifyYou: 'We will notify you once your account is approved.',
+      AppStrings.willNotifyYou:
+          'We will notify you once your account is approved.',
       AppStrings.pressBackAgainToExit: 'Press back again to exit',
       AppStrings.welcomeTo: 'Welcome to',
       AppStrings.priceExceedsBudget: 'Price cannot exceed client budget',
-      AppStrings.userRoleDescription: 'Search for lawyers and get legal consultations',
-      AppStrings.lawyerRoleDescription: 'Manage your cases and reach new clients',
+      AppStrings.userRoleDescription:
+          'Search for lawyers and get legal consultations',
+      AppStrings.lawyerRoleDescription:
+          'Manage your cases and reach new clients',
       AppStrings.settings: 'Settings',
       AppStrings.draftRestored: 'Previous draft restored successfully',
       AppStrings.pleaseSelectAccountType: 'Please select account type',
-      AppStrings.pleaseSelectAtLeastOneSpec: 'Please select at least one specialization',
+      AppStrings.pleaseSelectAtLeastOneSpec:
+          'Please select at least one specialization',
       AppStrings.pleaseUploadPersonalPhoto: 'Please upload personal photo',
       AppStrings.pleaseUploadField: 'Please upload {field}',
       AppStrings.pleaseEnterField: 'Please enter {field}',
@@ -886,13 +1000,18 @@ class AppLocalizations {
       AppStrings.phoneVerifiedSuccess: 'Phone verified successfully',
       AppStrings.selectAccountTypeFirst: 'Please select account type first',
       AppStrings.basicInfoSaved: 'Basic information saved successfully',
-      AppStrings.phoneAlreadyRegistered: 'This phone number is already registered',
+      AppStrings.phoneAlreadyRegistered:
+          'This phone number is already registered',
       AppStrings.emailAlreadyRegistered: 'This email is already registered',
-      AppStrings.noOpportunitiesSubtitle: 'No customer requests available in your specializations. We will notify you once new opportunities arise.',
-      AppStrings.emptyServicesHistory: 'Available services history is currently empty.',
-      AppStrings.noActiveOrdersSubtitle: 'You don\'t have any active orders currently. You can browse services and request a new consultation.',
+      AppStrings.noOpportunitiesSubtitle:
+          'No customer requests available in your specializations. We will notify you once new opportunities arise.',
+      AppStrings.emptyServicesHistory:
+          'Available services history is currently empty.',
+      AppStrings.noActiveOrdersSubtitle:
+          'You don\'t have any active orders currently. You can browse services and request a new consultation.',
       AppStrings.emptyOrderHistory: 'Order history is currently empty.',
-      AppStrings.maintenanceDefaultMessage: 'We are performing some improvements. We will be back soon.',
+      AppStrings.maintenanceDefaultMessage:
+          'We are performing some improvements. We will be back soon.',
       AppStrings.updateDefaultMessage: 'Please update the app to continue.',
       AppStrings.processingAndVerifying: 'Processing and verifying file...',
       AppStrings.fileVerifiedSuccess: 'File verified successfully',
@@ -903,14 +1022,16 @@ class AppLocalizations {
       AppStrings.noDataFound: 'No data found',
 
       AppStrings.deleteTask: 'Delete Task',
-      AppStrings.confirmDeleteTask: 'Are you sure you want to delete this task?',
+      AppStrings.confirmDeleteTask:
+          'Are you sure you want to delete this task?',
       AppStrings.noTasks: 'No Tasks',
       AppStrings.noTasksSubtitle: 'You haven\'t added any tasks yet.',
       AppStrings.documentName: 'Document Name',
       AppStrings.upload: 'Upload',
       AppStrings.noFileSelected: 'No file selected',
       AppStrings.deleteDocument: 'Delete Document',
-      AppStrings.confirmDeleteDocument: 'Are you sure you want to delete this document?',
+      AppStrings.confirmDeleteDocument:
+          'Are you sure you want to delete this document?',
       AppStrings.pendingBalance: 'Pending Balance',
       AppStrings.amount: 'Amount',
       AppStrings.accountName: 'Account Name',
@@ -930,8 +1051,10 @@ class AppLocalizations {
       AppStrings.invoiceNumber: 'Invoice Number',
       AppStrings.chats: 'Chats',
       AppStrings.noChats: 'No Chats',
-      AppStrings.noLawyerChatsSubtitle: 'Your chats with lawyers will appear here',
-      AppStrings.noClientChatsSubtitle: 'Your chats with clients will appear here',
+      AppStrings.noLawyerChatsSubtitle:
+          'Your chats with lawyers will appear here',
+      AppStrings.noClientChatsSubtitle:
+          'Your chats with clients will appear here',
       AppStrings.startConversation: 'Start Conversation',
       AppStrings.calling: 'Calling...',
       AppStrings.waitingForLawyer: 'Waiting for lawyer to join...',
@@ -945,7 +1068,6 @@ class AppLocalizations {
       AppStrings.failedToSendMessage: 'Failed to send message',
       AppStrings.failedToSendFile: 'Failed to send file',
       AppStrings.voiceCall: 'Voice Call',
-      AppStrings.videoCall: 'Video Call',
       AppStrings.startConversationWithLawyer: 'Start conversation with lawyer',
       AppStrings.startConversationWithClient: 'Start conversation with client',
       AppStrings.typeYourMessage: 'Type your message...',
@@ -957,10 +1079,15 @@ class AppLocalizations {
       AppStrings.completePaymentNow: 'Complete Payment Now',
       AppStrings.paymentScreenTitle: 'Complete Payment',
       AppStrings.paymentFailedDialogTitle: 'Payment was not completed',
-      AppStrings.paymentFailedDialogMessage: 'There was a problem completing the payment. You can try again or return to the home screen.',
-      AppStrings.cancelPaymentDialogTitle: 'Are you sure you want to cancel the payment?',
-      AppStrings.cancelPaymentDialogMessage: 'The current payment process will be stopped and you will return to the home screen.',
+      AppStrings.paymentFailedDialogMessage:
+          'There was a problem completing the payment. You can try again or return to the home screen.',
+      AppStrings.cancelPaymentDialogTitle:
+          'Are you sure you want to cancel the payment?',
+      AppStrings.cancelPaymentDialogMessage:
+          'The current payment process will be stopped and you will return to the home screen.',
       AppStrings.continuePayment: 'Continue Payment',
+      AppStrings.paymentLinkUnavailable:
+          'Payment link is not available yet. Please try again.',
       AppStrings.makeVideoCall: 'Make Video Call',
       AppStrings.makeVoiceCall: 'Make Voice Call',
       AppStrings.enterChat: 'Enter Chat',
@@ -1001,7 +1128,8 @@ class AppLocalizations {
       AppStrings.and: 'و',
       AppStrings.termsOfUseTitle: 'شروط الاستخدام',
       AppStrings.welcomeTitle: 'مرحباً بك في حُجّة',
-      AppStrings.welcomeSubtitle: 'ابدأ رحلتك القانونية الآن.. اختر صفتك للدخول',
+      AppStrings.welcomeSubtitle:
+          'ابدأ رحلتك القانونية الآن.. اختر صفتك للدخول',
       AppStrings.registerAsLawyer: 'التسجيل كمحامي',
       AppStrings.myOrders: 'قضاياي',
       AppStrings.noOrdersYet: 'لا توجد قضايا حتى الآن',
@@ -1038,12 +1166,17 @@ class AppLocalizations {
       AppStrings.serverError: 'حدث خطأ ما، يرجى المحاولة لاحقاً',
       AppStrings.sessionExpired: 'انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى',
       AppStrings.sevenMinutesFree: 'لديك 7 دقائق استشارة مجانية',
-      AppStrings.availabilityToday: 'متاحة اليوم بدأ من الساعة 10:00 حتى الساعة 23:00',
+      AppStrings.availabilityToday:
+          'متاحة اليوم بدأ من الساعة 10:00 حتى الساعة 23:00',
       AppStrings.howCanWeHelp: 'كيف يمكننا مساعدتك؟',
-      AppStrings.legalConsultationDesc: 'احصل على استشارة قانونية من محامٍ مرخص لمساعدتك في فهم موقفك القانوني واتخاذ القرار الصحيح.',
-      AppStrings.judiciaryExecutionDesc: 'خدمات متخصصة في القضاء والتنفيذ تشمل كتابة الصحائف واللوائح القانونية، الترافع والتوكيل أمام المحاكم، دراسة القضايا، حضور الجلسات، ومتابعة طلبات التنفيذ.',
-      AppStrings.businessServicesDesc: 'خدمات قانونية لدعم قطاع الأعمال تشمل صياغة ومراجعة العقود والاتفاقيات، إضافةً إلى تسجيل وحماية العلامات التجارية.',
-      AppStrings.otherServicesDesc: 'خدمات قانونية وإدارية متنوعة تشمل مراجعة الدوائر والجهات الحكومية، وتقديم خدمات أخرى مخصصة حسب احتياجات العميل.',
+      AppStrings.legalConsultationDesc:
+          'احصل على استشارة قانونية من محامٍ مرخص لمساعدتك في فهم موقفك القانوني واتخاذ القرار الصحيح.',
+      AppStrings.judiciaryExecutionDesc:
+          'خدمات متخصصة في القضاء والتنفيذ تشمل كتابة الصحائف واللوائح القانونية، الترافع والتوكيل أمام المحاكم، دراسة القضايا، حضور الجلسات، ومتابعة طلبات التنفيذ.',
+      AppStrings.businessServicesDesc:
+          'خدمات قانونية لدعم قطاع الأعمال تشمل صياغة ومراجعة العقود والاتفاقيات، إضافةً إلى تسجيل وحماية العلامات التجارية.',
+      AppStrings.otherServicesDesc:
+          'خدمات قانونية وإدارية متنوعة تشمل مراجعة الدوائر والجهات الحكومية، وتقديم خدمات أخرى مخصصة حسب احتياجات العميل.',
       AppStrings.bannerTitle1: 'استشارتك القانونية تبدأ',
       AppStrings.bannerPrice1: 'من 100 ر.ع فقط!',
       AppStrings.bookNow: 'احجز الآن',
@@ -1053,7 +1186,8 @@ class AppLocalizations {
       AppStrings.bannerTitle3: 'خدمات قانونية متكاملة',
       AppStrings.bannerPrice3: 'للأفراد والشركات',
       AppStrings.learnMore: 'تعرف أكثر',
-      AppStrings.bannerDesc: 'تحدث مع محامي متخصص الآن من خلال اتصال مرئي أو صوتي مباشر',
+      AppStrings.bannerDesc:
+          'تحدث مع محامي متخصص الآن من خلال اتصال مرئي أو صوتي مباشر',
       AppStrings.startCallNow: 'بدء الاتصال الآن',
       AppStrings.darkMode: 'الوضع الداكن',
       AppStrings.lightMode: 'الوضع الفاتح',
@@ -1070,9 +1204,11 @@ class AppLocalizations {
       AppStrings.onboardingTitle1: 'تلقَّ عروضاً من أفضل\nالمحامين المرخصين',
       AppStrings.onboardingSubtitle1: 'خدمات واستشارات قانونية\nبمميزات عالية',
       AppStrings.onboardingTitle2: 'استشاراتك القانونية\nفي أي وقت ومكان',
-      AppStrings.onboardingSubtitle2: 'تواصل مع محامٍ متخصص\nعبر المكالمة أو الاجتماع الأونلاين',
+      AppStrings.onboardingSubtitle2:
+          'تواصل مع محامٍ متخصص\nعبر المكالمة أو الاجتماع الأونلاين',
       AppStrings.onboardingTitle3: 'تابع قضيتك\nخطوة بخطوة',
-      AppStrings.onboardingSubtitle3: 'ارفع المستندات وتابع مراحل\nقضيتك بشكل كامل وشفاف',
+      AppStrings.onboardingSubtitle3:
+          'ارفع المستندات وتابع مراحل\nقضيتك بشكل كامل وشفاف',
       AppStrings.onboardingLawyer1: 'سلطان البلوشي',
       AppStrings.onboardingLawyer2: 'أحمد الرواحي',
       AppStrings.onboardingSpec1: 'قانون تجاري',
@@ -1100,57 +1236,82 @@ class AppLocalizations {
       AppStrings.businessServicesTab: 'خدمات الأعمال',
       AppStrings.otherServicesTab: 'خدمات أخرى',
       AppStrings.immediateConsultation: 'استشارة فورية',
-      AppStrings.immediateConsultationDesc: 'تواصل فورًا مع محامٍ عبر مكالمة صوتية أو مرئية. دون الحاجة لحجز موعد مسبق',
+      AppStrings.immediateConsultationDesc:
+          'تواصل فورًا مع محامٍ عبر مكالمة صوتية أو مرئية. دون الحاجة لحجز موعد مسبق',
       AppStrings.writtenConsultation: 'استشارة كتابية',
-      AppStrings.writtenConsultationDesc: 'تواصل كتابيًا مع محامٍ لطرح استفساراتك وإرسال مستنداتك عبر دردشة نصية، بدون مكالمات.',
+      AppStrings.writtenConsultationDesc:
+          'تواصل كتابيًا مع محامٍ لطرح استفساراتك وإرسال مستنداتك عبر دردشة نصية، بدون مكالمات.',
       AppStrings.scheduledConsultation: 'استشارة مجدولة',
-      AppStrings.scheduledConsultationDesc: 'احجز استشارة مع محامٍ من اختيارك في الوقت الذي يناسبك، عبر مكالمة صوتية أو مرئية.',
+      AppStrings.scheduledConsultationDesc:
+          'احجز استشارة مع محامٍ من اختيارك في الوقت الذي يناسبك، عبر مكالمة صوتية أو مرئية.',
       AppStrings.legalWritings: 'كتابات قانونية',
-      AppStrings.legalWritingsDesc: 'صياغة اللوائح والمذكرات الجوابية الاعتراضية وصحائف الدعوى والنقض الالتماس وغيرها من الخطابات بطريقة قانونية سليمة',
+      AppStrings.legalWritingsDesc:
+          'صياغة اللوائح والمذكرات الجوابية الاعتراضية وصحائف الدعوى والنقض الالتماس وغيرها من الخطابات بطريقة قانونية سليمة',
       AppStrings.pleadingAndAttorneyship: 'الترافع والتوكيل',
-      AppStrings.pleadingAndAttorneyshipDesc: 'توكيل محامي للترافع عنك في القضية بشكل كامل حتى صدور الحكم الابتدائي او القطعي وتقديم طلب التنفيذ عند الحاجة',
+      AppStrings.pleadingAndAttorneyshipDesc:
+          'توكيل محامي للترافع عنك في القضية بشكل كامل حتى صدور الحكم الابتدائي او القطعي وتقديم طلب التنفيذ عند الحاجة',
       AppStrings.sessionAttendance: 'حضور جلسة',
-      AppStrings.sessionAttendanceDesc: 'اذا كنت مشغول، حصل لك ظرف او ما عندك رغبة تحضر الجلسة لاي سبب كان. وكل محامي/ة يحضر الجلسة عنك',
+      AppStrings.sessionAttendanceDesc:
+          'اذا كنت مشغول، حصل لك ظرف او ما عندك رغبة تحضر الجلسة لاي سبب كان. وكل محامي/ة يحضر الجلسة عنك',
       AppStrings.caseStudy: 'دراسة قضية',
-      AppStrings.caseStudyDesc: 'اذا كان موضوعك يحتوي الكثير من التفاصيل والعقود والمرفقات وصكوك الاحكام المطلوب دراستها للوصول للاجابات التي تحتاجها. وتحتاج اجابات دقيقة بخصوص موضوعك.',
+      AppStrings.caseStudyDesc:
+          'اذا كان موضوعك يحتوي الكثير من التفاصيل والعقود والمرفقات وصكوك الاحكام المطلوب دراستها للوصول للاجابات التي تحتاجها. وتحتاج اجابات دقيقة بخصوص موضوعك.',
       AppStrings.executionRequests: 'طلبات التنفيذ',
-      AppStrings.executionRequestsDesc: 'رفع طلب التنفيذ و/أو متابعة الاجراءات حتى اخر اجراء ضد المنفذ ضده امام محكمة التنفيذ',
+      AppStrings.executionRequestsDesc:
+          'رفع طلب التنفيذ و/أو متابعة الاجراءات حتى اخر اجراء ضد المنفذ ضده امام محكمة التنفيذ',
       AppStrings.govAgenciesReview: 'مراجعة الجهات والدوائر الحكومية',
-      AppStrings.govAgenciesReviewDesc: 'تحتاج احد يراجع عنك وزارة، نيابة، قسم شرطة، مرور او اي جهة او دائرة حكومية سواء كان في مدينتك او مدينة بعيدة عنك',
+      AppStrings.govAgenciesReviewDesc:
+          'تحتاج احد يراجع عنك وزارة، نيابة، قسم شرطة، مرور او اي جهة او دائرة حكومية سواء كان في مدينتك او مدينة بعيدة عنك',
       AppStrings.otherLegalServices: 'خدمات اخرى',
-      AppStrings.otherLegalServicesDesc: 'اي خدمات قانونية اخرى ترغب في توكيلها للمحامي او الحصول عليها من محامي. قم بطرح موضوعك هنا وحدد نوع الخدمة المطلوبة',
+      AppStrings.otherLegalServicesDesc:
+          'اي خدمات قانونية اخرى ترغب في توكيلها للمحامي او الحصول عليها من محامي. قم بطرح موضوعك هنا وحدد نوع الخدمة المطلوبة',
       AppStrings.specPersonalStatus: 'أحوال شخصية',
-      AppStrings.specPersonalStatusDesc: 'يختص بقضايا الزواج و الخلع وفسخ النكاح والنفقة والحضانة والزيارة والحقوق المتبادلة بين الزوجين.',
+      AppStrings.specPersonalStatusDesc:
+          'يختص بقضايا الزواج و الخلع وفسخ النكاح والنفقة والحضانة والزيارة والحقوق المتبادلة بين الزوجين.',
       AppStrings.specInheritance: 'إرث وتركات',
-      AppStrings.specInheritanceDesc: 'يختص بقضايا قسمة الإرث والتركات وتنفيذ الوصية والوقف.',
+      AppStrings.specInheritanceDesc:
+          'يختص بقضايا قسمة الإرث والتركات وتنفيذ الوصية والوقف.',
       AppStrings.specCriminal: 'جنائية',
-      AppStrings.specCriminalDesc: 'يختص بكافة القضايا الجنائية ابتداءً بقضايا السب والشتم والقذف والنصب والاحتيال مروراً بجرائم الابتزاز والسرقة والاعتداء وصولاً إلى قضايا القتل والقصاص والدية.',
+      AppStrings.specCriminalDesc:
+          'يختص بكافة القضايا الجنائية ابتداءً بقضايا السب والشتم والقذف والنصب والاحتيال مروراً بجرائم الابتزاز والسرقة والاعتداء وصولاً إلى قضايا القتل والقصاص والدية.',
       AppStrings.specPublicRights: 'حقوق وعامه',
-      AppStrings.specPublicRightsDesc: 'يختص بقضايا المطالبات المالية وتأخر السداد والقضايا المتعلقة بالعقار ( تنازع على ملكية عقار ، تأخر سداد الإيجارات ، رفض إخلاء منزل أو محل ... الخ )',
+      AppStrings.specPublicRightsDesc:
+          'يختص بقضايا المطالبات المالية وتأخر السداد والقضايا المتعلقة بالعقار ( تنازع على ملكية عقار ، تأخر سداد الإيجارات ، رفض إخلاء منزل أو محل ... الخ )',
       AppStrings.specLabor: 'عمالية',
-      AppStrings.specLaborDesc: 'يختص بقضايا الخلافات العمالية بين العامل وصاحب العمل سواء كانت بسبب الأجور أو الفصل أو إصابات العمل أو نهاية الخدمة وغيرها.',
+      AppStrings.specLaborDesc:
+          'يختص بقضايا الخلافات العمالية بين العامل وصاحب العمل سواء كانت بسبب الأجور أو الفصل أو إصابات العمل أو نهاية الخدمة وغيرها.',
       AppStrings.specCommercial: 'تجارية',
-      AppStrings.specCommercialDesc: 'يختص بقضايا المعاملات التجارية والمنافسة ومنع الاحتكار والتجارة الالكترونية والأسواق المالية والأسهم والمنازعات بين الشركاء والإفلاس وشطب وتصفية السجل التجاري.',
+      AppStrings.specCommercialDesc:
+          'يختص بقضايا المعاملات التجارية والمنافسة ومنع الاحتكار والتجارة الالكترونية والأسواق المالية والأسهم والمنازعات بين الشركاء والإفلاس وشطب وتصفية السجل التجاري.',
       AppStrings.specIntellectualProperty: 'الملكية الفكرية',
-      AppStrings.specIntellectualPropertyDesc: 'يختص بقضايا براءة الاختراع ، حقوق المؤلف ، انتهاك حقوق الطبع والنشر ، والعلامات التجارية ، والاسرار التجارية.',
+      AppStrings.specIntellectualPropertyDesc:
+          'يختص بقضايا براءة الاختراع ، حقوق المؤلف ، انتهاك حقوق الطبع والنشر ، والعلامات التجارية ، والاسرار التجارية.',
       AppStrings.specAdministrative: 'قضايا إدارية',
-      AppStrings.specAdministrativeDesc: 'يختص بقضايا إلغاء القرارات الإدارية والطعن في صحتها ، قضايا التعويض ضد الجهات الحكومية ، والقضايا التأديبية ضد موظفي الدولة.',
+      AppStrings.specAdministrativeDesc:
+          'يختص بقضايا إلغاء القرارات الإدارية والطعن في صحتها ، قضايا التعويض ضد الجهات الحكومية ، والقضايا التأديبية ضد موظفي الدولة.',
       AppStrings.specExecution: 'قضايا التنفيذ',
-      AppStrings.specExecutionDesc: 'تنفيذ الأحكام القضائية ومحاضر الصلح الموثقة والشيكات والسندات لأمر وعقود الايجار الالكترونية',
+      AppStrings.specExecutionDesc:
+          'تنفيذ الأحكام القضائية ومحاضر الصلح الموثقة والشيكات والسندات لأمر وعقود الايجار الالكترونية',
       AppStrings.specQuasiJudicial: 'اللجان شبه القضائية',
-      AppStrings.specQuasiJudicialDesc: 'يختص بقضايا المخالفات المرورية والجمارك والزكاة والضريبة والتأمينات الاجتماعية والمنازعات المصرفية والتمويلية والمخالفات الإعلامية والصحية.',
+      AppStrings.specQuasiJudicialDesc:
+          'يختص بقضايا المخالفات المرورية والجمارك والزكاة والضريبة والتأمينات الاجتماعية والمنازعات المصرفية والتمويلية والمخالفات الإعلامية والصحية.',
       AppStrings.nextStep: 'التالي',
       AppStrings.chooseServiceType: 'اختر نوع الخدمة',
       AppStrings.subtypeLawsuit: 'صحيفة الدعوى',
-      AppStrings.subtypeLawsuitDesc: 'ما يتم تقديمه إلى المحكمة المختصة وفقاً لأحكام قانون الإجراءات للحصول على الحق المدعوم بالسند أو الإثبات',
+      AppStrings.subtypeLawsuitDesc:
+          'ما يتم تقديمه إلى المحكمة المختصة وفقاً لأحكام قانون الإجراءات للحصول على الحق المدعوم بالسند أو الإثبات',
       AppStrings.subtypeReplyMemo: 'مذكرة رد على الدعوى',
-      AppStrings.subtypeReplyMemoDesc: 'وثيقة قانونية مكتوبة للرد على الدعوى المقامة ضدك امام المحكمة المختصة بعد الاستماع او الاطلاع على الدعوى في الجلسة الاولى',
+      AppStrings.subtypeReplyMemoDesc:
+          'وثيقة قانونية مكتوبة للرد على الدعوى المقامة ضدك امام المحكمة المختصة بعد الاستماع او الاطلاع على الدعوى في الجلسة الاولى',
       AppStrings.subtypeReplyJoinder: 'مذكرة رد جوابية',
-      AppStrings.subtypeReplyJoinderDesc: 'وثيقة قانونية مكتوبة لتبادل الردود والدفاع والشرح بين اطراف القضية او اجابة لطلبات القاضي في الجلسات المنعقدة',
+      AppStrings.subtypeReplyJoinderDesc:
+          'وثيقة قانونية مكتوبة لتبادل الردود والدفاع والشرح بين اطراف القضية او اجابة لطلبات القاضي في الجلسات المنعقدة',
       AppStrings.subtypeObjection: 'لائحة اعتراض',
-      AppStrings.subtypeObjectionDesc: 'وثيقة قانونية مكتوبة للرد على الدعوى المقامة ضدك امام المحكمة المختصة بعد الاستماع او الاطلاع على الدعوى في الجلسة الاولى',
+      AppStrings.subtypeObjectionDesc:
+          'وثيقة قانونية مكتوبة للرد على الدعوى المقامة ضدك امام المحكمة المختصة بعد الاستماع او الاطلاع على الدعوى في الجلسة الاولى',
       AppStrings.subtypeCassation: 'لائحة نقض',
-      AppStrings.subtypeCassationDesc: 'لائحة يتم تقديمها للمحكمة العليا لنقض الحكم الذي صدر من محاكم الاستئناف خلال المدة المحددة للنقض من تاريخ صدور الحكم',
+      AppStrings.subtypeCassationDesc:
+          'لائحة يتم تقديمها للمحكمة العليا لنقض الحكم الذي صدر من محاكم الاستئناف خلال المدة المحددة للنقض من تاريخ صدور الحكم',
       AppStrings.stepSendRequest: 'التفاصيل',
       AppStrings.stepChooseLawyer: 'المحامي',
       AppStrings.stepPlatformFees: 'رسوم المنصة',
@@ -1158,19 +1319,23 @@ class AppLocalizations {
       AppStrings.requestTitle: 'عنوان الطلب',
       AppStrings.requestTitleHint: 'يرجى كتابة عنوان للطلب بشكل واضح ومختصر',
       AppStrings.requestDetails: 'تفاصيل الطلب',
-      AppStrings.requestDetailsHint: 'يرجى كتابة تفاصيل الموضوع بشكل واضح ومختصر',
+      AppStrings.requestDetailsHint:
+          'يرجى كتابة تفاصيل الموضوع بشكل واضح ومختصر',
       AppStrings.remoteAttendance: 'هل يمكن الحضور عن بعد؟',
       AppStrings.governorate: 'اسم المحافظة',
       AppStrings.governorateHint: 'أدخل اسم المحافظة',
-      AppStrings.city: 'اسم المدينة',
+      AppStrings.city: 'المدينة',
       AppStrings.cityHint: 'أدخل اسم المدينة',
       AppStrings.infoDialogStepLabel: 'إرسال الطلب • 1/3',
       AppStrings.infoDialogHeading: 'في هذه الخطوة أكتب البيانات الأساسية',
-      AppStrings.infoDialogBody: 'اكتب ملخصاً عاماً لطلبك بدون ذكر أسماء أو بيانات حساسة، وتأكد أن المرفقات خالية من أي بيانات شخصية. يمكنك مشاركة التفاصيل الخاصة لاحقاً مع المحامي عند التفاوض أو قبول العرض.',
+      AppStrings.infoDialogBody:
+          'اكتب ملخصاً عاماً لطلبك بدون ذكر أسماء أو بيانات حساسة، وتأكد أن المرفقات خالية من أي بيانات شخصية. يمكنك مشاركة التفاصيل الخاصة لاحقاً مع المحامي عند التفاوض أو قبول العرض.',
       AppStrings.infoDialogConfirm: 'لقد فهمت',
-      AppStrings.broadcastDesc: 'سيصل طلبك لجميع المحامين المتاحين للرد خلال دقائق',
+      AppStrings.broadcastDesc:
+          'سيصل طلبك لجميع المحامين المتاحين للرد خلال دقائق',
       AppStrings.chooseLawyerManually: 'اختر المحامين بنفسك',
-      AppStrings.manualChooseDesc: 'حدد المحامين المفضلين لإرسال طلبك إليهم مباشرة',
+      AppStrings.manualChooseDesc:
+          'حدد المحامين المفضلين لإرسال طلبك إليهم مباشرة',
       AppStrings.payByCard: 'الدفع بالبطاقة',
       AppStrings.payByWallet: 'الدفع بالمحفظة',
       AppStrings.promoCode: 'كود الخصم',
@@ -1181,16 +1346,20 @@ class AppLocalizations {
       AppStrings.omr: 'ر.ع',
       AppStrings.selected: 'تم الاختيار',
       AppStrings.browseLawyers: 'تصفح المحامين',
-      AppStrings.lawyersReadyDesc: 'أكثر من 100 محامي جاهزون للرد عليك خلال دقائق',
+      AppStrings.lawyersReadyDesc:
+          'أكثر من 100 محامي جاهزون للرد عليك خلال دقائق',
       AppStrings.serviceNameLabel: 'الخدمة',
       AppStrings.securePayment: 'دفع آمن',
       AppStrings.howToSendRequest: 'كيف تود إرسال طلبك؟',
       AppStrings.serviceFee: 'رسوم الخدمة',
-      AppStrings.serviceFeeDesc: 'استقبل عروض أسعار من +1000 محامي مرخص وابدأ التفاوض بسهولة .. اقرأ المزيد',
+      AppStrings.serviceFeeDesc:
+          'استقبل عروض أسعار من +1000 محامي مرخص وابدأ التفاوض بسهولة .. اقرأ المزيد',
       AppStrings.broadcastToAll: 'أرسل طلبك لجميع المحامين فوراً',
-      AppStrings.broadcastToAllDesc: 'سيصل طلبك إلى أكثر من 584 محامياً جاهزين للرد خلال دقائق',
+      AppStrings.broadcastToAllDesc:
+          'سيصل طلبك إلى أكثر من 584 محامياً جاهزين للرد خلال دقائق',
       AppStrings.chooseLawyersManually: 'اختر المحامين بنفسك',
-      AppStrings.chooseLawyersManuallyDesc: 'حدد المحامين المفضلين لإرسال طلبك مباشرة إليهم',
+      AppStrings.chooseLawyersManuallyDesc:
+          'حدد المحامين المفضلين لإرسال طلبك مباشرة إليهم',
       AppStrings.searchLawyer: 'ابحث عن محامي',
       AppStrings.sortBy: 'ترتيب حسب',
       AppStrings.lawyerType: 'محامي/محامية',
@@ -1210,12 +1379,14 @@ class AppLocalizations {
       AppStrings.serviceValue: 'قيمة الخدمة:',
       AppStrings.taxValue: 'قيمة الضريبة:',
       AppStrings.totalDue: 'المطلوب سداده:',
-      AppStrings.paymentDisclaimer: 'لحماية حقوقك وضمان جودة الخدمة، تأكد من إتمام الدفع داخل المنصة فقط. لسنا مسؤولين عن أي مبالغ تدفع للمحامين خارج المنصة.',
+      AppStrings.paymentDisclaimer:
+          'لحماية حقوقك وضمان جودة الخدمة، تأكد من إتمام الدفع داخل المنصة فقط. لسنا مسؤولين عن أي مبالغ تدفع للمحامين خارج المنصة.',
       AppStrings.totalAmount: 'إجمالي المطلوب سداداه',
       AppStrings.completeOrder: 'إتمام الطلب',
       AppStrings.currencySymbol: 'ر.ع',
       AppStrings.orderSentSuccessfully: 'تم إرسال طلبك بنجاح',
-      AppStrings.orderProcessingDesc: 'طلبك الآن قيد المعالجة، سيصلك عروض من المحامين المختارين قريباً.',
+      AppStrings.orderProcessingDesc:
+          'طلبك الآن قيد المعالجة، سيصلك عروض من المحامين المختارين قريباً.',
       AppStrings.orderNumber: 'رقم الطلب',
       AppStrings.trackOrder: 'متابعة الطلب',
       AppStrings.backToHome: 'العودة للرئيسية',
@@ -1235,27 +1406,31 @@ class AppLocalizations {
       AppStrings.lawyerWallet: 'المحفظة',
       AppStrings.deleteAccount: 'حذف الحساب',
       AppStrings.deleteAccountTitle: 'حذف الحساب نهائياً',
-      AppStrings.deleteAccountSubtitle: 'هل أنت متأكد من حذف حسابك؟ سيؤدي هذا الإجراء إلى فقدان كافة بياناتك ولا يمكن التراجع عنه.',
+      AppStrings.deleteAccountSubtitle:
+          'هل أنت متأكد من حذف حسابك؟ سيؤدي هذا الإجراء إلى فقدان كافة بياناتك ولا يمكن التراجع عنه.',
       AppStrings.deleteAccountAction: 'حذف حسابي',
       AppStrings.totalPayments: 'إجمالي المدفوعات',
       AppStrings.accountActive: 'الحساب نشط',
       AppStrings.completed: 'مكتمل',
       AppStrings.phone: 'رقم الهاتف',
-      AppStrings.emailOrPasswordNotValid: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+      AppStrings.emailOrPasswordNotValid:
+          'البريد الإلكتروني أو كلمة المرور غير صحيحة',
       AppStrings.cancelOrder: 'إلغاء',
       AppStrings.cancelCase: 'إلغاء',
       AppStrings.confirmCancelCase: 'هل أنت متأكد من إلغاء القضية؟',
       AppStrings.contactLegalOffice: 'تواصل مع المكتب القانوني',
       AppStrings.referenceNumber: 'رقم مرجع الاستشارة',
       AppStrings.consultationSubject: 'موضوع الاستشارة',
-      AppStrings.consultationPlaceholder: 'استشارة قانونية عامة حول الأنظمة واللوائح المعمول بها.',
+      AppStrings.consultationPlaceholder:
+          'استشارة قانونية عامة حول الأنظمة واللوائح المعمول بها.',
       AppStrings.attachedDocuments: 'المرفقات',
       AppStrings.reviewStep: 'مراجعة',
       AppStrings.analysisStep: 'التحليل',
       AppStrings.appointmentStep: 'الموعد',
       AppStrings.executionStep: 'التنفيذ',
       AppStrings.rateConsultation: 'تقييم التجربة الاستشارية',
-      AppStrings.rateConsultationDesc: 'رأيك يساهم في تحسين جودة خدماتنا القانونية',
+      AppStrings.rateConsultationDesc:
+          'رأيك يساهم في تحسين جودة خدماتنا القانونية',
       AppStrings.additionalNotes: 'ملاحظات إضافية:',
       AppStrings.writeNotesHint: 'اكتب ملاحظاتك هنا (اختياري)...',
       AppStrings.financialStatement: 'البيان المالي للخدمة',
@@ -1277,7 +1452,7 @@ class AppLocalizations {
       AppStrings.performanceOverview: 'نظرة عامة على الأداء',
       AppStrings.activeCasesLabel: 'قضايا جارية',
       AppStrings.monthlyIncome: 'دخل الشهر',
-      AppStrings.videoCall: 'مكالمة فديو',
+      AppStrings.videoCall: 'مكالمة مرئية',
       AppStrings.professionalTools: 'منصة العمل',
       AppStrings.legalLibrary: 'المكتبة القانونية',
       AppStrings.myTasks: 'مهامي',
@@ -1288,7 +1463,8 @@ class AppLocalizations {
       AppStrings.busy: 'مشغول',
       AppStrings.availableBalance: 'الرصيد المتاح',
       AppStrings.lastTransactions: 'آخر العمليات',
-      AppStrings.withdrawalActionMsg: 'سيتم تفعيل طلبات السحب للرصيد المتاح قريباً',
+      AppStrings.withdrawalActionMsg:
+          'سيتم تفعيل طلبات السحب للرصيد المتاح قريباً',
       AppStrings.pendingEarnings: 'أرباح معلقة',
       AppStrings.deductedCommission: 'العمولة المستقطعة',
       AppStrings.viewOptions: 'خيارات العرض',
@@ -1296,7 +1472,8 @@ class AppLocalizations {
       AppStrings.byAmountHighest: 'حسب المبلغ (الأعلى أولاً)',
       AppStrings.onlyBankTransfers: 'التحويلات البنكية فقط',
       AppStrings.noTransactions: 'لا توجد عمليات',
-      AppStrings.noTransactionsSubtitle: 'لم يتم العثور على عمليات ضمن هذا التصنيف.',
+      AppStrings.noTransactionsSubtitle:
+          'لم يتم العثور على عمليات ضمن هذا التصنيف.',
       AppStrings.income: 'دخل',
       AppStrings.expenses: 'مصروفات',
       AppStrings.myDailyTasks: 'مهامي اليومية',
@@ -1337,36 +1514,42 @@ class AppLocalizations {
       AppStrings.otpSentNotice: 'تم إرسال رمز التحقق إلى الهاتف المسجل',
       AppStrings.resendCodeAction: 'إعادة إرسال الرمز؟',
       AppStrings.personalDataTitle: 'البيانات الشخصية',
-      AppStrings.personalDataSubtitle: 'هذه البيانات تساعدنا في التحقق من هويتك الشخصية',
+      AppStrings.personalDataSubtitle:
+          'هذه البيانات تساعدنا في التحقق من هويتك الشخصية',
       AppStrings.fullNameIdHint: 'الاسم بالكامل (كما في الهوية)',
       AppStrings.civilIdHint: 'الرقم المدني / الهوية',
       AppStrings.requiredError: 'مطلوب',
       AppStrings.fullNameMinError: 'يرجى إدخال 3 أسماء على الأقل',
       AppStrings.professionalDataTitle: 'البيانات المهنية',
-      AppStrings.professionalDataSubtitle: 'أدخل تفاصيل ممارستك القانونية المهنية',
+      AppStrings.professionalDataSubtitle:
+          'أدخل تفاصيل ممارستك القانونية المهنية',
       AppStrings.licenseNumberHint: 'رقم القيد المهني',
       AppStrings.degreeHint: 'درجة القيد',
       AppStrings.experienceYearsHint: 'سنوات الخبرة',
       AppStrings.legalSpecsTitle: 'التخصصات القانونية',
       AppStrings.servicesAndPricesTitle: 'الخدمات والأسعار',
-      AppStrings.servicesAndPricesSubtitle: 'حدد الخدمات التي تقدمها وسعر كل خدمة بالريال العماني (ر.ع)',
+      AppStrings.servicesAndPricesSubtitle:
+          'حدد الخدمات التي تقدمها وسعر كل خدمة بالريال العماني (ر.ع)',
       AppStrings.setPricesTitle: 'تحديد الأسعار لكل خدمة',
       AppStrings.minOneServiceError: 'يرجى اختيار خدمة واحدة على الأقل',
       AppStrings.priceHint: 'السعر',
       AppStrings.fixedType: 'ثابت',
       AppStrings.averageType: 'متوسط',
       AppStrings.officialDocsTitle: 'المستندات الرسمية',
-      AppStrings.officialDocsSubtitle: 'يرجى رفع صور واضحة للمستندات المطلوبة للتحقق من المهنية',
+      AppStrings.officialDocsSubtitle:
+          'يرجى رفع صور واضحة للمستندات المطلوبة للتحقق من المهنية',
       AppStrings.idCardPhoto: 'صورة بطاقة الهوية',
       AppStrings.licensePhoto: 'صورة كارنيه النقابة / الرخصة',
       AppStrings.registrationCertOptional: 'شهادة قيد (اختياري)',
       AppStrings.clickToUpload: 'اضغط للرفع',
       AppStrings.reviewApplicationTitle: 'مراجعة طلبك',
-      AppStrings.reviewApplicationSubtitle: 'تأكد من صحة كافة البيانات المدخلة قبل إرسال الطلب للمراجعة',
+      AppStrings.reviewApplicationSubtitle:
+          'تأكد من صحة كافة البيانات المدخلة قبل إرسال الطلب للمراجعة',
       AppStrings.experienceLabel: 'الخبرة',
       AppStrings.specializationsLabel: 'التخصصات',
       AppStrings.applicationUnderReviewTitle: 'طلبك قيد المراجعــة',
-      AppStrings.applicationUnderReviewSubtitle: 'نحن نعمل الآن على التحقق من بياناتك ومستنداتك القانونية لضمان جودة فريق حُجّة. سنقوم بإبلاغك عبر رسالة نصية فور القبول.',
+      AppStrings.applicationUnderReviewSubtitle:
+          'نحن نعمل الآن على التحقق من بياناتك ومستنداتك القانونية لضمان جودة فريق حُجّة. سنقوم بإبلاغك عبر رسالة نصية فور القبول.',
       AppStrings.legalConsultation: 'استشارة قانونية',
       AppStrings.prefsAndApp: 'التفضيلات والتطبيق',
       AppStrings.clearAll: 'مسح الكل',
@@ -1403,7 +1586,8 @@ class AppLocalizations {
       AppStrings.inProgress: 'قيد العمل',
       AppStrings.noCases: 'لا توجد قضايا',
       AppStrings.noCasesSubtitle: 'لم يتم إسناد أي قضايا لك حتى الآن.',
-      AppStrings.noSearchResultsSubtitle: 'جرب البحث عن كلمة أخرى أو تغيير الفلترة.',
+      AppStrings.noSearchResultsSubtitle:
+          'جرب البحث عن كلمة أخرى أو تغيير الفلترة.',
       AppStrings.searchByCaseIdOrTitle: 'البحث برقم القضية أو العنوان...',
       AppStrings.caseNumber: 'رقم القضية: {id}',
       AppStrings.courtLabel: 'المحكمة',
@@ -1444,11 +1628,16 @@ class AppLocalizations {
       AppStrings.jordan: 'الأردن',
       AppStrings.redirectingToService: 'تم توجيهك لطلب الخدمة',
       AppStrings.chatUnderDevelopmentSubtitle: 'بدء المحادثة قيد التطوير',
-      AppStrings.notificationNewRequestDesc: 'لديك طلب استشارة عقارية جديد من خالد المعمري.',
-      AppStrings.notificationSessionReminderDesc: 'تذكير: لديك جلسة في المحكمة الابتدائية غداً الساعة 9:00 ص.',
-      AppStrings.notificationCaseUpdateDesc: 'تم تحديث حالة القضية رقم #4421 إلى "بانتظار حكم".',
-      AppStrings.notificationNewDocumentDesc: 'قام العميل برفع "لائحة دعوى المعدلة" في قضية التعويض.',
-      AppStrings.notificationBookingDesc: 'تم حجز موعد استشارة جديدة يوم الثلاثاء القادم.',
+      AppStrings.notificationNewRequestDesc:
+          'لديك طلب استشارة عقارية جديد من خالد المعمري.',
+      AppStrings.notificationSessionReminderDesc:
+          'تذكير: لديك جلسة في المحكمة الابتدائية غداً الساعة 9:00 ص.',
+      AppStrings.notificationCaseUpdateDesc:
+          'تم تحديث حالة القضية رقم #4421 إلى "بانتظار حكم".',
+      AppStrings.notificationNewDocumentDesc:
+          'قام العميل برفع "لائحة دعوى المعدلة" في قضية التعويض.',
+      AppStrings.notificationBookingDesc:
+          'تم حجز موعد استشارة جديدة يوم الثلاثاء القادم.',
       AppStrings.secondsUnit: 'ث',
       AppStrings.verifiedSuccessfully: 'تم التحقق بنجاح',
       AppStrings.addAction: 'إضافة',
@@ -1521,14 +1710,17 @@ class AppLocalizations {
       AppStrings.errorVerificationFailed: 'فشل التحقق',
       AppStrings.errorResendOtpFailed: 'فشل إعادة إرسال رمز التحقق',
       AppStrings.errorServer: 'خطأ في السيرفر، يرجى المحاولة لاحقاً',
-      AppStrings.noInternetConnection: 'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة ثم المحاولة مرة أخرى.',
-      AppStrings.requestTimedOut: 'استغرقت العملية وقتاً أطول من المتوقع. حاول مرة أخرى.',
+      AppStrings.noInternetConnection:
+          'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة ثم المحاولة مرة أخرى.',
+      AppStrings.requestTimedOut:
+          'استغرقت العملية وقتاً أطول من المتوقع. حاول مرة أخرى.',
       AppStrings.unexpectedError: 'حدث خطأ غير متوقع. حاول مرة أخرى.',
       AppStrings.operationCancelled: 'تم إلغاء العملية.',
       AppStrings.otpResentSuccessfully: 'تمت إعادة إرسال رمز التحقق بنجاح',
       AppStrings.sessionAddedSuccessfully: 'تمت إضافة الجلسة بنجاح',
       AppStrings.documentUploadedSuccessfully: 'تم رفع المستند بنجاح',
-      AppStrings.withdrawalRequestSubmittedSuccessfully: 'تم إرسال طلب السحب بنجاح',
+      AppStrings.withdrawalRequestSubmittedSuccessfully:
+          'تم إرسال طلب السحب بنجاح',
       AppStrings.fixed: 'ثابت',
       AppStrings.goToDashboard: 'الدخول للوحة التحكم',
       AppStrings.comma: '،',
@@ -1565,7 +1757,8 @@ class AppLocalizations {
       AppStrings.nextAppointment: 'الموعد القادم',
       AppStrings.documents: 'المستندات',
       AppStrings.noResults: 'لا توجد نتائج',
-      AppStrings.noResultsSubtitle: 'حاول البحث عن كلمة أخرى أو تغيير نص البحث.',
+      AppStrings.noResultsSubtitle:
+          'حاول البحث عن كلمة أخرى أو تغيير نص البحث.',
       AppStrings.myCases: 'قضاياي',
       AppStrings.mySubscription: 'اشتراكاتي',
       AppStrings.serviceName: 'اسم الخدمة',
@@ -1573,7 +1766,7 @@ class AppLocalizations {
       AppStrings.date: 'التاريخ',
       AppStrings.startSession: 'بدء الجلسة',
       AppStrings.confirmed: 'مؤكد',
-      
+
       // NEW ADDITIONS
       AppStrings.otpSentMessage: 'تم إرسال رمز التحقق بنجاح',
       AppStrings.backToLogin: 'العودة لتسجيل الدخول',
@@ -1585,7 +1778,6 @@ class AppLocalizations {
       AppStrings.mobileNumber: 'رقم الجوال',
       AppStrings.genderTitle: 'الجنس',
       AppStrings.gender: 'الجنس',
-      AppStrings.city: 'المدينة',
       AppStrings.accountTierTitle: 'نوع الحساب',
       AppStrings.profileUpdatedSuccessfully: 'تم تحديث الملف الشخصي بنجاح',
       AppStrings.logoutTitle: 'تسجيل الخروج',
@@ -1598,7 +1790,8 @@ class AppLocalizations {
       AppStrings.next: 'التالي',
       AppStrings.retry: 'إعادة المحاولة',
       AppStrings.weAreHereToHelp: 'نحن هنا لمساعدتك',
-      AppStrings.supportTeamReady: 'فريق الدعم الفني لدينا جاهز للرد على استفساراتكم على مدار الساعة.',
+      AppStrings.supportTeamReady:
+          'فريق الدعم الفني لدينا جاهز للرد على استفساراتكم على مدار الساعة.',
       AppStrings.phoneCall: 'اتصال هاتفي',
       AppStrings.workingHours: 'ساعات العمل',
       AppStrings.error: 'خطأ',
@@ -1638,7 +1831,8 @@ class AppLocalizations {
       AppStrings.currencyRial: 'ر.ع',
       AppStrings.priceRange: 'نطاق السعر',
       AppStrings.deleteProposal: 'حذف العرض',
-      AppStrings.confirmDeleteProposal: 'هل أنت متأكد من رغبتك في حذف هذا العرض؟',
+      AppStrings.confirmDeleteProposal:
+          'هل أنت متأكد من رغبتك في حذف هذا العرض؟',
       AppStrings.editProposal: 'تعديل العرض',
       AppStrings.optionalDocuments: 'المستندات (اختياري)',
       AppStrings.addFile: 'إضافة ملف',
@@ -1651,7 +1845,8 @@ class AppLocalizations {
       AppStrings.pressBackAgainToExit: 'اضغط مرة أخرى للخروج من التطبيق',
       AppStrings.welcomeTo: 'مرحباً بك في تطبيق',
       AppStrings.chooseAccountType: 'اختر نوع الحساب للبدء',
-      AppStrings.userRoleDescription: 'للبحث عن محامين والحصول على استشارات قانونية',
+      AppStrings.userRoleDescription:
+          'للبحث عن محامين والحصول على استشارات قانونية',
       AppStrings.lawyerRoleDescription: 'لإدارة قضاياك والوصول إلى عملاء جدد',
       AppStrings.operationSuccess: 'تمت العملية بنجاح',
       AppStrings.proposalsCountLabel: '{count} عروض',
@@ -1674,18 +1869,20 @@ class AppLocalizations {
       AppStrings.bookings: 'الحجوزات',
       AppStrings.myClients: 'موكليني',
       AppStrings.pleaseCompleteAllFields: 'الرجاء إكمال كافة الحقول',
-       AppStrings.selectionType: 'طريقة الاختيار',
+      AppStrings.selectionType: 'طريقة الاختيار',
       AppStrings.paymentMethod: 'طريقة الدفع',
       AppStrings.paymentStatus: 'حالة الدفع',
       AppStrings.discount: 'الخصم',
       AppStrings.receivedProposals: 'العروض المقدمة',
-      AppStrings.confirmAcceptProposal: 'هل أنت متأكد من قبول العرض المقدم من {name} بسعر {price}؟',
+      AppStrings.confirmAcceptProposal:
+          'هل أنت متأكد من قبول العرض المقدم من {name} بسعر {price}؟',
       AppStrings.enterDocumentTitles: 'أدخل عنوان كل مستند',
       AppStrings.documentTitle: 'عنوان المستند',
       AppStrings.uploadDocuments: 'رفع المستندات',
       AppStrings.pleaseEnterDocumentTitles: 'يرجى إدخال عنوان لكل مستند',
       AppStrings.pleaseSelectExecutionDate: 'يرجى اختيار تاريخ ووقت التنفيذ',
-      AppStrings.pleaseSelectAtLeastOneLawyer: 'يرجى اختيار محامٍ واحد على الأقل',
+      AppStrings.pleaseSelectAtLeastOneLawyer:
+          'يرجى اختيار محامٍ واحد على الأقل',
       AppStrings.executionDateTime: 'تاريخ ووقت التنفيذ',
       AppStrings.chooseExecutionDateTime: 'اختر تاريخ ووقت التنفيذ',
       AppStrings.couponApplied: 'تم تطبيق الكوبون: {code}',
@@ -1696,35 +1893,48 @@ class AppLocalizations {
       AppStrings.maxPrice: 'الحد الأقصى',
       AppStrings.pleaseEnterMaxPrice: 'يرجى تحديد الحد الأقصى للسعر',
       AppStrings.newRequest: 'طلب جديد',
-      
+
       // About Us Arabic
-      AppStrings.aboutUsDescription: 'حُجّة هي منصة قانونية متكاملة تربط الموكلين بنخبة من المحامين المرخصين بكل سهولة وأمان، لضمان وصول الجميع إلى الدعم القانوني الاحترافي.',
+      AppStrings.aboutUsDescription:
+          'حُجّة هي منصة قانونية متكاملة تربط الموكلين بنخبة من المحامين المرخصين بكل سهولة وأمان، لضمان وصول الجميع إلى الدعم القانوني الاحترافي.',
       AppStrings.ourGoals: 'أهدافنا',
-      AppStrings.ourGoalsContent: 'نهدف إلى تسهيل الوصول إلى العدالة وتقديم الدعم القانوني للجميع من خلال توظيف أحدث التقنيات الرقمية في المجال القانوني.',
-      AppStrings.linkBetweenUserAndProvider: 'نحن حلقة الوصل الموثوقة بينك وبين الخبراء القانونيين لضمان حقوقك.',
-      AppStrings.aboutUsContent: 'فريقنا مكرس لتقديم استشارات قانونية عالية الجودة تتسم بالشفافية والاحترافية.',
+      AppStrings.ourGoalsContent:
+          'نهدف إلى تسهيل الوصول إلى العدالة وتقديم الدعم القانوني للجميع من خلال توظيف أحدث التقنيات الرقمية في المجال القانوني.',
+      AppStrings.linkBetweenUserAndProvider:
+          'نحن حلقة الوصل الموثوقة بينك وبين الخبراء القانونيين لضمان حقوقك.',
+      AppStrings.aboutUsContent:
+          'فريقنا مكرس لتقديم استشارات قانونية عالية الجودة تتسم بالشفافية والاحترافية.',
       AppStrings.whyZoneApp: 'لماذا تطبيق حُجّة؟',
       AppStrings.rateApp: 'تقييم حُجّة',
-      
+
       // Privacy Policy Arabic
       AppStrings.privacyIntroTitle: 'مقدمة',
-      AppStrings.privacyIntroContent: 'نحن في حُجّة نولي أهمية قصوى لخصوصيتك وحماية بياناتك وفقاً لأعلى المعايير الأمنية الدولية.',
+      AppStrings.privacyIntroContent:
+          'نحن في حُجّة نولي أهمية قصوى لخصوصيتك وحماية بياناتك وفقاً لأعلى المعايير الأمنية الدولية.',
       AppStrings.dataWeCollectTitle: 'جمع البيانات',
-      AppStrings.dataWeCollectContent: 'نقوم بجمع البيانات الضرورية فقط لتقديم وتحسين خدماتنا القانونية لك.',
-      AppStrings.paymentDataNotice: 'تتم معالجة بيانات الدفع بشكل آمن تماماً عبر شركاء دفع مرخصين وموثوقين.',
+      AppStrings.dataWeCollectContent:
+          'نقوم بجمع البيانات الضرورية فقط لتقديم وتحسين خدماتنا القانونية لك.',
+      AppStrings.paymentDataNotice:
+          'تتم معالجة بيانات الدفع بشكل آمن تماماً عبر شركاء دفع مرخصين وموثوقين.',
       AppStrings.howWeUseDataTitle: 'استخدام البيانات',
-      AppStrings.howWeUseDataContent: 'تستخدم بياناتك لربطك بالمحامين المناسبين وإدارة طلباتك وقضاياك بكفاءة.',
+      AppStrings.howWeUseDataContent:
+          'تستخدم بياناتك لربطك بالمحامين المناسبين وإدارة طلباتك وقضاياك بكفاءة.',
       AppStrings.dataSharingTitle: 'مشاركة البيانات',
-      AppStrings.dataSharingContent: 'لا نشارك بياناتك إلا مع المحامين الذين تختار التعامل معهم وبناءً على رغبتك.',
+      AppStrings.dataSharingContent:
+          'لا نشارك بياناتك إلا مع المحامين الذين تختار التعامل معهم وبناءً على رغبتك.',
       AppStrings.dataProtectionTitle: 'حماية البيانات',
-      AppStrings.dataProtectionContent: 'نستخدم تقنيات تشفير متقدمة لضمان حماية معلوماتك الشخصية من أي وصول غير مصرح به.',
+      AppStrings.dataProtectionContent:
+          'نستخدم تقنيات تشفير متقدمة لضمان حماية معلوماتك الشخصية من أي وصول غير مصرح به.',
       AppStrings.userRightsTitle: 'حقوقك',
-      AppStrings.userRightsContent: 'لديك الحق في الوصول إلى بياناتك أو تصحيحها أو طلب حذفها في أي وقت.',
+      AppStrings.userRightsContent:
+          'لديك الحق في الوصول إلى بياناتك أو تصحيحها أو طلب حذفها في أي وقت.',
       AppStrings.policyUpdatesTitle: 'تحديثات السياسة',
-      AppStrings.policyUpdatesContent: 'قد نقوم بتحديث هذه السياسة دورياً وسنقوم بإشعارك بأي تغييرات جوهرية تطرأ عليها.',
-      
+      AppStrings.policyUpdatesContent:
+          'قد نقوم بتحديث هذه السياسة دورياً وسنقوم بإشعارك بأي تغييرات جوهرية تطرأ عليها.',
+
       // General Provisions Arabic
-      AppStrings.generalProvisions: 'تحكم هذه الشروط استخدام منصة حُجّة والخدمات المقدمة من خلالها.',
+      AppStrings.generalProvisions:
+          'تحكم هذه الشروط استخدام منصة حُجّة والخدمات المقدمة من خلالها.',
 
       // Lawyer Proposals & Services Arabic
       AppStrings.services: 'الخدمات',
@@ -1746,7 +1956,8 @@ class AppLocalizations {
       AppStrings.applicationSentSuccess: 'تم إرسال طلبك بنجاح',
       AppStrings.goToLawyerDashboard: 'الانتقال إلى لوحة المحامي',
       AppStrings.chooseAccountTypeSubtitle: 'حدد نوع الحساب المناسب لك.',
-      AppStrings.applicationUnderReviewNotice: 'تم استكمال التسجيل، وحسابك الآن بانتظار موافقة الإدارة قبل التفعيل الكامل.',
+      AppStrings.applicationUnderReviewNotice:
+          'تم استكمال التسجيل، وحسابك الآن بانتظار موافقة الإدارة قبل التفعيل الكامل.',
       AppStrings.personalPhoto: 'الصورة الشخصية',
       AppStrings.photoUploadDesc: 'ارفع صورة واضحة بصيغة PNG أو JPG أو WEBP.',
       AppStrings.nameRequired: 'الاسم مطلوب',
@@ -1756,9 +1967,11 @@ class AppLocalizations {
       AppStrings.validExpRequired: 'يرجى إدخال رقم صحيح',
       AppStrings.alreadyHaveAccountLogin: 'لديك حساب بالفعل؟ تسجيل الدخول',
       AppStrings.additionalDataTitle: 'أكمل البيانات الإضافية',
-      AppStrings.additionalDataSubtitle: 'هذه الحقول يحددها السيرفر حسب نوع الحساب الذي اخترته. الحقول الموسومة بنجمة مطلوبة.',
+      AppStrings.additionalDataSubtitle:
+          'هذه الحقول يحددها السيرفر حسب نوع الحساب الذي اخترته. الحقول الموسومة بنجمة مطلوبة.',
       AppStrings.submitAndCompleteRegistration: 'إرسال واستكمال التسجيل',
-      AppStrings.allowedFilesDesc: 'الملفات المسموح بها: PDF, JPG, PNG, WEBP حتى 5 ميجابايت.',
+      AppStrings.allowedFilesDesc:
+          'الملفات المسموح بها: PDF, JPG, PNG, WEBP حتى 5 ميجابايت.',
       AppStrings.uploadFile: 'رفع {name}',
       AppStrings.chooseFileHint: 'اختر الملف المناسب لهذا الحقل',
       AppStrings.enterNumberHint: 'أدخل رقم {name}',
@@ -1770,23 +1983,27 @@ class AppLocalizations {
       AppStrings.verificationCodeTitle: 'التحقق من رقم الهاتف',
       AppStrings.verificationCodeHint: 'رمز التحقق',
       AppStrings.verifyCodeButton: 'تأكيد الرمز',
-      AppStrings.enterVerificationCode: 'أدخل رمز التحقق المرسل إلى الرقم {phone}',
+      AppStrings.enterVerificationCode:
+          'أدخل رمز التحقق المرسل إلى الرقم {phone}',
       AppStrings.browseOpportunities: 'تصفح الفرص المتاحة',
-      AppStrings.noServicesSubtitle: 'لم تقم بإضافة أي خدمات قانونية بعد. ابدأ الآن بإضافة خدمتك الأولى.',
+      AppStrings.noServicesSubtitle:
+          'لم تقم بإضافة أي خدمات قانونية بعد. ابدأ الآن بإضافة خدمتك الأولى.',
       AppStrings.addNewService: 'أضف خدمة جديدة',
       AppStrings.legalRepresentation: 'تمثيل قانوني',
       AppStrings.companyFormation: 'تأسيس شركات',
       AppStrings.pleaseSelectServiceType: 'يرجى اختيار نوع الخدمة',
       AppStrings.markAllAsRead: 'تحديد الكل كمقروء',
       AppStrings.noNotifications: 'لا توجد إشعارات',
-      AppStrings.noNotificationsSubtitle: 'سنقوم بإخطارك عند وجود تحديثات جديدة.',
+      AppStrings.noNotificationsSubtitle:
+          'سنقوم بإخطارك عند وجود تحديثات جديدة.',
       AppStrings.callNoLongerAvailable: 'هذه المكالمة لم تعد متاحة.',
       AppStrings.minutesAgo: 'منذ {count} دقيقة',
       AppStrings.hoursAgo: 'منذ {count} ساعة',
       AppStrings.daysAgo: 'منذ {count} يوم',
       AppStrings.draftRestored: 'تم استعادة المسودة السابقة بنجاح',
       AppStrings.pleaseSelectAccountType: 'الرجاء اختيار نوع الحساب',
-      AppStrings.pleaseSelectAtLeastOneSpec: 'الرجاء اختيار تخصص واحد على الأقل',
+      AppStrings.pleaseSelectAtLeastOneSpec:
+          'الرجاء اختيار تخصص واحد على الأقل',
       AppStrings.pleaseUploadPersonalPhoto: 'الرجاء رفع الصورة الشخصية',
       AppStrings.pleaseUploadField: 'الرجاء رفع {field}',
       AppStrings.pleaseEnterField: 'الرجاء إدخال {field}',
@@ -1799,11 +2016,14 @@ class AppLocalizations {
       AppStrings.basicInfoSaved: 'تم حفظ البيانات الأساسية بنجاح',
       AppStrings.phoneAlreadyRegistered: 'رقم الهاتف هذا مسجل مسبقاً',
       AppStrings.emailAlreadyRegistered: 'البريد الإلكتروني هذا مسجل مسبقاً',
-      AppStrings.noOpportunitiesSubtitle: 'لا توجد طلبات عملاء متاحة في تخصصاتك. سنقوم بإخطارك عند ظهور فرص جديدة.',
+      AppStrings.noOpportunitiesSubtitle:
+          'لا توجد طلبات عملاء متاحة في تخصصاتك. سنقوم بإخطارك عند ظهور فرص جديدة.',
       AppStrings.emptyServicesHistory: 'سجل الخدمات المتاحة فارغ حالياً.',
-      AppStrings.noActiveOrdersSubtitle: 'ليس لديك طلبات نشطة حالياً. يمكنك تصفح الخدمات وطلب استشارة جديدة.',
+      AppStrings.noActiveOrdersSubtitle:
+          'ليس لديك طلبات نشطة حالياً. يمكنك تصفح الخدمات وطلب استشارة جديدة.',
       AppStrings.emptyOrderHistory: 'سجل الطلبات فارغ حالياً.',
-      AppStrings.maintenanceDefaultMessage: 'نحن نقوم ببعض التحسينات. سنعود قريباً.',
+      AppStrings.maintenanceDefaultMessage:
+          'نحن نقوم ببعض التحسينات. سنعود قريباً.',
       AppStrings.updateDefaultMessage: 'يرجى تحديث التطبيق للاستمرار.',
       AppStrings.processingAndVerifying: 'جاري المعالجة والتحقق...',
       AppStrings.fileVerifiedSuccess: 'تم التحقق من الملف بنجاح',
@@ -1846,7 +2066,8 @@ class AppLocalizations {
       AppStrings.consultationLeft: 'استشارة متبقية',
       AppStrings.choosePackage: 'اختر الباقة المناسبة',
       AppStrings.notVisibleToClients: 'الملف الشخصي غير ظاهر للعملاء',
-      AppStrings.activateSubscriptionToStart: 'يرجى تفعيل الاشتراك للبدء في استقبال الطلبات',
+      AppStrings.activateSubscriptionToStart:
+          'يرجى تفعيل الاشتراك للبدء في استقبال الطلبات',
       AppStrings.subscriptionExpiringSoon: 'الاشتراك ينتهي قريباً',
       AppStrings.renew: 'تجديد',
       AppStrings.visibleToClients: 'الملف الشخصي ظاهر للعملاء',
@@ -1879,7 +2100,6 @@ class AppLocalizations {
       AppStrings.failedToSendMessage: 'فشل إرسال الرسالة',
       AppStrings.failedToSendFile: 'فشل إرسال الملف',
       AppStrings.voiceCall: 'مكالمة صوتية',
-      AppStrings.videoCall: 'مكالمة مرئية',
       AppStrings.startConversationWithLawyer: 'ابدأ المحادثة مع المحامي',
       AppStrings.startConversationWithClient: 'ابدأ المحادثة مع العميل',
       AppStrings.typeYourMessage: 'اكتب رسالتك...',
@@ -1887,14 +2107,17 @@ class AppLocalizations {
       AppStrings.attachment: 'مرفق',
       AppStrings.upcomingSessions: 'الجلسات القادمة',
       AppStrings.previousSessions: 'الجلسات السابقة',
-      AppStrings.addAction: 'إضافة',
       AppStrings.completePaymentNow: 'إتمام الدفع الآن',
       AppStrings.paymentScreenTitle: 'إتمام عملية الدفع',
       AppStrings.paymentFailedDialogTitle: 'لم تكتمل عملية الدفع',
-      AppStrings.paymentFailedDialogMessage: 'حدثت مشكلة أثناء إتمام الدفع. يمكنك المحاولة مرة أخرى أو العودة للرئيسية.',
+      AppStrings.paymentFailedDialogMessage:
+          'حدثت مشكلة أثناء إتمام الدفع. يمكنك المحاولة مرة أخرى أو العودة للرئيسية.',
       AppStrings.cancelPaymentDialogTitle: 'هل أنت متأكد من إلغاء الدفع؟',
-      AppStrings.cancelPaymentDialogMessage: 'سيتم إيقاف عملية الدفع الحالية والعودة إلى الصفحة الرئيسية.',
+      AppStrings.cancelPaymentDialogMessage:
+          'سيتم إيقاف عملية الدفع الحالية والعودة إلى الصفحة الرئيسية.',
       AppStrings.continuePayment: 'أكمل الدفع',
+      AppStrings.paymentLinkUnavailable:
+          'رابط الدفع غير متاح حالياً. حاول مرة أخرى.',
       AppStrings.makeVideoCall: 'إجراء مكالمة مرئية',
       AppStrings.makeVoiceCall: 'إجراء مكالمة صوتية',
       AppStrings.enterChat: 'دخول المحادثة',
@@ -1914,14 +2137,10 @@ class AppLocalizations {
       // Fallback: convert camelCase key to readable words
       // e.g. "cancelOrder" → "Cancel Order"
       translation = key
-          .replaceAllMapped(
-            RegExp(r'([A-Z])'),
-            (m) => ' ${m.group(0)}',
-          )
+          .replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m.group(0)}')
           .trim();
       if (translation.isNotEmpty) {
-        translation =
-            translation[0].toUpperCase() + translation.substring(1);
+        translation = translation[0].toUpperCase() + translation.substring(1);
       }
     }
     if (namedArgs != null) {
@@ -1933,7 +2152,8 @@ class AppLocalizations {
   }
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1954,6 +2174,9 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 
 extension StringExtension on String {
   String tr(BuildContext context, {Map<String, String>? namedArgs}) {
-    return AppLocalizations.of(context)?.translate(this, namedArgs: namedArgs) ?? this;
+    return AppLocalizations.of(
+          context,
+        )?.translate(this, namedArgs: namedArgs) ??
+        this;
   }
 }

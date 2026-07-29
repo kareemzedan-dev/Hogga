@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
@@ -72,8 +71,11 @@ class CaseCard extends StatelessWidget {
                           Flexible(
                             child: Row(
                               children: [
-                                Icon(Icons.person_outline_rounded,
-                                    size: 12.sp, color: context.textSecondary),
+                                Icon(
+                                  Icons.person_outline_rounded,
+                                  size: 12.sp,
+                                  color: context.textSecondary,
+                                ),
                                 SizedBox(width: 4.w),
                                 Flexible(
                                   child: Text(
@@ -93,7 +95,10 @@ class CaseCard extends StatelessWidget {
                           ),
 
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6.w,
+                              vertical: 4.h,
+                            ),
                             decoration: BoxDecoration(
                               color: context.chipBg,
                               borderRadius: BorderRadius.circular(8.r),
@@ -131,7 +136,11 @@ class CaseCard extends StatelessWidget {
 
             Padding(
               padding: EdgeInsets.symmetric(vertical: 14.h),
-              child: Divider(height: 1, thickness: 0.8, color: context.divColor),
+              child: Divider(
+                height: 1,
+                thickness: 0.8,
+                color: context.divColor,
+              ),
             ),
 
             // ── Badges row: service type + case status ──
@@ -146,13 +155,19 @@ class CaseCard extends StatelessWidget {
                   color: _serviceColor(),
                 ),
                 SizedBox(width: 8.w),
-                LawyerStatusBadge(text: lawyerCase.statusText.toLocalizedStatus(context)),
+                LawyerStatusBadge(
+                  text: lawyerCase.statusText.toLocalizedStatus(context),
+                ),
               ],
             ),
 
             Padding(
               padding: EdgeInsets.symmetric(vertical: 14.h),
-              child: Divider(height: 1, thickness: 0.8, color: context.divColor),
+              child: Divider(
+                height: 1,
+                thickness: 0.8,
+                color: context.divColor,
+              ),
             ),
 
             // ── Bottom: date + court + status ──
@@ -165,7 +180,11 @@ class CaseCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.event_outlined, size: 13.sp, color: AppColors.golden),
+                          Icon(
+                            Icons.event_outlined,
+                            size: 13.sp,
+                            color: AppColors.golden,
+                          ),
                           SizedBox(width: 5.w),
                           Flexible(
                             child: Text(
@@ -180,11 +199,16 @@ class CaseCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if (lawyerCase.court != null && lawyerCase.court!.isNotEmpty) ...[
+                      if (lawyerCase.court != null &&
+                          lawyerCase.court!.isNotEmpty) ...[
                         SizedBox(height: 6.h),
                         Row(
                           children: [
-                            Icon(Icons.location_on_outlined, size: 13.sp, color: AppColors.golden),
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 13.sp,
+                              color: AppColors.golden,
+                            ),
                             SizedBox(width: 5.w),
                             Flexible(
                               child: Text(
@@ -208,8 +232,10 @@ class CaseCard extends StatelessWidget {
 
             SizedBox(height: 18.h),
 
-            // ── Action buttons (only shown if accepted & has chat room) ──
-            if (lawyerCase.statusKey == 'accepted' && lawyerCase.hasChatRoom)
+            // ── Action button: one communication method per service type ──
+            if (lawyerCase.statusKey == 'accepted' &&
+                lawyerCase.hasChatRoom &&
+                _hasCommunicationAction())
               Padding(
                 padding: EdgeInsets.only(bottom: 10.h),
                 child: SizedBox(
@@ -233,13 +259,12 @@ class CaseCard extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: _serviceColor()),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.r)),
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
                     ),
                   ),
                 ),
               ),
-
-
           ],
         ),
       ),
@@ -247,8 +272,10 @@ class CaseCard extends StatelessWidget {
   }
 
   void _openService(BuildContext context) {
-    final serviceType = lawyerCase.serviceType;
-    if (serviceType == 'video' || serviceType == 'audio' || serviceType == 'phone') {
+    final serviceType = lawyerCase.serviceType.toLowerCase();
+    if (serviceType == 'video' ||
+        serviceType == 'audio' ||
+        serviceType == 'phone') {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -262,19 +289,18 @@ class CaseCard extends StatelessWidget {
           ),
         ),
       );
-    } else {
+    } else if (serviceType == 'chat') {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider(
-                create: (_) => di.sl<LawyerChatMessagesCubit>(param1: lawyerCase.chatRoomId!)
-                  ..loadMessages(),
+                create: (_) => di.sl<LawyerChatMessagesCubit>(
+                  param1: lawyerCase.chatRoomId!,
+                )..loadMessages(),
               ),
-              BlocProvider(
-                create: (_) => di.sl<LawyerCallCubit>(),
-              ),
+              BlocProvider(create: (_) => di.sl<LawyerCallCubit>()),
             ],
             child: LawyerChatScreen(
               chatRoomId: lawyerCase.chatRoomId!,
@@ -287,8 +313,16 @@ class CaseCard extends StatelessWidget {
     }
   }
 
+  bool _hasCommunicationAction() {
+    final serviceType = lawyerCase.serviceType.toLowerCase();
+    return serviceType == 'chat' ||
+        serviceType == 'video' ||
+        serviceType == 'audio' ||
+        serviceType == 'phone';
+  }
+
   IconData _getActionIcon() {
-    switch (lawyerCase.serviceType) {
+    switch (lawyerCase.serviceType.toLowerCase()) {
       case 'video':
         return Icons.videocam_rounded;
       case 'audio':
@@ -300,7 +334,7 @@ class CaseCard extends StatelessWidget {
   }
 
   String _getActionLabel(BuildContext context) {
-    switch (lawyerCase.serviceType) {
+    switch (lawyerCase.serviceType.toLowerCase()) {
       case 'video':
         return AppStrings.videoCall.tr(context);
       case 'audio':
@@ -342,7 +376,7 @@ class CaseCard extends StatelessWidget {
   }
 
   IconData _getServiceIcon() {
-    switch (lawyerCase.serviceType) {
+    switch (lawyerCase.serviceType.toLowerCase()) {
       case 'video':
         return Icons.videocam_outlined;
       case 'audio':
@@ -357,7 +391,7 @@ class CaseCard extends StatelessWidget {
   }
 
   Color _serviceColor() {
-    switch (lawyerCase.serviceType) {
+    switch (lawyerCase.serviceType.toLowerCase()) {
       case 'video':
         return const Color(0xFF9B59B6);
       case 'audio':

@@ -8,9 +8,15 @@ class LawyerClientModel extends LawyerClient {
     super.phone,
     required super.activeCasesCount,
     super.activeCasesText,
+    super.serviceType,
+    super.chatRoomId,
+    super.caseId,
   });
 
   factory LawyerClientModel.fromJson(Map<String, dynamic> json) {
+    final rawChatRoomId =
+        json['chat_room_id'] ?? json['chatRoomId'] ?? json['room_id'];
+    final rawCaseId = json['case_id'] ?? json['legal_case_id'];
     return LawyerClientModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
@@ -18,6 +24,18 @@ class LawyerClientModel extends LawyerClient {
       phone: json['phone'],
       activeCasesCount: json['active_cases_count'] ?? 0,
       activeCasesText: json['active_cases_text'],
+      serviceType:
+          (json['service_type'] ??
+                  json['service_type_key'] ??
+                  json['communication_type'])
+              ?.toString()
+              .toLowerCase(),
+      chatRoomId: rawChatRoomId is int
+          ? rawChatRoomId
+          : int.tryParse(rawChatRoomId?.toString() ?? ''),
+      caseId: rawCaseId is int
+          ? rawCaseId
+          : int.tryParse(rawCaseId?.toString() ?? ''),
     );
   }
 }

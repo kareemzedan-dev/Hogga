@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -33,7 +32,8 @@ class _HomeMainBannerState extends State<HomeMainBanner> {
               child: PageView.builder(
                 itemCount: banners.length,
                 onPageChanged: (i) => setState(() => _currentIndex = i),
-                itemBuilder: (context, index) => _BannerCard(banner: banners[index]),
+                itemBuilder: (context, index) =>
+                    _BannerCard(banner: banners[index]),
               ),
             ),
             const SizedBox(height: 8),
@@ -73,7 +73,7 @@ class _BannerCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -81,16 +81,25 @@ class _BannerCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: CachedNetworkImage(
-          imageUrl: banner.imageUrl,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Container(
-            color: Colors.grey[200],
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-          errorWidget: (context, url, error) => Container(
-            color: Colors.grey[300],
-            child: const Icon(Icons.error),
+        child: ColoredBox(
+          color: context.cardBg,
+          child: CachedNetworkImage(
+            imageUrl: banner.imageUrl,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.contain,
+            alignment: Alignment.center,
+            placeholder: (context, url) => Container(
+              color: context.cardBg,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: context.cardBg,
+              child: Icon(
+                Icons.error_outline_rounded,
+                color: context.colors.error,
+              ),
+            ),
           ),
         ),
       ),

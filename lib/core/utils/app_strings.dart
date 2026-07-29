@@ -18,7 +18,7 @@ class AppStrings {
   static const String sendResetLink = 'sendResetLink';
   static const String resetEmailSent = 'resetEmailSent';
   static const String otpCode = 'otpCode';
-  static const String otpSentMessage ='otpSentMessage';
+  static const String otpSentMessage = 'otpSentMessage';
   static const String otpMustBe4 = 'otpMustBe4';
 
   static const String resendCode = 'resendCode';
@@ -26,7 +26,6 @@ class AppStrings {
 
   static const String invalidOtp = 'invalidOtp';
   static const String city = 'city';
-
 
   static const String weakPassword = 'weakPassword';
 
@@ -74,7 +73,6 @@ class AppStrings {
   static const String logout = 'logout';
   static const String instructions = 'instructions';
 
-
   // Location
 
   //new
@@ -109,7 +107,7 @@ class AppStrings {
   // Home Promo
   static const String sevenMinutesFree = 'sevenMinutesFree';
   static const String availabilityToday = 'availabilityToday';
-  
+
   // Home Services Section
   static const String howCanWeHelp = 'howCanWeHelp';
   static const String legalConsultationDesc = 'legalConsultationDesc';
@@ -138,14 +136,15 @@ class AppStrings {
 
   // OnBoarding
   static const String skip = 'skip';
-  static const String startNowButton = 'startNowButton'; // Renamed from startNow to avoid duplicate
+  static const String startNowButton =
+      'startNowButton'; // Renamed from startNow to avoid duplicate
   static const String onboardingTitle1 = 'onboardingTitle1';
   static const String onboardingSubtitle1 = 'onboardingSubtitle1';
   static const String onboardingTitle2 = 'onboardingTitle2';
   static const String onboardingSubtitle2 = 'onboardingSubtitle2';
   static const String onboardingTitle3 = 'onboardingTitle3';
   static const String onboardingSubtitle3 = 'onboardingSubtitle3';
-  
+
   // OnBoarding Illustrations
   static const String onboardingLawyer1 = 'onboardingLawyer1';
   static const String onboardingLawyer2 = 'onboardingLawyer2';
@@ -214,9 +213,7 @@ class AppStrings {
   static const String next = 'next';
   static const String phone = 'phone';
 
-
   static const String back = 'back';
-
 
   // Service Management
 
@@ -225,7 +222,6 @@ class AppStrings {
   static const String phoneCall = 'phoneCall';
   static const String phoneNumber = '01155262062';
   static const String profileUpdatedSuccessfully = 'profileUpdatedSuccessfully';
-
 
   static const String emailAddress = 'support@hoggaapp.com';
   static const String workingHours = 'workingHours';
@@ -237,7 +233,7 @@ class AppStrings {
   static const String ourGoals = 'ourGoals';
   static const String ourGoalsContent = 'ourGoalsContent';
   static const String linkBetweenUserAndProvider = 'linkBetweenUserAndProvider';
-  
+
   static const String aboutUsContent = 'aboutUsContent';
 
   // Privacy Policy
@@ -281,13 +277,10 @@ class AppStrings {
   static const String paymentMethod = 'paymentMethod';
   static const String total = 'total';
 
-
   // Payment Methods
   static const String confirm = 'confirm';
 
   // Placeholder text
-
-
 
   static const String profileTitle = 'profileTitle';
   static const String termsOfUse = 'termsOfUse';
@@ -307,7 +300,8 @@ class AppStrings {
   static const String upgradePackage = 'upgradePackage';
   static const String subscriptionSuccess = 'subscriptionSuccess';
   static const String notVisibleToClients = 'notVisibleToClients';
-  static const String activateSubscriptionToStart = 'activateSubscriptionToStart';
+  static const String activateSubscriptionToStart =
+      'activateSubscriptionToStart';
   static const String subscriptionExpiringSoon = 'subscriptionExpiringSoon';
   static const String renew = 'renew';
   static const String visibleToClients = 'visibleToClients';
@@ -320,8 +314,6 @@ class AppStrings {
   static const String add = 'add';
   static const String currency = 'currency';
 
-
-
   //mybookings
 
   static const String noOrdersYet = 'noOrdersYet';
@@ -332,26 +324,24 @@ class AppStrings {
 
   // Discounts
 
-
   // Common Actions
   static const String retry = 'retry';
 
   static const String error = 'error';
-  
+
   // Status Banner
 
   // Location Errors
   static const String followUsOnSocialMedia = 'followUsOnSocialMedia';
   static const String whyZoneApp = 'whyZoneApp';
   static const String version = 'version';
-  
+
   // Payment Step
 
   // Days
 
   // Provider Registration
-  
-  
+
   // Provider Errors
 
   // Signup
@@ -363,7 +353,8 @@ class AppStrings {
   static const String cancellationPolicyContent = 'cancellationPolicyContent';
 
   // Social Media
-  static const String facebookPageUrl = 'https://www.facebook.com/share/1CJj3u4ZVw/';
+  static const String facebookPageUrl =
+      'https://www.facebook.com/share/1CJj3u4ZVw/';
 
   // Manual Location Entry
 
@@ -374,12 +365,11 @@ class AppStrings {
   static const String logoutTitle = 'logoutTitle';
   static const String logoutSubtitle = 'logoutSubtitle';
 
-
   static const String loginWithGoogle = 'loginWithGoogle';
   static const String registerWithGoogle = 'registerWithGoogle';
   static const String hello = 'hello';
   static const String searchHint = 'searchHint';
-  
+
   // Settings additions
   static const String fingerprintLogin = 'fingerprintLogin';
   static const String transactionHistory = 'transactionHistory';
@@ -409,7 +399,7 @@ class AppStrings {
   // hogga Services
   static const String hoggaServicesHub = 'hoggaServicesHub';
   static const String chooseSpecialization = 'chooseSpecialization';
-  
+
   // Tabs
   static const String legalConsultationsTab = 'legalConsultationsTab';
   static const String judiciaryExecutionTab = 'judiciaryExecutionTab';
@@ -428,7 +418,8 @@ class AppStrings {
   static const String legalWritings = 'legalWritings';
   static const String legalWritingsDesc = 'legalWritingsDesc';
   static const String pleadingAndAttorneyship = 'pleadingAndAttorneyship';
-  static const String pleadingAndAttorneyshipDesc = 'pleadingAndAttorneyshipDesc';
+  static const String pleadingAndAttorneyshipDesc =
+      'pleadingAndAttorneyshipDesc';
   static const String sessionAttendance = 'sessionAttendance';
   static const String sessionAttendanceDesc = 'sessionAttendanceDesc';
   static const String caseStudy = 'caseStudy';
@@ -456,7 +447,8 @@ class AppStrings {
   static const String specCommercial = 'specCommercial';
   static const String specCommercialDesc = 'specCommercialDesc';
   static const String specIntellectualProperty = 'specIntellectualProperty';
-  static const String specIntellectualPropertyDesc = 'specIntellectualPropertyDesc';
+  static const String specIntellectualPropertyDesc =
+      'specIntellectualPropertyDesc';
   static const String specAdministrative = 'specAdministrative';
   static const String specAdministrativeDesc = 'specAdministrativeDesc';
   static const String specExecution = 'specExecution';
@@ -546,7 +538,6 @@ class AppStrings {
 
   // static const String currencySymbol = 'currencySymbol'; // Redundant
 
-
   // Confirmation Screen
   static const String orderSentSuccessfully = 'orderSentSuccessfully';
   static const String orderProcessingDesc = 'orderProcessingDesc';
@@ -598,13 +589,14 @@ class AppStrings {
   static const String clientReviews = 'clientReviews';
   static const String viewAll = 'viewAll';
   static const String requestConsultationNow = 'requestConsultationNow';
-  
+
   // Lawyer Dashboard UI
   static const String receptionSettings = 'receptionSettings';
   static const String acceptChatConsultations = 'acceptChatConsultations';
   static const String acceptInstantConsultations = 'acceptInstantConsultations';
   static const String lawyerServicesEndPoint = "lawyer/services";
-  static const String lawyerCategoryItemsEndPoint = "lawyer/services/categores-items";
+  static const String lawyerCategoryItemsEndPoint =
+      "lawyer/services/categores-items";
   static const String lawyerAddServiceEndPoint = "lawyer/services/store";
   static const String totalPurchases = 'totalPurchases';
   static const String pendingPurchases = 'pendingPurchases';
@@ -625,7 +617,7 @@ class AppStrings {
   static const String allAppointments = 'allAppointments';
   static const String availableOnline = 'availableOnline';
   static const String busy = 'busy';
-  
+
   // Lawyer Wallet
 
   static const String pendingEarnings = 'pendingEarnings';
@@ -658,7 +650,7 @@ class AppStrings {
   static const String thursday = 'thursday';
   static const String friday = 'friday';
   static const String saturday = 'saturday';
-  
+
   // Splash
   static const String appNameArabic = 'حُجّة';
   static const String splashSubtitle = 'splashSubtitle';
@@ -710,8 +702,10 @@ class AppStrings {
   static const String reviewApplicationSubtitle = 'reviewApplicationSubtitle';
   static const String experienceLabel = 'experienceLabel';
   static const String specializationsLabel = 'specializationsLabel';
-  static const String applicationUnderReviewTitle = 'applicationUnderReviewTitle';
-  static const String applicationUnderReviewSubtitle = 'applicationUnderReviewSubtitle';
+  static const String applicationUnderReviewTitle =
+      'applicationUnderReviewTitle';
+  static const String applicationUnderReviewSubtitle =
+      'applicationUnderReviewSubtitle';
   static const String legalConsultation = 'legalConsultation';
   static const String prefsAndApp = 'prefsAndApp';
   static const String clearAll = 'clearAll';
@@ -768,11 +762,14 @@ class AppStrings {
   static const String egypt = 'egypt';
   static const String jordan = 'jordan';
   static const String redirectingToService = 'redirectingToService';
-  static const String chatUnderDevelopmentSubtitle = 'chatUnderDevelopmentSubtitle';
+  static const String chatUnderDevelopmentSubtitle =
+      'chatUnderDevelopmentSubtitle';
   static const String notificationNewRequestDesc = 'notificationNewRequestDesc';
-  static const String notificationSessionReminderDesc = 'notificationSessionReminderDesc';
+  static const String notificationSessionReminderDesc =
+      'notificationSessionReminderDesc';
   static const String notificationCaseUpdateDesc = 'notificationCaseUpdateDesc';
-  static const String notificationNewDocumentDesc = 'notificationNewDocumentDesc';
+  static const String notificationNewDocumentDesc =
+      'notificationNewDocumentDesc';
   static const String notificationBookingDesc = 'notificationBookingDesc';
   static const String omr = 'omr';
   static const String secondsUnit = 'secondsUnit';
@@ -793,7 +790,8 @@ class AppStrings {
   static const String clientData = 'clientData';
   static const String newClient = 'newClient';
   static const String requestedAppointment = 'requestedAppointment';
-  static const String implementationDurationInDays = 'implementationDurationInDays';
+  static const String implementationDurationInDays =
+      'implementationDurationInDays';
   static const String offerExpiryDate = 'offerExpiryDate';
   static const String offerValue = 'offerValue';
   static const String offerDetails = 'offerDetails';
@@ -874,8 +872,10 @@ class AppStrings {
   static const String operationCancelled = 'operationCancelled';
   static const String otpResentSuccessfully = 'otpResentSuccessfully';
   static const String sessionAddedSuccessfully = 'sessionAddedSuccessfully';
-  static const String documentUploadedSuccessfully = 'documentUploadedSuccessfully';
-  static const String withdrawalRequestSubmittedSuccessfully = 'withdrawalRequestSubmittedSuccessfully';
+  static const String documentUploadedSuccessfully =
+      'documentUploadedSuccessfully';
+  static const String withdrawalRequestSubmittedSuccessfully =
+      'withdrawalRequestSubmittedSuccessfully';
   static const String fixed = 'fixed';
   static const String taskDetails = 'taskDetails';
   static const String priority = 'priority';
@@ -982,7 +982,6 @@ class AppStrings {
   static const String addFile = 'addFile';
   static const String accepted = 'accepted';
 
-
   static const String rejected = 'rejected';
   static const String pendingReview = 'pendingReview';
   static const String operationSuccess = 'operationSuccess';
@@ -1028,7 +1027,7 @@ class AppStrings {
   static const String cancelledStatus = 'cancelledStatus';
   static const String deliveredStatus = 'deliveredStatus';
   static const String myClients = 'myClients';
-  
+
   // New user side strings
   static const String pleaseCompleteAllFields = 'pleaseCompleteAllFields';
   static const String selectionType = 'selectionType';
@@ -1057,12 +1056,12 @@ class AppStrings {
   static const String serviceNameLabel = 'serviceNameLabel';
   static const String securePayment = 'securePayment';
 
-
   static const String enterDocumentTitles = 'enterDocumentTitles';
   static const String documentTitle = 'documentTitle';
   static const String pleaseEnterDocumentTitles = 'pleaseEnterDocumentTitles';
   static const String pleaseSelectExecutionDate = 'pleaseSelectExecutionDate';
-  static const String pleaseSelectAtLeastOneLawyer = 'pleaseSelectAtLeastOneLawyer';
+  static const String pleaseSelectAtLeastOneLawyer =
+      'pleaseSelectAtLeastOneLawyer';
   static const String executionDateTime = 'executionDateTime';
   static const String chooseExecutionDateTime = 'chooseExecutionDateTime';
   static const String couponApplied = 'couponApplied';
@@ -1076,13 +1075,14 @@ class AppStrings {
   static const String activeLabel = 'activeLabel';
   static const String inactiveLabel = 'inactiveLabel';
   static const String confirmDelete = 'confirmDelete';
-  
+
   static const String applicationSentSuccess = 'applicationSentSuccess';
   static const String goToLawyerDashboard = 'goToLawyerDashboard';
   static const String chooseAccountType = 'chooseAccountType';
   static const String chooseAccountTypeSubtitle = 'chooseAccountTypeSubtitle';
-  static const String applicationUnderReviewNotice = 'applicationUnderReviewNotice';
-  
+  static const String applicationUnderReviewNotice =
+      'applicationUnderReviewNotice';
+
   static const String personalPhoto = 'personalPhoto';
   static const String photoUploadDesc = 'photoUploadDesc';
   static const String nameRequired = 'nameRequired';
@@ -1091,10 +1091,11 @@ class AppStrings {
   static const String expRequired = 'expRequired';
   static const String validExpRequired = 'validExpRequired';
   static const String alreadyHaveAccountLogin = 'alreadyHaveAccountLogin';
-  
+
   static const String additionalDataTitle = 'additionalDataTitle';
   static const String additionalDataSubtitle = 'additionalDataSubtitle';
-  static const String submitAndCompleteRegistration = 'submitAndCompleteRegistration';
+  static const String submitAndCompleteRegistration =
+      'submitAndCompleteRegistration';
   static const String allowedFilesDesc = 'allowedFilesDesc';
   static const String uploadFile = 'uploadFile';
   static const String chooseFileHint = 'chooseFileHint';
@@ -1102,17 +1103,17 @@ class AppStrings {
   static const String enterTextHint = 'enterTextHint';
   static const String required = 'required';
   static const String optional = 'optional';
-  
+
   static const String chooseSpecsSubtitle = 'chooseSpecsSubtitle';
   static const String specsSelectedCount = 'specsSelectedCount';
-  
+
   static const String noServicesSubtitle = 'noServicesSubtitle';
   static const String addNewService = 'addNewService';
-  
+
   static const String legalRepresentation = 'legalRepresentation';
   static const String companyFormation = 'companyFormation';
   static const String pleaseSelectServiceType = 'pleaseSelectServiceType';
-  
+
   static const String markAllAsRead = 'markAllAsRead';
   static const String noNotifications = 'noNotifications';
   static const String noNotificationsSubtitle = 'noNotificationsSubtitle';
@@ -1120,7 +1121,7 @@ class AppStrings {
   static const String minutesAgo = 'minutesAgo';
   static const String hoursAgo = 'hoursAgo';
   static const String daysAgo = 'daysAgo';
-  
+
   static const String draftRestored = 'draftRestored';
   static const String pleaseSelectAccountType = 'pleaseSelectAccountType';
   static const String pleaseSelectAtLeastOneSpec = 'pleaseSelectAtLeastOneSpec';
@@ -1161,7 +1162,6 @@ class AppStrings {
   static const String confirmRefuse = 'confirmRefuse';
   static const String areYouSure = 'areYouSure';
 
-
   /// newly added strings should be placed above this line to maintain organization and readability.
 
   static const String startFrom = "startFrom";
@@ -1189,8 +1189,10 @@ class AppStrings {
   static const String failedToSendMessage = 'failedToSendMessage';
   static const String failedToSendFile = 'failedToSendFile';
   static const String voiceCall = 'voiceCall';
-  static const String startConversationWithLawyer = 'startConversationWithLawyer';
-  static const String startConversationWithClient = 'startConversationWithClient';
+  static const String startConversationWithLawyer =
+      'startConversationWithLawyer';
+  static const String startConversationWithClient =
+      'startConversationWithClient';
   static const String typeYourMessage = 'typeYourMessage';
   static const String pdfFile = 'pdfFile';
   static const String attachment = 'attachment';
@@ -1203,6 +1205,7 @@ class AppStrings {
   static const String cancelPaymentDialogTitle = 'cancelPaymentDialogTitle';
   static const String cancelPaymentDialogMessage = 'cancelPaymentDialogMessage';
   static const String continuePayment = 'continuePayment';
+  static const String paymentLinkUnavailable = 'paymentLinkUnavailable';
   static const String makeVideoCall = 'makeVideoCall';
   static const String makeVoiceCall = 'makeVoiceCall';
   static const String enterChat = 'enterChat';

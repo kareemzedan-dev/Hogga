@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
-import 'package:hogga/core/widgets/app_snakbar.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/core/utils/app_assets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:hogga/features/lawyer/chat/presentation/cubit/lawyer_call_cubit.dart';
+import 'package:hogga/features/lawyer/chat/presentation/pages/lawyer_agora_call_screen.dart';
 import 'package:hogga/features/lawyer/clients/presentation/cubit/lawyer_clients_cubit.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
@@ -57,55 +58,65 @@ class _LawyerClientsScreenState extends State<LawyerClientsScreen> {
         child: SafeArea(
           child: BlocBuilder<LawyerClientsCubit, LawyerClientsState>(
             builder: (context, state) {
-            if (state is LawyerClientsLoading) {
-              return const LawyerShimmerLoading();
-            } else if (state is LawyerClientsError) {
-              return CustomErrorState(
-                message: state.message,
-                onRetry: () => context.read<LawyerClientsCubit>().getClients(),
-              );
-            } else if (state is LawyerClientsLoaded) {
-              final filteredClients = state.clients.where((c) => c.name.contains(_searchQuery)).toList();
-  
-              if (state.clients.isEmpty) {
-                return CustomEmptyState(
-                  title: AppStrings.noClients.tr(context),
-                  subtitle: AppStrings.noClientsSubtitle.tr(context),
-                  icon: Icons.people_outline,
+              if (state is LawyerClientsLoading) {
+                return const LawyerShimmerLoading();
+              } else if (state is LawyerClientsError) {
+                return CustomErrorState(
+                  message: state.message,
+                  onRetry: () =>
+                      context.read<LawyerClientsCubit>().getClients(),
+                );
+              } else if (state is LawyerClientsLoaded) {
+                final filteredClients = state.clients
+                    .where((c) => c.name.contains(_searchQuery))
+                    .toList();
+
+                if (state.clients.isEmpty) {
+                  return CustomEmptyState(
+                    title: AppStrings.noClients.tr(context),
+                    subtitle: AppStrings.noClientsSubtitle.tr(context),
+                    icon: Icons.people_outline,
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () =>
+                      context.read<LawyerClientsCubit>().getClients(),
+                  child: Column(
+                    children: [
+                      _buildSearchBar(context),
+                      Expanded(
+                        child: filteredClients.isEmpty
+                            ? CustomEmptyState(
+                                title: AppStrings.noResults.tr(context),
+                                subtitle: AppStrings.noResultsSubtitle.tr(
+                                  context,
+                                ),
+                                icon: Icons.search_off_rounded,
+                              )
+                            : ListView.separated(
+                                padding: EdgeInsets.all(20.w),
+                                itemCount: filteredClients.length,
+                                separatorBuilder: (_, __) =>
+                                    SizedBox(height: 16.h),
+                                itemBuilder: (context, index) {
+                                  return _buildClientCard(
+                                    context,
+                                    filteredClients[index],
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
                 );
               }
-              return RefreshIndicator(
-                onRefresh: () => context.read<LawyerClientsCubit>().getClients(),
-                child: Column(
-                  children: [
-                    _buildSearchBar(context),
-                    Expanded(
-                      child: filteredClients.isEmpty
-                      ? CustomEmptyState(
-                              title: AppStrings.noResults.tr(context),
-                              subtitle: AppStrings.noResultsSubtitle.tr(context),
-                              icon: Icons.search_off_rounded,
-                            )
-                          : ListView.separated(
-                              padding: EdgeInsets.all(20.w),
-                              itemCount: filteredClients.length,
-                              separatorBuilder: (_, __) => SizedBox(height: 16.h),
-                              itemBuilder: (context, index) {
-                                return _buildClientCard(context, filteredClients[index]);
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSearchBar(BuildContext context) {
     return Container(
@@ -127,8 +138,14 @@ class _LawyerClientsScreenState extends State<LawyerClientsScreen> {
           prefixIcon: Icon(Icons.search_rounded, color: context.textSecondary),
           filled: true,
           fillColor: context.pageBg,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide.none),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16.r),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: 12.h,
+          ),
         ),
       ),
     );
@@ -149,35 +166,89 @@ class _LawyerClientsScreenState extends State<LawyerClientsScreen> {
             backgroundImage: client.photo != null && client.photo!.isNotEmpty
                 ? CachedNetworkImageProvider(client.photo!) as ImageProvider
                 : const AssetImage(AppAssets.userPlaceholder) as ImageProvider,
-            child: client.photo == null ? Icon(Icons.person, color: context.accentGolden) : null,
+            child: client.photo == null
+                ? Icon(Icons.person, color: context.accentGolden)
+                : null,
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(client.name, style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  client.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 Text(
                   client.activeCasesText ?? '',
-                  style: context.text.bodySmall?.copyWith(color: context.textSecondary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.textSecondary,
+                  ),
                 ),
               ],
             ),
           ),
-          IconButton(
-            onPressed: () {
-              AppSnackbar.showSuccess(context, messageKey: AppStrings.callUnderDevelopment);
-            },
-            icon: const Icon(Icons.call_outlined, color: Colors.green),
-          ),
-          IconButton(
-            onPressed: () {
-              AppSnackbar.showSuccess(context, messageKey: AppStrings.chatUnderDevelopment);
-            },
-            icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF2D9CDB)),
-          ),
+          if (client.hasCommunicationAction)
+            IconButton(
+              tooltip: client.canOpenChat
+                  ? AppStrings.chat.tr(context)
+                  : client.serviceType == 'video'
+                  ? AppStrings.videoCall.tr(context)
+                  : AppStrings.voiceCall.tr(context),
+              onPressed: () => _openClientService(context, client),
+              icon: Icon(
+                client.canOpenChat
+                    ? Icons.chat_bubble_outline
+                    : client.serviceType == 'video'
+                    ? Icons.videocam_outlined
+                    : Icons.call_outlined,
+                color: client.canOpenChat
+                    ? const Color(0xFF2D9CDB)
+                    : const Color(0xFF27AE60),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  void _openClientService(BuildContext context, LawyerClient client) {
+    final roomId = client.chatRoomId;
+    if (roomId == null || roomId <= 0) return;
+
+    if (client.canOpenCall) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => sl<LawyerCallCubit>(),
+            child: LawyerAgoraCallScreen(
+              roomId: roomId,
+              clientName: client.name,
+              isVideo: client.serviceType == 'video',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (client.canOpenChat) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.lawyerChat,
+        arguments: {
+          'chatRoomId': roomId,
+          'clientName': client.name,
+          'caseTitle': client.activeCasesText,
+        },
+      );
+    }
   }
 }
