@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../../config/shared_preference/shared_preference.dart';
 import '../../../../../core/utils/app_strings.dart';
 import '../../../../shared/auth/presentation/shared/cubit/auth_cubit.dart';
 import 'profile_state.dart';

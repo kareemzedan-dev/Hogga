@@ -90,10 +90,13 @@ class _MoreScreenState extends State<MoreScreen> {
                   children: [
                     Text(
                       userName,
+                      maxLines: 1,
+                      softWrap: false,
                       overflow: TextOverflow.ellipsis,
                       style: context.text.titleLarge?.copyWith(
                         color: context.textPrimary,
                         fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
                       ),
                     ),
                     Text(

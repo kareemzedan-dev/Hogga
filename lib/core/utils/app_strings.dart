@@ -724,6 +724,7 @@ class AppStrings {
   static const String minutesLabel = 'minutesLabel';
   static const String callMinutes = 'callMinutes';
   static const String callEnded = 'callEnded';
+  static const String reconnectingCall = 'reconnectingCall';
   static const String callDurationLabel = 'callDurationLabel';
   static const String performanceReports = 'performanceReports';
   static const String weekly = 'weekly';
@@ -1115,6 +1116,7 @@ class AppStrings {
   static const String markAllAsRead = 'markAllAsRead';
   static const String noNotifications = 'noNotifications';
   static const String noNotificationsSubtitle = 'noNotificationsSubtitle';
+  static const String callNoLongerAvailable = 'callNoLongerAvailable';
   static const String minutesAgo = 'minutesAgo';
   static const String hoursAgo = 'hoursAgo';
   static const String daysAgo = 'daysAgo';

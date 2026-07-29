@@ -186,9 +186,13 @@ class LawyerMoreScreen extends StatelessWidget {
               children: [
                 Text(
                   name,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
                   style: context.text.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: context.textPrimary,
+                    fontSize: 15.sp,
                   ),
                 ),
                 SizedBox(height: 6.h),

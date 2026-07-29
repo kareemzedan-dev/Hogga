@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/utils/app_strings.dart';
+import 'package:hogga/core/widgets/app_snackbar.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
 import 'package:hogga/features/chat/data/repositories/chat_repository.dart';
@@ -159,7 +160,7 @@ class _NotificationItem extends StatelessWidget {
 
     final roomId = notification.chatRoomId;
     if (roomId == null || roomId <= 0) {
-      return notification.businessId;
+      return null;
     }
 
     try {
@@ -171,11 +172,9 @@ class _NotificationItem extends StatelessWidget {
           return room.legalCaseId;
         }
       }
-    } catch (_) {
-      return notification.businessId;
-    }
+    } catch (_) {}
 
-    return notification.businessId;
+    return null;
   }
 
   Future<void> _openCaseDetails(BuildContext context) async {
@@ -200,12 +199,15 @@ class _NotificationItem extends StatelessWidget {
       return;
     }
 
-    _openCasesList(context, isLawyer);
+    AppSnackbar.showInfo(context, messageKey: AppStrings.callNoLongerAvailable);
   }
 
   Future<void> _handleTap(BuildContext context) async {
     if (!notification.isRead) {
-      context.read<NotificationsCubit>().markAsRead(notification.id);
+      await context.read<NotificationsCubit>().markAsRead(notification.id);
+      if (!context.mounted) {
+        return;
+      }
     }
 
     if (_isCallNotification) {

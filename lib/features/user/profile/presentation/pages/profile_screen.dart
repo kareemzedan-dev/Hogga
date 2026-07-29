@@ -29,6 +29,10 @@ class ProfileScreen extends StatelessWidget {
     return null;
   }
 
+  String _resolveEmail(dynamic user) {
+    return user.email.toString().trim();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -73,6 +77,7 @@ class ProfileScreen extends StatelessWidget {
               if (user == null) {
                 return const SizedBox();
               }
+              final email = _resolveEmail(user);
               return SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                 child: Column(
@@ -89,12 +94,13 @@ class ProfileScreen extends StatelessWidget {
                           value: user.name,
                           onEdit: () => _showEditPersonalData(context, user),
                         ),
-                        _ProfileItem(
-                          icon: Icons.email_outlined,
-                          label: AppStrings.email.tr(context),
-                          value: user.email,
-                          onEdit: () => _showEditPersonalData(context, user),
-                        ),
+                        if (email.isNotEmpty)
+                          _ProfileItem(
+                            icon: Icons.email_outlined,
+                            label: AppStrings.email.tr(context),
+                            value: email,
+                            onEdit: () => _showEditPersonalData(context, user),
+                          ),
                         _ProfileItem(
                           icon: Icons.wc_outlined,
                           label: AppStrings.genderTitle.tr(context),
@@ -167,6 +173,7 @@ class ProfileScreen extends StatelessWidget {
     if (user == null) {
       return const SizedBox();
     }
+    final email = _resolveEmail(user);
     final isUpdating = state is ProfileAvatarUpdating;
 
     return Container(
@@ -253,20 +260,27 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(height: 20.h),
           Text(
             user.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
             style: context.text.headlineSmall?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
               color: context.textPrimary,
             ),
           ),
-          SizedBox(height: 4.h),
-          Text(
-            user.email,
-            style: context.text.bodyMedium?.copyWith(
-              color: context.textSecondary,
-              letterSpacing: 0.2,
+          if (email.isNotEmpty) ...[
+            SizedBox(height: 4.h),
+            Text(
+              email,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.bodyMedium?.copyWith(
+                color: context.textSecondary,
+                letterSpacing: 0.2,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -304,7 +318,7 @@ class ProfileScreen extends StatelessWidget {
 
   void _showEditPersonalData(BuildContext context, dynamic user) {
     final nameController = TextEditingController(text: user.name);
-    final emailController = TextEditingController(text: user.email);
+    final emailController = TextEditingController(text: _resolveEmail(user));
     String? selectedGender = user.gender;
     String? selectedAccountType = user.accountType;
     final profileCubit = context.read<ProfileCubit>();

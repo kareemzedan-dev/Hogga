@@ -18,6 +18,8 @@ import 'package:hogga/features/chat/data/repositories/chat_repository.dart';
 import 'package:hogga/features/lawyer/chat/data/repositories/lawyer_chat_repository.dart';
 import 'package:hogga/injection_container.dart' as di;
 
+const String _pendingDeclinedCallsKey = 'pending_declined_call_ids';
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
@@ -66,27 +68,86 @@ Future<void> _handleLocalNotificationInBackground(
   }
 }
 
-Future<void> _declineCallDirectly(IncomingCallPayload payload) async {
+Set<int> _pendingDeclinedCallIds() {
+  final saved = AppPreferences().getString(_pendingDeclinedCallsKey);
+  if (saved == null || saved.isEmpty) {
+    return <int>{};
+  }
+
   try {
-    if (payload.callId <= 0) {
+    final decoded = jsonDecode(saved);
+    if (decoded is List) {
+      return decoded
+          .map((id) => int.tryParse(id.toString()) ?? 0)
+          .where((id) => id > 0)
+          .toSet();
+    }
+  } catch (_) {}
+  return <int>{};
+}
+
+Future<void> _savePendingDeclinedCallIds(Set<int> ids) async {
+  await AppPreferences().setString(
+    _pendingDeclinedCallsKey,
+    jsonEncode(ids.toList()),
+  );
+}
+
+Future<void> _queuePendingDecline(int callId) async {
+  if (callId <= 0) {
+    return;
+  }
+  final pending = _pendingDeclinedCallIds()..add(callId);
+  await _savePendingDeclinedCallIds(pending);
+}
+
+Future<void> _removePendingDecline(int callId) async {
+  final pending = _pendingDeclinedCallIds();
+  if (pending.remove(callId)) {
+    await _savePendingDeclinedCallIds(pending);
+  }
+}
+
+Future<bool> _declineCallById(int callId) async {
+  try {
+    if (callId <= 0) {
       log('Incoming call decline skipped: missing call_id');
-      return;
+      return false;
     }
 
     if (AppPreferences().isProvider) {
       await di.sl<LawyerChatRepository>().updateCallStatus(
-        payload.callId,
+        callId,
         'declined',
       );
     } else {
       await di.sl<ChatRepository>().updateCallStatus(
-        payload.callId,
+        callId,
         'declined',
       );
     }
-    log('Incoming call declined: ${payload.callId}');
+    await _removePendingDecline(callId);
+    log('Incoming call declined: $callId');
+    return true;
   } catch (e) {
+    await _queuePendingDecline(callId);
     log('Incoming call decline API failed: $e');
+    return false;
+  }
+}
+
+Future<bool> _declineCallDirectly(IncomingCallPayload payload) {
+  return _declineCallById(payload.callId);
+}
+
+Future<void> _retryPendingCallDeclines() async {
+  if (!AppPreferences().isLoggedIn) {
+    return;
+  }
+
+  final pending = _pendingDeclinedCallIds().toList();
+  for (final callId in pending) {
+    await _declineCallById(callId);
   }
 }
 
@@ -207,6 +268,7 @@ class FcmService {
     }
 
     await _configureLocalNotifications();
+    await _retryPendingCallDeclines();
     await _fcm.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,

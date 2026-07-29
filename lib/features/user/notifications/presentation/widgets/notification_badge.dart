@@ -30,20 +30,21 @@ class NotificationBadge extends StatelessWidget {
                   top: -2,
                   right: -2,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
+                    padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
+                    decoration: BoxDecoration(
                       color: Colors.red,
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(20.r),
                     ),
                     constraints: BoxConstraints(
-                      minWidth: 16.w,
-                      minHeight: 16.w,
+                      minWidth: 14.w,
+                      minHeight: 14.w,
                     ),
                     child: Text(
                       unreadCount > 9 ? '9+' : unreadCount.toString(),
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
+                        height: 1,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,

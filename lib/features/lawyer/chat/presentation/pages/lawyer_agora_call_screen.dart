@@ -33,6 +33,9 @@ class LawyerAgoraCallScreen extends StatefulWidget {
 }
 
 class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
+  static const Duration _connectionRecoveryTimeout = Duration(seconds: 30);
+  static const Duration _remoteDropGracePeriod = Duration(seconds: 20);
+
   RtcEngine? _engine;
   bool _localUserJoined = false;
   int? _remoteUid;
@@ -41,9 +44,12 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
   bool _videoEnabled = true;
   Timer? _callTimer;
   Timer? _ringingTimer;
+  Timer? _connectionRecoveryTimer;
+  Timer? _remoteDropTimer;
   int _callDuration = 0;
   bool _isEndingCall = false;
   bool _summaryShown = false;
+  bool _isReconnecting = false;
 
   @override
   void initState() {
@@ -55,6 +61,8 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
   void dispose() {
     _callTimer?.cancel();
     _ringingTimer?.cancel();
+    _connectionRecoveryTimer?.cancel();
+    _remoteDropTimer?.cancel();
     _disposeAgora();
     super.dispose();
   }
@@ -87,12 +95,60 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
     });
   }
 
+  void _startConnectionRecovery(int callId) {
+    if (_isEndingCall || !mounted) {
+      return;
+    }
+
+    if (!_isReconnecting) {
+      setState(() => _isReconnecting = true);
+    }
+    _connectionRecoveryTimer?.cancel();
+    _connectionRecoveryTimer = Timer(_connectionRecoveryTimeout, () {
+      if (_isReconnecting && !_isEndingCall && mounted) {
+        _endCall(callId);
+      }
+    });
+  }
+
+  void _markConnectionRecovered() {
+    _connectionRecoveryTimer?.cancel();
+    if (_isReconnecting && mounted) {
+      setState(() => _isReconnecting = false);
+    }
+  }
+
+  void _handleRemoteOffline(
+    int callId,
+    UserOfflineReasonType reason,
+  ) {
+    if (_isEndingCall || !mounted) {
+      return;
+    }
+
+    setState(() => _remoteUid = null);
+    if (reason != UserOfflineReasonType.userOfflineDropped) {
+      _endCall(callId);
+      return;
+    }
+
+    _startConnectionRecovery(callId);
+    _remoteDropTimer?.cancel();
+    _remoteDropTimer = Timer(_remoteDropGracePeriod, () {
+      if (_remoteUid == null && !_isEndingCall && mounted) {
+        _endCall(callId);
+      }
+    });
+  }
+
   Future<void> _markCallMissed(int callId) async {
     if (_remoteUid != null || _isEndingCall || !mounted) {
       return;
     }
 
     _isEndingCall = true;
+    _connectionRecoveryTimer?.cancel();
+    _remoteDropTimer?.cancel();
     final callCubit = context.read<LawyerCallCubit>();
     await callCubit.updateCallStatus(callId, 'missed');
     await _disposeAgora();
@@ -126,12 +182,20 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
     _engine!.registerEventHandler(
       RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          if (!mounted) {
+            return;
+          }
           setState(() => _localUserJoined = true);
           context.read<LawyerCallCubit>().connectCall(callToken);
           _startRingingTimeout(callToken.callId);
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
           _ringingTimer?.cancel();
+          _remoteDropTimer?.cancel();
+          _markConnectionRecovered();
+          if (!mounted) {
+            return;
+          }
           setState(() => _remoteUid = remoteUid);
           if (_callTimer == null || !_callTimer!.isActive) {
             _startTimer();
@@ -143,9 +207,28 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
               int remoteUid,
               UserOfflineReasonType reason,
             ) {
-              setState(() => _remoteUid = null);
-              _callTimer?.cancel();
-              _endCall(callToken.callId);
+              _handleRemoteOffline(callToken.callId, reason);
+            },
+        onConnectionStateChanged:
+            (
+              RtcConnection connection,
+              ConnectionStateType state,
+              ConnectionChangedReasonType reason,
+            ) {
+              if (state == ConnectionStateType.connectionStateReconnecting) {
+                _startConnectionRecovery(callToken.callId);
+              } else if (state ==
+                  ConnectionStateType.connectionStateConnected) {
+                _markConnectionRecovered();
+              } else if (state ==
+                      ConnectionStateType.connectionStateFailed &&
+                  !_isEndingCall) {
+                _endCall(callToken.callId);
+              }
+            },
+        onRejoinChannelSuccess:
+            (RtcConnection connection, int elapsed) {
+              _markConnectionRecovered();
             },
       ),
     );
@@ -179,7 +262,19 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
     _isEndingCall = true;
     _callTimer?.cancel();
     _ringingTimer?.cancel();
+    _connectionRecoveryTimer?.cancel();
+    _remoteDropTimer?.cancel();
     context.read<LawyerCallCubit>().endCall(callId);
+  }
+
+  String _callStatusText(BuildContext context) {
+    if (_isReconnecting) {
+      return AppStrings.reconnectingCall.tr(context);
+    }
+    if (_localUserJoined && _remoteUid != null) {
+      return "${AppStrings.connected.tr(context)} ${_formatDuration(_callDuration)}";
+    }
+    return AppStrings.calling.tr(context);
   }
 
   void _showCallSummaryDialog(int usedSeconds) {
@@ -323,9 +418,7 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _localUserJoined && _remoteUid != null
-                            ? "${AppStrings.connected.tr(context)} ${_formatDuration(_callDuration)}"
-                            : AppStrings.calling.tr(context),
+                        _callStatusText(context),
                         style: const TextStyle(
                           color: AppColors.golden,
                           letterSpacing: 1.2,
@@ -376,9 +469,7 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
                         ),
                       ),
                       Text(
-                        _remoteUid != null
-                            ? AppStrings.connected.tr(context)
-                            : AppStrings.calling.tr(context),
+                        _callStatusText(context),
                         style: const TextStyle(color: AppColors.golden),
                       ),
                     ],
