@@ -10,6 +10,9 @@ import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
 import 'package:hogga/features/chat/data/repositories/chat_repository.dart';
 import 'package:hogga/features/lawyer/chat/data/repositories/lawyer_chat_repository.dart';
+import 'package:hogga/features/lawyer/cases/domain/entities/lawyer_case.dart';
+import 'package:hogga/features/lawyer/cases/domain/repositories/cases_repository.dart';
+import 'package:hogga/features/lawyer/proposals/presentation/pages/lawyer_opportunity_details_screen.dart';
 import 'package:hogga/features/user/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:hogga/features/user/notifications/data/models/notification_model.dart';
 import 'package:hogga/config/routes/app_routes.dart';
@@ -139,8 +142,29 @@ class _NotificationItem extends StatelessWidget {
         type == 'video_call' ||
         type.contains('call') ||
         actionType.contains('call') ||
-        notification.callId != null ||
-        notification.channelName?.isNotEmpty == true;
+        notification.callId != null;
+  }
+
+  bool get _isCaseNotification {
+    final type = notification.type?.toLowerCase() ?? '';
+    final actionType = notification.actionType?.toLowerCase() ?? '';
+
+    return notification.caseId != null ||
+        actionType == 'case_accepted' ||
+        actionType.contains('case') ||
+        actionType.contains('legal') ||
+        actionType.contains('proposal') ||
+        type == 'order_status' ||
+        type == 'legal_case_update' ||
+        type == 'payment' ||
+        type.contains('case') ||
+        type.contains('legal');
+  }
+
+  bool get _isLawyerAccount {
+    final prefs = AppPreferences();
+    final role = prefs.role.toLowerCase();
+    return prefs.isProvider || role == 'lawyer' || role == 'provider';
   }
 
   void _openCasesList(BuildContext context, bool isLawyer) {
@@ -174,11 +198,40 @@ class _NotificationItem extends StatelessWidget {
       }
     } catch (_) {}
 
+    if (isLawyer) {
+      final lawyerCase = await _findLawyerCase(roomId: roomId);
+      if (lawyerCase != null) {
+        return lawyerCase.id;
+      }
+    }
+
     return null;
   }
 
+  Future<LawyerCase?> _findLawyerCase({int? caseId, int? roomId}) async {
+    if ((caseId == null || caseId <= 0) && (roomId == null || roomId <= 0)) {
+      return null;
+    }
+
+    try {
+      final result = await di.sl<CasesRepository>().getCases(type: 'all');
+      return result.fold((_) => null, (cases) {
+        for (final lawyerCase in cases) {
+          final matchesCase = caseId != null && lawyerCase.id == caseId;
+          final matchesRoom = roomId != null && lawyerCase.chatRoomId == roomId;
+          if (matchesCase || matchesRoom) {
+            return lawyerCase;
+          }
+        }
+        return null;
+      });
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _openCaseDetails(BuildContext context) async {
-    final isLawyer = AppPreferences().isProvider;
+    final isLawyer = _isLawyerAccount;
     final caseId = await _resolveCaseId(isLawyer);
 
     if (!context.mounted) {
@@ -186,6 +239,36 @@ class _NotificationItem extends StatelessWidget {
     }
 
     if (caseId != null && caseId > 0) {
+      final actionType = notification.actionType?.toLowerCase() ?? '';
+      if (isLawyer && actionType == 'new_case_request') {
+        final existingCase = await _findLawyerCase(
+          caseId: caseId,
+          roomId: notification.chatRoomId,
+        );
+        if (!context.mounted) {
+          return;
+        }
+        if (existingCase != null) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.lawyerCaseDetails,
+            arguments: {'id': existingCase.id, 'title': existingCase.title},
+          );
+          return;
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => LawyerOpportunityDetailsScreen(
+              requestId: caseId,
+              isDirectRequest: true,
+            ),
+          ),
+        );
+        return;
+      }
+
       if (isLawyer) {
         Navigator.pushNamed(
           context,
@@ -215,10 +298,15 @@ class _NotificationItem extends StatelessWidget {
       return;
     }
 
+    if (_isCaseNotification) {
+      await _openCaseDetails(context);
+      return;
+    }
+
     final type = notification.type;
     if (type == 'chat_message') {
       if (notification.chatRoomId != null) {
-        final isLawyer = AppPreferences().role == 'lawyer';
+        final isLawyer = _isLawyerAccount;
         Navigator.pushNamed(
           context,
           isLawyer ? AppRoutes.lawyerChat : AppRoutes.chat,
@@ -230,10 +318,8 @@ class _NotificationItem extends StatelessWidget {
           },
         );
       }
-    } else if (type == 'order_status' ||
-        type == 'legal_case_update' ||
-        type == 'payment') {
-      _openCasesList(context, AppPreferences().isProvider);
+    } else if (type == 'notification') {
+      _openCasesList(context, _isLawyerAccount);
     }
   }
 

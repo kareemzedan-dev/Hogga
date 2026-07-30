@@ -38,16 +38,23 @@ class NotificationModel extends Equatable {
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
-    final payload = json['data'] is Map<String, dynamic>
-        ? json['data'] as Map<String, dynamic>
+    final payload = json['data'] is Map
+        ? Map<String, dynamic>.from(json['data'] as Map)
         : <String, dynamic>{};
-    final meta = payload['meta'] is Map<String, dynamic>
-        ? payload['meta'] as Map<String, dynamic>
+    final meta = payload['meta'] is Map
+        ? Map<String, dynamic>.from(payload['meta'] as Map)
         : <String, dynamic>{};
 
     final createdAtRaw = json['created_at']?.toString();
     final normalizedCreatedAt = createdAtRaw?.replaceFirst(' ', 'T');
     final readAt = json['read_at']?.toString();
+    final type = (payload['type'] ?? json['type'])?.toString().toLowerCase();
+    final actionType = (meta['action_type'] ?? payload['action_type'])
+        ?.toString()
+        .toLowerCase();
+    final isCallPayload = _isCallType(type) || _isCallType(actionType);
+    final isCasePayload = _isCaseType(type) || _isCaseType(actionType);
+    final channelName = payload['channel_name']?.toString();
 
     return NotificationModel(
       id: json['id']?.toString() ?? '',
@@ -62,9 +69,8 @@ class NotificationModel extends Equatable {
           : DateTime.now(),
       isRead: readAt != null && readAt.isNotEmpty,
       readAt: readAt,
-      type: payload['type']?.toString() ?? json['type']?.toString(),
-      actionType:
-          meta['action_type']?.toString() ?? payload['action_type']?.toString(),
+      type: type,
+      actionType: actionType,
       caseId: _firstInt([
         meta['case_id'],
         payload['case_id'],
@@ -72,15 +78,21 @@ class NotificationModel extends Equatable {
         meta['legal_case_id'],
         payload['legal_case_id'],
         json['legal_case_id'],
+        if (isCasePayload && !isCallPayload) payload['id'],
       ]),
       caseNumber: meta['case_number']?.toString(),
       businessId: _toInt(payload['id']),
-      chatRoomId: _toInt(payload['chat_room_id']),
-      channelName: payload['channel_name']?.toString(),
-      callId: _toInt(payload['call_id'] ?? json['call_id']),
-      serviceType: payload['service_type']?.toString(),
-      callerName:
-          payload['caller_name']?.toString() ?? payload['caller']?.toString(),
+      chatRoomId:
+          _toInt(payload['chat_room_id']) ??
+          _chatRoomIdFromChannel(channelName),
+      channelName: channelName,
+      callId: _firstInt([
+        payload['call_id'],
+        json['call_id'],
+        if (isCallPayload) payload['id'],
+      ]),
+      serviceType: payload['service_type']?.toString() ?? type,
+      callerName: payload['caller_name']?.toString() ?? _callerName(payload),
     );
   }
 
@@ -123,6 +135,39 @@ class NotificationModel extends Equatable {
       }
     }
     return null;
+  }
+
+  static int? _chatRoomIdFromChannel(String? channelName) {
+    if (channelName == null || channelName.isEmpty) {
+      return null;
+    }
+
+    final match = RegExp(
+      r'(?:chat_room_|chat\.|private-chat\.)(\d+)',
+    ).firstMatch(channelName);
+    return int.tryParse(match?.group(1) ?? '');
+  }
+
+  static String? _callerName(Map<String, dynamic> payload) {
+    final caller = payload['caller'];
+    if (caller is Map) {
+      return caller['name']?.toString();
+    }
+    return caller?.toString();
+  }
+
+  static bool _isCallType(String? value) {
+    final normalized = value?.toLowerCase() ?? '';
+    return normalized.contains('call');
+  }
+
+  static bool _isCaseType(String? value) {
+    final normalized = value?.toLowerCase() ?? '';
+    return normalized.contains('case') ||
+        normalized.contains('order') ||
+        normalized.contains('legal') ||
+        normalized.contains('proposal') ||
+        normalized.contains('payment');
   }
 
   @override

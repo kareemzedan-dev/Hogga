@@ -15,10 +15,16 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
 
   NotificationsRepositoryImpl({required this.apiClient});
 
+  bool get _isLawyerAccount {
+    final prefs = AppPreferences();
+    final role = prefs.role.toLowerCase();
+    return prefs.isProvider || role == 'lawyer' || role == 'provider';
+  }
+
   @override
   Future<Either<Failure, List<NotificationModel>>> getNotifications() async {
     try {
-      final isLawyer = AppPreferences().isProvider;
+      final isLawyer = _isLawyerAccount;
       final endpoint = isLawyer
           ? AppEndPoints.lawyerNotificationsEndPoint
           : AppEndPoints.notificationsEndPoint;
@@ -49,7 +55,7 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   @override
   Future<Either<Failure, void>> markAsRead(String notificationId) async {
     try {
-      final isLawyer = AppPreferences().isProvider;
+      final isLawyer = _isLawyerAccount;
       final endpoint = isLawyer
           ? '${AppEndPoints.lawyerMarkAsReadEndPoint}/$notificationId'
           : '${AppEndPoints.markAsReadEndPoint}/$notificationId';
