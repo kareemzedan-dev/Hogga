@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/theme/theme_cubit.dart';
 import 'package:hogga/core/localization/localization_cubit.dart';
@@ -15,6 +13,7 @@ import 'package:hogga/injection_container.dart';
 import 'package:hogga/core/widgets/app_snakbar.dart';
 import 'package:hogga/core/widgets/custom_shimmer.dart';
 import 'package:hogga/core/utils/app_assets.dart';
+import 'package:hogga/core/widgets/logout_confirmation_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class LawyerSettingsScreen extends StatelessWidget {
@@ -27,8 +26,12 @@ class LawyerSettingsScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: context.pageBg,
         appBar: AppBar(
-          title: Text(AppStrings.settings.tr(context),
-              style: context.text.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+          title: Text(
+            AppStrings.settings.tr(context),
+            style: context.text.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -38,7 +41,10 @@ class LawyerSettingsScreen extends StatelessWidget {
             if (state is ProfileError) {
               AppSnackbar.showError(context, message: state.message);
             } else if (state is ProfileAvatarUpdateSuccess) {
-              AppSnackbar.showSuccess(context, messageKey: AppStrings.profileUpdatedSuccessfully);
+              AppSnackbar.showSuccess(
+                context,
+                messageKey: AppStrings.profileUpdatedSuccessfully,
+              );
             }
           },
           builder: (context, state) {
@@ -136,7 +142,8 @@ class LawyerSettingsScreen extends StatelessWidget {
                     image: DecorationImage(
                       image: image != null && image.isNotEmpty
                           ? CachedNetworkImageProvider(image) as ImageProvider
-                          : const AssetImage(AppAssets.userPlaceholder) as ImageProvider,
+                          : const AssetImage(AppAssets.userPlaceholder)
+                                as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                     boxShadow: [
@@ -149,8 +156,15 @@ class LawyerSettingsScreen extends StatelessWidget {
                   ),
                   child: isUpdating
                       ? Container(
-                          decoration: BoxDecoration(color: Colors.black38, shape: BoxShape.circle),
-                          child: const Center(child: CircularProgressIndicator(color: Colors.white)),
+                          decoration: BoxDecoration(
+                            color: Colors.black38,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          ),
                         )
                       : null,
                 ),
@@ -173,8 +187,21 @@ class LawyerSettingsScreen extends StatelessWidget {
                     ],
                   ),
                   child: isUpdating
-                      ? SizedBox(width: 18.w, height: 18.w, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Icon(Icons.camera_alt_rounded, color: context.isDark ? AppColors.primary : Colors.white, size: 18.sp),
+                      ? SizedBox(
+                          width: 18.w,
+                          height: 18.w,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Icon(
+                          Icons.camera_alt_rounded,
+                          color: context.isDark
+                              ? AppColors.primary
+                              : Colors.white,
+                          size: 18.sp,
+                        ),
                 ),
               ),
             ],
@@ -183,7 +210,9 @@ class LawyerSettingsScreen extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           AppPreferences().name ?? "-",
-          style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: context.text.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         Text(
           AppStrings.licensedLawyer.tr(context),
@@ -196,7 +225,11 @@ class LawyerSettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsGroup(BuildContext context, String title, List<Widget> items) {
+  Widget _buildSettingsGroup(
+    BuildContext context,
+    String title,
+    List<Widget> items,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,9 +249,7 @@ class LawyerSettingsScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: context.divColor),
           ),
-          child: Column(
-            children: items,
-          ),
+          child: Column(children: items),
         ),
       ],
     );
@@ -239,11 +270,17 @@ class LawyerSettingsScreen extends StatelessWidget {
               color: context.isDark ? context.divColor : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: context.textSecondary, size: 20),
+            child: Icon(
+              isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+              color: context.textSecondary,
+              size: 20,
+            ),
           ),
           title: Text(
             AppStrings.darkMode.tr(context),
-            style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: context.text.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           trailing: Switch(
             value: isDark,
@@ -266,7 +303,9 @@ class LawyerSettingsScreen extends StatelessWidget {
         final isAr = locale.languageCode == 'ar';
         return ListTile(
           onTap: () {
-            context.read<LocalizationCubit>().changeLanguage(isAr ? 'en' : 'ar');
+            context.read<LocalizationCubit>().changeLanguage(
+              isAr ? 'en' : 'ar',
+            );
           },
           leading: Container(
             padding: const EdgeInsets.all(8),
@@ -274,11 +313,17 @@ class LawyerSettingsScreen extends StatelessWidget {
               color: context.isDark ? context.divColor : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.language_rounded, color: context.textSecondary, size: 20),
+            child: Icon(
+              Icons.language_rounded,
+              color: context.textSecondary,
+              size: 20,
+            ),
           ),
           title: Text(
             AppStrings.language.tr(context),
-            style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: context.text.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -287,8 +332,13 @@ class LawyerSettingsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              isAr ? AppStrings.arabic.tr(context) : AppStrings.english.tr(context),
-              style: context.text.labelSmall?.copyWith(color: context.accentGolden, fontWeight: FontWeight.bold),
+              isAr
+                  ? AppStrings.arabic.tr(context)
+                  : AppStrings.english.tr(context),
+              style: context.text.labelSmall?.copyWith(
+                color: context.accentGolden,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         );
@@ -300,22 +350,21 @@ class LawyerSettingsScreen extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () async {
-          await AppPreferences().logout();
-          if (context.mounted) {
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              AppRoutes.welcome,
-              (route) => false,
-            );
-          }
-        },
+        onPressed: () => showLogoutConfirmationSheet(context),
         icon: Icon(Icons.logout_rounded, color: context.colors.error),
-        label: Text(AppStrings.logout.tr(context), style: context.text.bodyMedium?.copyWith(color: context.colors.error, fontWeight: FontWeight.bold)),
+        label: Text(
+          AppStrings.logout.tr(context),
+          style: context.text.bodyMedium?.copyWith(
+            color: context.colors.error,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           side: BorderSide(color: context.colors.error),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
     );

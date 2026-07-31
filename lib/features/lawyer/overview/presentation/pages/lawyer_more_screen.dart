@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -6,19 +5,14 @@ import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_card.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hogga/features/lawyer/overview/presentation/cubit/lawyer_overview_cubit.dart';
 import 'package:hogga/config/shared_preference/shared_preference.dart';
 import 'package:hogga/core/utils/app_assets.dart';
-import '../../../../../core/utils/app_colors.dart';
 import 'package:hogga/core/utils/extensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import 'package:hogga/core/theme/theme_cubit.dart';
 import 'package:hogga/core/localization/localization_cubit.dart';
 import 'package:hogga/core/widgets/custom_confirmation_sheet.dart';
-
-import 'package:hogga/features/lawyer/subscription/presentation/widgets/account_status_tile.dart';
-import 'package:hogga/injection_container.dart';
+import 'package:hogga/core/widgets/logout_confirmation_sheet.dart';
 
 class LawyerMoreScreen extends StatelessWidget {
   const LawyerMoreScreen({super.key});
@@ -56,41 +50,76 @@ class LawyerMoreScreen extends StatelessWidget {
                   Divider(height: 1, color: context.divColor),
                   _buildLanguageToggle(context),
                   Divider(height: 1, color: context.divColor),
-                  _buildListTile(context, AppStrings.aboutApp.tr(context), Icons.info_outline_rounded, () => Navigator.pushNamed(context, AppRoutes.aboutApp)),
+                  _buildListTile(
+                    context,
+                    AppStrings.aboutApp.tr(context),
+                    Icons.info_outline_rounded,
+                    () => Navigator.pushNamed(context, AppRoutes.aboutApp),
+                  ),
                   Divider(height: 1, color: context.divColor),
-                  _buildListTile(context, AppStrings.privacyPolicy.tr(context), Icons.privacy_tip_outlined, () => Navigator.pushNamed(context, AppRoutes.privacyPolicy)),
+                  _buildListTile(
+                    context,
+                    AppStrings.privacyPolicy.tr(context),
+                    Icons.privacy_tip_outlined,
+                    () => Navigator.pushNamed(context, AppRoutes.privacyPolicy),
+                  ),
                   Divider(height: 1, color: context.divColor),
-                  _buildListTile(context, AppStrings.termsOfUseTitle.tr(context), Icons.description_outlined, () => Navigator.pushNamed(context, AppRoutes.termsOfUse)),
+                  _buildListTile(
+                    context,
+                    AppStrings.termsOfUseTitle.tr(context),
+                    Icons.description_outlined,
+                    () => Navigator.pushNamed(context, AppRoutes.termsOfUse),
+                  ),
                   Divider(height: 1, color: context.divColor),
-                  _buildListTile(context, AppStrings.contactUs.tr(context), Icons.headset_mic_outlined, () => Navigator.pushNamed(context, AppRoutes.contactUs)),
+                  _buildListTile(
+                    context,
+                    AppStrings.contactUs.tr(context),
+                    Icons.headset_mic_outlined,
+                    () => Navigator.pushNamed(context, AppRoutes.contactUs),
+                  ),
                   Divider(height: 1, color: context.divColor),
-                  _buildListTile(context, AppStrings.deleteAccount.tr(context), Icons.delete_forever_rounded, () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) => CustomConfirmationSheet(
-                        iconPath: AppAssets.logoutLogo,
-                        title: AppStrings.deleteAccountTitle.tr(context),
-                        subtitle: AppStrings.deleteAccountSubtitle.tr(context),
-                        actionText: AppStrings.deleteAccountAction.tr(context),
-                        onAction: () async {
-                          // TODO: Call delete account API when available
-                          await AppPreferences().logout();
-                          if (context.mounted) {
-                            Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
-                          }
-                        },
-                      ),
-                    );
-                  }, isDestructive: true),
+                  _buildListTile(
+                    context,
+                    AppStrings.deleteAccount.tr(context),
+                    Icons.delete_forever_rounded,
+                    () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => CustomConfirmationSheet(
+                          iconPath: AppAssets.logoutLogo,
+                          title: AppStrings.deleteAccountTitle.tr(context),
+                          subtitle: AppStrings.deleteAccountSubtitle.tr(
+                            context,
+                          ),
+                          actionText: AppStrings.deleteAccountAction.tr(
+                            context,
+                          ),
+                          onAction: () async {
+                            // TODO: Call delete account API when available
+                            await AppPreferences().logout();
+                            if (context.mounted) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                AppRoutes.welcome,
+                                (route) => false,
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    },
+                    isDestructive: true,
+                  ),
                   Divider(height: 1, color: context.divColor),
-                  _buildListTile(context, AppStrings.logout.tr(context), Icons.logout_rounded, () async {
-                    await AppPreferences().logout();
-                    if (context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
-                    }
-                  }, isDestructive: true),
+                  _buildListTile(
+                    context,
+                    AppStrings.logout.tr(context),
+                    Icons.logout_rounded,
+                    () => showLogoutConfirmationSheet(context),
+                    isDestructive: true,
+                  ),
                 ],
               ),
             ),
@@ -106,11 +135,23 @@ class LawyerMoreScreen extends StatelessWidget {
       builder: (context, mode) {
         final isDark = mode == ThemeMode.dark;
         return ListTile(
-          leading: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: context.accentGolden, size: 24.sp),
-          title: Text(isDark ? AppStrings.darkMode.tr(context) : AppStrings.lightMode.tr(context), style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+          leading: Icon(
+            isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+            color: context.accentGolden,
+            size: 24.sp,
+          ),
+          title: Text(
+            isDark
+                ? AppStrings.darkMode.tr(context)
+                : AppStrings.lightMode.tr(context),
+            style: context.text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           trailing: Switch.adaptive(
             value: isDark,
-            activeColor: context.accentGolden,
+            activeThumbColor: context.accentGolden,
+            activeTrackColor: context.accentGolden.withValues(alpha: 0.35),
             onChanged: (val) => context.read<ThemeCubit>().toggleTheme(val),
           ),
         );
@@ -123,11 +164,23 @@ class LawyerMoreScreen extends StatelessWidget {
       builder: (context, locale) {
         final isAr = locale.languageCode == 'ar';
         return ListTile(
-          leading: Icon(Icons.language_rounded, color: context.accentGolden, size: 24.sp),
-          title: Text(AppStrings.language.tr(context), style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+          leading: Icon(
+            Icons.language_rounded,
+            color: context.accentGolden,
+            size: 24.sp,
+          ),
+          title: Text(
+            AppStrings.language.tr(context),
+            style: context.text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           trailing: Text(
             isAr ? 'العربية' : 'English',
-            style: context.text.bodyMedium?.copyWith(color: context.accentGolden, fontWeight: FontWeight.bold),
+            style: context.text.bodyMedium?.copyWith(
+              color: context.accentGolden,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           onTap: () {
             final newLocale = isAr ? 'en' : 'ar';
@@ -138,14 +191,32 @@ class LawyerMoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildListTile(BuildContext context, String title, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
+  Widget _buildListTile(
+    BuildContext context,
+    String title,
+    IconData icon,
+    VoidCallback onTap, {
+    bool isDestructive = false,
+  }) {
     final color = isDestructive ? context.colors.error : context.textPrimary;
     final iconColor = isDestructive ? context.colors.error : context.iconColor;
     return ListTile(
       onTap: onTap,
       leading: Icon(icon, color: iconColor, size: 24.sp),
-      title: Text(title, style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600, color: color)),
-      trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16.sp, color: isDestructive ? context.colors.error.withOpacity(0.5) : context.textSecondary).mirror(context),
+      title: Text(
+        title,
+        style: context.text.titleSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 16.sp,
+        color: isDestructive
+            ? context.colors.error.withValues(alpha: 0.5)
+            : context.textSecondary,
+      ).mirror(context),
     );
   }
 
@@ -161,7 +232,9 @@ class LawyerMoreScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: context.colors.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: context.colors.primary.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: context.colors.primary.withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         children: [
@@ -176,7 +249,8 @@ class LawyerMoreScreen extends StatelessWidget {
               backgroundColor: context.mc.chipBg,
               backgroundImage: image.isNotEmpty
                   ? CachedNetworkImageProvider(image) as ImageProvider
-                  : const AssetImage(AppAssets.userPlaceholder) as ImageProvider,
+                  : const AssetImage(AppAssets.userPlaceholder)
+                        as ImageProvider,
             ),
           ),
           SizedBox(width: 16.w),
@@ -198,7 +272,11 @@ class LawyerMoreScreen extends StatelessWidget {
                 SizedBox(height: 6.h),
                 Row(
                   children: [
-                    Icon(Icons.phone_android_rounded, size: 14.sp, color: context.textSecondary),
+                    Icon(
+                      Icons.phone_android_rounded,
+                      size: 14.sp,
+                      color: context.textSecondary,
+                    ),
                     SizedBox(width: 4.w),
                     Text(
                       phone,
@@ -216,6 +294,4 @@ class LawyerMoreScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }

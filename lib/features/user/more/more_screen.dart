@@ -12,7 +12,7 @@ import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_sizes.dart';
 import 'package:hogga/core/widgets/custom_confirmation_sheet.dart';
 import 'package:hogga/core/utils/app_assets.dart';
-import 'package:hogga/core/widgets/custom_avatar.dart';
+import 'package:hogga/core/widgets/logout_confirmation_sheet.dart';
 import 'package:hogga/core/widgets/hogga_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_cubit.dart';
@@ -27,23 +27,18 @@ class MoreScreen extends StatefulWidget {
 }
 
 class _MoreScreenState extends State<MoreScreen> {
-  bool _isFingerprintEnabled = false;
-
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDark;
 
     return Scaffold(
-
       appBar: AppBar(
         backgroundColor: context.pageBg,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: Text(
-          AppStrings.profile.tr(context),
-        ),
+        title: Text(AppStrings.profile.tr(context)),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -154,7 +149,9 @@ class _MoreScreenState extends State<MoreScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildActionCard(context, isDark,
+          child: _buildActionCard(
+            context,
+            isDark,
             icon: Icons.headset_mic_outlined,
             title: AppStrings.support.tr(context),
             onTap: () => Navigator.pushNamed(context, AppRoutes.contactUs),
@@ -162,7 +159,9 @@ class _MoreScreenState extends State<MoreScreen> {
         ),
         AppSizes.w(16),
         Expanded(
-          child: _buildActionCard(context, isDark,
+          child: _buildActionCard(
+            context,
+            isDark,
             icon: Icons.account_balance_wallet_outlined,
             title: AppStrings.wallet.tr(context),
             onTap: () => Navigator.pushNamed(context, AppRoutes.wallet),
@@ -172,28 +171,33 @@ class _MoreScreenState extends State<MoreScreen> {
     );
   }
 
-  Widget _buildActionCard(BuildContext context, bool isDark, {
+  Widget _buildActionCard(
+    BuildContext context,
+    bool isDark, {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
   }) {
-    final cardBg = context.cardBg;
     return HoggaCard(
       onTap: onTap,
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Column(
         children: [
-            Icon(icon, color: context.isDark ? AppColors.golden : context.iconColor, size: 28),
-            AppSizes.h(12),
-            Text(
-              title,
-              style: context.text.bodyMedium?.copyWith(
-                color: context.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+          Icon(
+            icon,
+            color: context.isDark ? AppColors.golden : context.iconColor,
+            size: 28,
+          ),
+          AppSizes.h(12),
+          Text(
+            title,
+            style: context.text.bodyMedium?.copyWith(
+              color: context.textPrimary,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -208,7 +212,9 @@ class _MoreScreenState extends State<MoreScreen> {
           _buildSettingsItem(
             context,
             icon: Icons.dark_mode_outlined,
-            title: (isDarkMode ? AppStrings.darkMode : AppStrings.lightMode).tr(context),
+            title: (isDarkMode ? AppStrings.darkMode : AppStrings.lightMode).tr(
+              context,
+            ),
             trailing: Switch(
               value: isDarkMode,
               onChanged: (val) {
@@ -234,13 +240,33 @@ class _MoreScreenState extends State<MoreScreen> {
           // ),
           _buildDivider(),
           _buildDivider(),
-          _buildSettingsItem(context, icon: Icons.description_outlined, title: AppStrings.instructions.tr(context), onTap: () => Navigator.pushNamed(context, AppRoutes.instructions)),
+          _buildSettingsItem(
+            context,
+            icon: Icons.description_outlined,
+            title: AppStrings.instructions.tr(context),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.instructions),
+          ),
           _buildDivider(),
-          _buildSettingsItem(context, icon: Icons.info_outline_rounded, title: AppStrings.aboutApp.tr(context), onTap: () => Navigator.pushNamed(context, AppRoutes.aboutApp)),
+          _buildSettingsItem(
+            context,
+            icon: Icons.info_outline_rounded,
+            title: AppStrings.aboutApp.tr(context),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.aboutApp),
+          ),
           _buildDivider(),
-          _buildSettingsItem(context, icon: Icons.privacy_tip_outlined, title: AppStrings.privacyPolicy.tr(context), onTap: () => Navigator.pushNamed(context, AppRoutes.privacyPolicy)),
+          _buildSettingsItem(
+            context,
+            icon: Icons.privacy_tip_outlined,
+            title: AppStrings.privacyPolicy.tr(context),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.privacyPolicy),
+          ),
           _buildDivider(),
-          _buildSettingsItem(context, icon: Icons.star_border, title: AppStrings.rateAppStore.tr(context), onTap: () {}),
+          _buildSettingsItem(
+            context,
+            icon: Icons.star_border,
+            title: AppStrings.rateAppStore.tr(context),
+            onTap: () {},
+          ),
           _buildDivider(),
           BlocBuilder<LocalizationCubit, Locale>(
             builder: (context, locale) {
@@ -253,13 +279,19 @@ class _MoreScreenState extends State<MoreScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      (isAr ? AppStrings.arabic : AppStrings.english).tr(context),
-                      style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
+                      (isAr ? AppStrings.arabic : AppStrings.english).tr(
+                        context,
+                      ),
+                      style: context.text.bodyMedium?.copyWith(
+                        color: context.textSecondary,
+                      ),
                     ),
                   ],
                 ),
                 onTap: () {
-                  context.read<LocalizationCubit>().changeLanguage(isAr ? 'en' : 'ar');
+                  context.read<LocalizationCubit>().changeLanguage(
+                    isAr ? 'en' : 'ar',
+                  );
                 },
               );
             },
@@ -272,7 +304,7 @@ class _MoreScreenState extends State<MoreScreen> {
             titleColor: AppColors.error,
             iconColor: AppColors.error,
             showArrow: false,
-            onTap: () => _showLogoutSheet(context),
+            onTap: () => showLogoutConfirmationSheet(context),
           ),
           _buildDivider(),
           _buildSettingsItem(
@@ -335,24 +367,12 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Widget _buildDivider() {
-    return Divider(height: 1, thickness: 1, color: context.divColor, indent: 16, endIndent: 16);
-  }
-
-  void _showLogoutSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => CustomConfirmationSheet(
-        iconPath: AppAssets.logoutLogo,
-        title: AppStrings.logoutTitle.tr(context),
-        subtitle: AppStrings.logoutSubtitle.tr(context),
-        actionText: AppStrings.logout.tr(context),
-        onAction: () {
-          AppPreferences().logout();
-          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
-        },
-      ),
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: context.divColor,
+      indent: 16,
+      endIndent: 16,
     );
   }
 
@@ -362,14 +382,19 @@ class _MoreScreenState extends State<MoreScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CustomConfirmationSheet(
-        iconPath: AppAssets.logoutLogo, // Reuse logout logo or find a delete one
+        iconPath:
+            AppAssets.logoutLogo, // Reuse logout logo or find a delete one
         title: AppStrings.deleteAccountTitle.tr(context),
         subtitle: AppStrings.deleteAccountSubtitle.tr(context),
         actionText: AppStrings.deleteAccountAction.tr(context),
         onAction: () {
           // Implement delete account logic here
           AppPreferences().logout();
-          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.welcome, (route) => false);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.welcome,
+            (route) => false,
+          );
         },
       ),
     );
