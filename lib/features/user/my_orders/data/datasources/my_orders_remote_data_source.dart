@@ -10,6 +10,11 @@ abstract class MyOrdersRemoteDataSource {
   Future<List<MyOrderData>> getOrder({required String type});
   Future<OrderDetailsData> getOrderDetails({required int orderId});
   Future<String> payLegalCase({required int orderId});
+  Future<void> rateProvider({
+    required int providerId,
+    required int rating,
+    required String comment,
+  });
 }
 
 class MyOrdersRemoteDataSourceImpl implements MyOrdersRemoteDataSource {
@@ -68,6 +73,30 @@ class MyOrdersRemoteDataSourceImpl implements MyOrdersRemoteDataSource {
     } on DioException catch (e) {
       throw ServerFailure(e.message ?? 'Failed to initiate payment');
     } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<void> rateProvider({
+    required int providerId,
+    required int rating,
+    required String comment,
+  }) async {
+    try {
+      final response = await apiClient.post(
+        AppEndPoints.rateProviderEndPoint(providerId),
+        data: {'rating': rating.clamp(0, 5), 'comment': comment},
+      );
+      if (response.data is Map && response.data['status'] == false) {
+        throw ServerFailure(
+          response.data['message']?.toString() ?? 'Failed to submit rating',
+        );
+      }
+    } on DioException catch (e) {
+      throw ServerFailure(e.message ?? 'Failed to submit rating');
+    } catch (e) {
+      if (e is Failure) rethrow;
       throw ServerFailure(e.toString());
     }
   }

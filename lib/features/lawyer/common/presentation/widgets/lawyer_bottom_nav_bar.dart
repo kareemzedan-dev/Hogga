@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
-import 'dart:ui';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 
@@ -23,16 +21,18 @@ class LawyerBottomNavBar extends StatelessWidget {
           Container(
             height: 1,
             width: double.infinity,
-            color: context.isDark ? Colors.black.withOpacity(0.3) : context.colors.primary.withOpacity(0.08),
+            color: context.isDark
+                ? Colors.black.withValues(alpha: 0.3)
+                : context.colors.primary.withValues(alpha: 0.08),
           ),
           Container(
-            height: 78,
+            height: 82,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: context.pageBg,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, -2),
                 ),
@@ -41,10 +41,30 @@ class LawyerBottomNavBar extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(context, 0, Icons.dashboard_rounded, AppStrings.home.tr(context)),
-                _buildNavItem(context, 1, Icons.business_center_rounded, AppStrings.services.tr(context)),
-                _buildNavItem(context, 2, Icons.gavel_rounded, AppStrings.myCases.tr(context)),
-                _buildNavItem(context, 3, Icons.more_horiz_rounded, AppStrings.more.tr(context)),
+                _buildNavItem(
+                  context,
+                  0,
+                  Icons.dashboard_rounded,
+                  AppStrings.home.tr(context),
+                ),
+                _buildNavItem(
+                  context,
+                  1,
+                  Icons.business_center_rounded,
+                  AppStrings.services.tr(context),
+                ),
+                _buildNavItem(
+                  context,
+                  2,
+                  Icons.gavel_rounded,
+                  AppStrings.myCases.tr(context),
+                ),
+                _buildNavItem(
+                  context,
+                  3,
+                  Icons.more_horiz_rounded,
+                  AppStrings.more.tr(context),
+                ),
               ],
             ),
           ),
@@ -53,7 +73,12 @@ class LawyerBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
+  Widget _buildNavItem(
+    BuildContext context,
+    int index,
+    IconData icon,
+    String label,
+  ) {
     final isSelected = selectedIndex == index;
     final activeColor = context.accentGolden;
     final inactiveColor = context.textSecondary;
@@ -68,7 +93,9 @@ class LawyerBottomNavBar extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           padding: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
-            color: isSelected ? activeColor.withOpacity(0.12) : Colors.transparent,
+            color: isSelected
+                ? activeColor.withValues(alpha: 0.12)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -85,10 +112,11 @@ class LawyerBottomNavBar extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Text(
                   label,
+                  maxLines: 1,
                   style: context.text.labelSmall?.copyWith(
                     color: isSelected ? activeColor : inactiveColor,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    fontSize: 10,
+                    fontSize: isSelected ? 12 : 11,
                   ),
                 ),
               ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -25,27 +27,54 @@ import 'package:hogga/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Parallelize independent initialization tasks
+
+  await _initializeCriticalServices();
+
+  runApp(const MyApp());
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(_initializePostFrameServices());
+  });
+}
+
+Future<void> _initializeCriticalServices() async {
   await Future.wait([
-    Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    ),
     AppPreferences.init(),
     initializeDateFormatting('ar', null),
   ]);
 
-  // DI and FCM depend on previous initializations
-  await di.init();
-  
-  final fcmService = FcmService.instance;
-  await fcmService.initialize();
-  await CallCoordinator.instance.initialize();
-  
-  runApp(const MyApp());
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    CallCoordinator.instance.processPendingNavigation();
+  await _safeInitialize('Firebase', () async {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
   });
+
+  await di.init();
+}
+
+Future<void> _initializePostFrameServices() async {
+  await _safeInitialize('FCM', () => FcmService.instance.initialize());
+  await _safeInitialize(
+    'CallCoordinator',
+    () => CallCoordinator.instance.initialize(),
+  );
+  await _safeInitialize(
+    'Pending call navigation',
+    () => CallCoordinator.instance.processPendingNavigation(),
+  );
+}
+
+Future<void> _safeInitialize(
+  String name,
+  Future<void> Function() initializer,
+) async
+{
+  try {
+    await initializer();
+  } catch (error, stackTrace) {
+    log('$name initialization failed', error: error, stackTrace: stackTrace);
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -60,7 +89,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<AuthCubit>()),
         BlocProvider(create: (_) => di.sl<HomeCubit>()),
         BlocProvider(create: (_) => di.sl<MyOrdersCubit>()),
-        BlocProvider(create: (_) => di.sl<NotificationsCubit>()..getNotifications()),
+        BlocProvider(
+          create: (_) => di.sl<NotificationsCubit>()..getNotifications(),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 690),
@@ -74,10 +105,11 @@ class MyApp extends StatelessWidget {
                   return BlocListener<AuthCubit, AuthState>(
                     listener: (context, state) {
                       if (state is Unauthenticated) {
-                        AppNavigator.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-                          AppRoutes.login,
-                          (route) => false,
-                        );
+                        AppNavigator.navigatorKey.currentState
+                            ?.pushNamedAndRemoveUntil(
+                              AppRoutes.login,
+                              (route) => false,
+                            );
                       }
                     },
                     child: MaterialApp(
@@ -112,4 +144,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

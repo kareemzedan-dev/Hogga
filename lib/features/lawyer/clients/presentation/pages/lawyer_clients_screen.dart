@@ -12,6 +12,7 @@ import 'package:hogga/features/lawyer/clients/presentation/cubit/lawyer_clients_
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/clients/domain/entities/lawyer_client.dart';
 import 'package:hogga/injection_container.dart';
 
@@ -34,25 +35,7 @@ class _LawyerClientsScreenState extends State<LawyerClientsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: context.pageBg,
-        elevation: 0,
-        shape: Border(
-          bottom: BorderSide(
-            color: context.divColor.withValues(alpha: 0.5),
-            width: 1,
-          ),
-        ),
-        title: Text(
-          AppStrings.clients.tr(context),
-          style: context.text.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: context.textPrimary,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      appBar: MainAppbar(title: AppStrings.clients.tr(context)),
       body: BlocProvider(
         create: (context) => sl<LawyerClientsCubit>()..getClients(),
         child: SafeArea(

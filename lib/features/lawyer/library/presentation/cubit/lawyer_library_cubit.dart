@@ -29,7 +29,9 @@ class LawyerLibraryLoaded extends LawyerLibraryState {
     return LawyerLibraryLoaded(
       items: items ?? this.items,
       articles: clearArticles ? null : (articles ?? this.articles),
-      articleDetails: clearDetails ? null : (articleDetails ?? this.articleDetails),
+      articleDetails: clearDetails
+          ? null
+          : (articleDetails ?? this.articleDetails),
     );
   }
 }
@@ -42,13 +44,10 @@ class LawyerLibraryError extends LawyerLibraryState {
 class LawyerLibraryCubit extends Cubit<LawyerLibraryState> {
   final LibraryRepository repository;
 
-  LawyerLibraryCubit({required this.repository}) : super(LawyerLibraryInitial());
+  LawyerLibraryCubit({required this.repository})
+    : super(LawyerLibraryInitial());
 
   Future<void> searchLibrary(String query) async {
-    if (query.isEmpty) {
-      emit(LawyerLibraryInitial());
-      return;
-    }
     emit(LawyerLibraryLoading());
     final result = await repository.searchLibrary(query);
     result.fold(
@@ -63,7 +62,7 @@ class LawyerLibraryCubit extends Cubit<LawyerLibraryState> {
     if (currentState is LawyerLibraryLoaded) {
       items = currentState.items;
     }
-    
+
     emit(LawyerLibraryLoading());
     final result = await repository.getCategoryArticles(categoryId);
     result.fold(
@@ -85,7 +84,13 @@ class LawyerLibraryCubit extends Cubit<LawyerLibraryState> {
     final result = await repository.getArticleDetails(articleId);
     result.fold(
       (failure) => emit(LawyerLibraryError(message: failure.message)),
-      (details) => emit(LawyerLibraryLoaded(items: items, articles: articles, articleDetails: details)),
+      (details) => emit(
+        LawyerLibraryLoaded(
+          items: items,
+          articles: articles,
+          articleDetails: details,
+        ),
+      ),
     );
   }
 
@@ -95,10 +100,15 @@ class LawyerLibraryCubit extends Cubit<LawyerLibraryState> {
     if (currentState is LawyerLibraryLoaded) {
       if (currentState.articleDetails != null) {
         // Go back to article list or search results
-        emit(LawyerLibraryLoaded(items: currentState.items, articles: currentState.articles));
+        emit(
+          LawyerLibraryLoaded(
+            items: currentState.items,
+            articles: currentState.articles,
+          ),
+        );
       } else if (currentState.articles != null) {
-        // Go back to home/initial
-        emit(LawyerLibraryInitial());
+        // Go back to the last loaded library home/search data.
+        emit(LawyerLibraryLoaded(items: currentState.items));
       } else {
         emit(LawyerLibraryInitial());
       }

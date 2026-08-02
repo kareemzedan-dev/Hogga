@@ -51,7 +51,6 @@ extension ThemeContext on BuildContext {
   AppColorsExtension get customColors => theme.extension<AppColorsExtension>()!;
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // hoggaColors — semantic ThemeExtension (NEW)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -88,7 +87,9 @@ class hoggaColors extends ThemeExtension<hoggaColors> {
 
   // LIGHT values
   static const hoggaColors light = hoggaColors(
-    cardBg: Color(0xFFF5EACF), // Stronger "Golden Sand" parchment for clear distinction
+    cardBg: Color(
+      0xFFF5EACF,
+    ), // Stronger "Golden Sand" parchment for clear distinction
     textPrimary: AppColors.primary,
     textSecondary: AppColors.mediumGrey,
     iconColor: AppColors.primary,
@@ -105,16 +106,18 @@ class hoggaColors extends ThemeExtension<hoggaColors> {
 
   // DARK values — مزيج البني المحروق (المسيطر) والكريمي (الكاسر للحدة)
   static const hoggaColors dark = hoggaColors(
-    cardBg:        Color(0xFF2D180C), // Slightly lighter than background for separation
-    textPrimary:   AppColors.cream,
+    cardBg: Color(
+      0xFF2D180C,
+    ), // Slightly lighter than background for separation
+    textPrimary: AppColors.cream,
     textSecondary: Color(0xCCFDE5A5), // 80% opacity Cream
-    iconColor:     AppColors.cream,
-    dividerColor:  Color(0x1AFAF0D0), // 10% opacity Cream
-    chipBg:        Color(0xFF4A2A18), 
-    inputFill:     Color(0xFF1E0E06), // Very dark for depth
-    navBarBg:      Color(0xFF1E0E06),
-    headerBg:      Color(0xFF1E0E06),
-    shimmerBase:   Color(0xFF3D1F0D), // بني محروق
+    iconColor: AppColors.cream,
+    dividerColor: Color(0x1AFAF0D0), // 10% opacity Cream
+    chipBg: Color(0xFF4A2A18),
+    inputFill: Color(0xFF1E0E06), // Very dark for depth
+    navBarBg: Color(0xFF1E0E06),
+    headerBg: Color(0xFF1E0E06),
+    shimmerBase: Color(0xFF3D1F0D), // بني محروق
     shimmerHighlight: Color(0xFF4A2A18), // درجة أفتح
     success: Color(0xFF81C784),
     warning: Color(0xFFFFB74D),
@@ -133,6 +136,8 @@ class hoggaColors extends ThemeExtension<hoggaColors> {
     Color? headerBg,
     Color? shimmerBase,
     Color? shimmerHighlight,
+    Color? success,
+    Color? warning,
   }) {
     return hoggaColors(
       cardBg: cardBg ?? this.cardBg,
@@ -165,286 +170,453 @@ class hoggaColors extends ThemeExtension<hoggaColors> {
       navBarBg: Color.lerp(navBarBg, other.navBarBg, t)!,
       headerBg: Color.lerp(headerBg, other.headerBg, t)!,
       shimmerBase: Color.lerp(shimmerBase, other.shimmerBase, t)!,
-      shimmerHighlight: Color.lerp(shimmerHighlight, other.shimmerHighlight, t)!,
+      shimmerHighlight: Color.lerp(
+        shimmerHighlight,
+        other.shimmerHighlight,
+        t,
+      )!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
     );
   }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // AppTheme
 // ─────────────────────────────────────────────────────────────────────────────
 class AppTheme {
   static ThemeData get light => ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
+    useMaterial3: true,
+    brightness: Brightness.light,
+    fontFamily: 'Rubik',
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.backgroundLight, // #FAF0D0
+    cardColor: Colors.white,
+    dividerColor: AppColors.borderColor,
+    snackBarTheme: const SnackBarThemeData(
+      contentTextStyle: TextStyle(fontSize: 15),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppColors.backgroundLight,
+      foregroundColor: AppColors.primary,
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: IconThemeData(color: AppColors.primary),
+      titleTextStyle: TextStyle(
+        color: AppColors.primary,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w600,
         fontFamily: 'Rubik',
-        primaryColor: AppColors.primary,
-        scaffoldBackgroundColor: AppColors.backgroundLight, // #FAF0D0
-        cardColor: Colors.white,
-        dividerColor: AppColors.borderColor,
-        snackBarTheme: const SnackBarThemeData(
-          contentTextStyle: TextStyle(fontSize: 15),
+      ),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    ),
+    iconTheme: const IconThemeData(color: AppColors.primary),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Color(0xFFEADBCA), // كريمي بدرجة أغمق
+      selectedItemColor: AppColors.primary, // بني داكن للمُختار
+      unselectedItemColor: Color(0xFFA69477), // بني باهت لغير المُختار
+      type: BottomNavigationBarType.fixed,
+      elevation: 12,
+    ),
+    cardTheme: CardThemeData(
+      color: Colors.white,
+      elevation: 2,
+      shadowColor: AppColors.primary.withValues(alpha: 0.08),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+    colorScheme: const ColorScheme.light(
+      primary: AppColors.primary,
+      onPrimary: Colors.white,
+      secondary: AppColors.golden,
+      onSecondary: Colors.white,
+      surface: Colors.white,
+      onSurface: AppColors.primary,
+      outline: AppColors.borderColor,
+      error: AppColors.error,
+      onError: Colors.white,
+    ),
+    textTheme: TextTheme(
+      bodyLarge: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 15.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      bodyMedium: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      bodySmall: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 11.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      labelLarge: TextStyle(
+        color: AppColors.darkGrey,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w600,
+      ),
+      labelMedium: TextStyle(
+        color: AppColors.darkGrey,
+        fontSize: 12.5.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      labelSmall: TextStyle(
+        color: AppColors.darkGrey,
+        fontSize: 10.sp,
+        fontWeight: FontWeight.w500,
+      ),
+      headlineMedium: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 20.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      headlineLarge: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 22.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      headlineSmall: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      titleLarge: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      titleMedium: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      titleSmall: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 12.sp,
+        fontWeight: FontWeight.w600,
+      ),
+      displayLarge: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 27.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      displayMedium: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 25.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      displaySmall: TextStyle(
+        color: AppColors.textPrimaryLight,
+        fontSize: 20.sp,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.cream,
+        minimumSize: Size(double.infinity, 54.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
         ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: AppColors.backgroundLight,
-          foregroundColor: AppColors.primary,
-          elevation: 0,
-          centerTitle: true,
-          iconTheme: IconThemeData(color: AppColors.primary),
-          titleTextStyle: TextStyle(
-            color: AppColors.primary,
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Rubik',
-          ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.dark,
-            statusBarBrightness: Brightness.light,
-          ),
+        elevation: 0,
+        textStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Rubik',
         ),
-        iconTheme: const IconThemeData(color: AppColors.primary),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFFEADBCA), // كريمي بدرجة أغمق
-          selectedItemColor: AppColors.primary, // بني داكن للمُختار
-          unselectedItemColor: Color(0xFFA69477), // بني باهت لغير المُختار
-          type: BottomNavigationBarType.fixed,
-          elevation: 12,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.primary),
+        minimumSize: Size(double.infinity, 54.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
         ),
-        cardTheme: CardThemeData(
-          color: Colors.white,
-          elevation: 2,
-          shadowColor: AppColors.primary.withValues(alpha: 0.08),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 0,
+        textStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Rubik',
         ),
-        colorScheme: const ColorScheme.light(
-          primary: AppColors.primary,
-          onPrimary: Colors.white,
-          secondary: AppColors.golden,
-          onSecondary: Colors.white,
-          surface: Colors.white,
-          onSurface: AppColors.primary,
-          outline: AppColors.borderColor,
-          error: AppColors.error,
-          onError: Colors.white,
-        ),
-        textTheme: TextTheme(
-          bodyLarge: TextStyle(color: AppColors.textPrimaryLight, fontSize: 16.sp, fontWeight: FontWeight.bold),
-          bodyMedium: TextStyle(color: AppColors.textPrimaryLight, fontSize: 14.sp, fontWeight: FontWeight.w400),
-          bodySmall: TextStyle(color: AppColors.textPrimaryLight, fontSize: 12.sp, fontWeight: FontWeight.w400),
-          labelLarge: TextStyle(color: AppColors.darkGrey, fontSize: 16.sp, fontWeight: FontWeight.w600),
-          labelMedium: TextStyle(color: AppColors.darkGrey, fontSize: 14.sp, fontWeight: FontWeight.w400),
-          labelSmall: TextStyle(color: AppColors.darkGrey, fontSize: 11.sp, fontWeight: FontWeight.w500),
-          headlineMedium: TextStyle(color: AppColors.textPrimaryLight, fontSize: 22.sp, fontWeight: FontWeight.bold),
-          headlineLarge: TextStyle(color: AppColors.textPrimaryLight, fontSize: 24.sp, fontWeight: FontWeight.bold),
-          headlineSmall: TextStyle(color: AppColors.textPrimaryLight, fontSize: 18.sp, fontWeight: FontWeight.bold),
-          titleLarge: TextStyle(color: AppColors.textPrimaryLight, fontSize: 18.sp, fontWeight: FontWeight.bold),
-          titleMedium: TextStyle(color: AppColors.textPrimaryLight, fontSize: 15.sp, fontWeight: FontWeight.bold),
-          titleSmall: TextStyle(color: AppColors.textPrimaryLight, fontSize: 13.sp, fontWeight: FontWeight.w600),
-          displayLarge: TextStyle(color: AppColors.textPrimaryLight, fontSize: 30.sp, fontWeight: FontWeight.bold),
-          displayMedium: TextStyle(color: AppColors.textPrimaryLight, fontSize: 28.sp, fontWeight: FontWeight.bold),
-          displaySmall: TextStyle(color: AppColors.textPrimaryLight, fontSize: 22.sp, fontWeight: FontWeight.bold),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.cream,
-            minimumSize: Size(double.infinity, 54.h),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-            elevation: 0,
-            textStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, fontFamily: 'Rubik'),
-          ),
-        ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-            style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary),
-          minimumSize: Size(double.infinity, 54.h),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-          elevation: 0,
-          textStyle: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, fontFamily: 'Rubik'),
-        )),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          hintStyle: TextStyle(color: AppColors.grey, fontSize: 13.sp, fontFamily: 'Rubik'),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.borderColor),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.borderColor),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.danger),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
-          ),
-          errorStyle: TextStyle(color: AppColors.danger, fontSize: 12.sp, fontFamily: 'Rubik'),
-        ),
-        extensions: [
-          hoggaColors.light,
-          AppColorsExtension(
-            barby: AppColors.barby,
-            lightBarby: AppColors.lightBarby,
-            lightBrown: AppColors.lightBrown,
-            deepOrange: AppColors.deepOrange,
-            cardBackground: AppColors.cardBackground,
-            brown: AppColors.brown,
-            grey: AppColors.grey,
-            lightGrey: AppColors.lightGrey,
-            mediumGrey: AppColors.mediumGrey,
-            darkGrey: AppColors.darkGrey,
-          ),
-        ],
-      );
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      hintStyle: TextStyle(
+        color: AppColors.grey,
+        fontSize: 12.sp,
+        fontFamily: 'Rubik',
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.borderColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.borderColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.danger),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+      ),
+      errorStyle: TextStyle(
+        color: AppColors.danger,
+        fontSize: 11.sp,
+        fontFamily: 'Rubik',
+      ),
+    ),
+    extensions: [
+      hoggaColors.light,
+      AppColorsExtension(
+        barby: AppColors.barby,
+        lightBarby: AppColors.lightBarby,
+        lightBrown: AppColors.lightBrown,
+        deepOrange: AppColors.deepOrange,
+        cardBackground: AppColors.cardBackground,
+        brown: AppColors.brown,
+        grey: AppColors.grey,
+        lightGrey: AppColors.lightGrey,
+        mediumGrey: AppColors.mediumGrey,
+        darkGrey: AppColors.darkGrey,
+      ),
+    ],
+  );
 
   static ThemeData get dark => ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    fontFamily: 'Rubik',
+    primaryColor: AppColors.cream,
+    scaffoldBackgroundColor: const Color(0xFF261208), // داكن عميق
+    cardColor: AppColors.surfaceDark, // #4A2A18
+    dividerColor: const Color(0x26FAF0D0), // كريمي شفاف لكسر الحدة
+    snackBarTheme: const SnackBarThemeData(
+      contentTextStyle: TextStyle(fontSize: 15),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: const Color(0xFF261208),
+      foregroundColor: AppColors.cream,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: TextStyle(
+        color: AppColors.cream,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w600,
         fontFamily: 'Rubik',
-        primaryColor: AppColors.cream,
-        scaffoldBackgroundColor: const Color(0xFF261208), // داكن عميق
-        cardColor: AppColors.surfaceDark, // #4A2A18
-        dividerColor: const Color(0x26FAF0D0), // كريمي شفاف لكسر الحدة
-        snackBarTheme: const SnackBarThemeData(
-          contentTextStyle: TextStyle(fontSize: 15),
+      ),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+    ),
+    iconTheme: const IconThemeData(color: AppColors.cream),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Color(0xFF261208), // خلفية الناف بار
+      selectedItemColor: Color(0xFFFAF0D0), // كريمي للمُختار
+      unselectedItemColor: Color(0xFF8A6A45), // بني باهت לغير المُختار
+      type: BottomNavigationBarType.fixed,
+      elevation: 12,
+    ),
+    cardTheme: CardThemeData(
+      color: const Color(0xFF3D1F0D),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r),
+        side: const BorderSide(color: Color(0x26FAF0D0), width: 1),
+      ),
+    ),
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.cream, // نستخدم الكريمي ليظهر بوضوح في الدارك
+      onPrimary: AppColors.primary, // البني المحروق
+      secondary: AppColors.golden,
+      onSecondary: AppColors.primary,
+      surface: Color(0xFF3D1F0D), // البني المحروق مسيطر
+      onSurface: AppColors.cream,
+      outline: Color(0xFFFAF0D0), // كريمي لكسر الحدة
+      error: AppColors.error,
+      onError: AppColors.cream,
+    ),
+    textTheme: TextTheme(
+      bodyLarge: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 15.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      bodyMedium: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      bodySmall: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 11.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      labelLarge: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w600,
+      ),
+      labelMedium: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 12.5.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      labelSmall: TextStyle(
+        color: const Color(0xFFC4AD88),
+        fontSize: 10.sp,
+        fontWeight: FontWeight.w500,
+      ),
+      headlineMedium: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 20.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      headlineLarge: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 22.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      headlineSmall: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      titleLarge: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      titleMedium: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      titleSmall: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 12.sp,
+        fontWeight: FontWeight.w600,
+      ),
+      displayLarge: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 27.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      displayMedium: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 25.sp,
+        fontWeight: FontWeight.bold,
+      ),
+      displaySmall: TextStyle(
+        color: AppColors.textPrimaryDark,
+        fontSize: 20.sp,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.cream,
+        foregroundColor: AppColors.primary,
+        minimumSize: Size(double.infinity, 54.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
         ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: const Color(0xFF261208),
-          foregroundColor: AppColors.cream,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            color: AppColors.cream,
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Rubik',
-          ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.dark,
-          ),
+        elevation: 0,
+        textStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Rubik',
         ),
-        iconTheme: const IconThemeData(color: AppColors.cream),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF261208), // خلفية الناف بار
-          selectedItemColor: Color(0xFFFAF0D0), // كريمي للمُختار
-          unselectedItemColor: Color(0xFF8A6A45), // بني باهت לغير المُختار
-          type: BottomNavigationBarType.fixed,
-          elevation: 12,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.cream,
+        side: const BorderSide(color: AppColors.cream),
+        minimumSize: Size(double.infinity, 54.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
         ),
-        cardTheme: CardThemeData(
-          color: const Color(0xFF3D1F0D),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
-            side: const BorderSide(color: Color(0x26FAF0D0), width: 1),
-          ),
+        elevation: 0,
+        textStyle: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Rubik',
         ),
-        colorScheme: const ColorScheme.dark(
-          primary:     AppColors.cream, // نستخدم الكريمي ليظهر بوضوح في الدارك
-          onPrimary:   AppColors.primary, // البني المحروق
-          secondary:   AppColors.golden,
-          onSecondary: AppColors.primary,
-          surface:     Color(0xFF3D1F0D), // البني المحروق مسيطر
-          onSurface:   AppColors.cream,
-          outline:     Color(0xFFFAF0D0), // كريمي لكسر الحدة
-          error:       AppColors.error,
-          onError:     AppColors.cream,
-        ),
-        textTheme: TextTheme(
-          bodyLarge: TextStyle(color: AppColors.textPrimaryDark, fontSize: 16.sp, fontWeight: FontWeight.bold),
-          bodyMedium: TextStyle(color: AppColors.textPrimaryDark, fontSize: 14.sp, fontWeight: FontWeight.w400),
-          bodySmall: TextStyle(color: AppColors.textPrimaryDark, fontSize: 12.sp, fontWeight: FontWeight.w400),
-          labelLarge: TextStyle(color: AppColors.textPrimaryDark, fontSize: 16.sp, fontWeight: FontWeight.w600),
-          labelMedium: TextStyle(color: AppColors.textPrimaryDark, fontSize: 14.sp, fontWeight: FontWeight.w400),
-          labelSmall: TextStyle(color: const Color(0xFFC4AD88), fontSize: 11.sp, fontWeight: FontWeight.w500),
-          headlineMedium: TextStyle(color: AppColors.textPrimaryDark, fontSize: 22.sp, fontWeight: FontWeight.bold),
-          headlineLarge: TextStyle(color: AppColors.textPrimaryDark, fontSize: 24.sp, fontWeight: FontWeight.bold),
-          headlineSmall: TextStyle(color: AppColors.textPrimaryDark, fontSize: 18.sp, fontWeight: FontWeight.bold),
-          titleLarge: TextStyle(color: AppColors.textPrimaryDark, fontSize: 18.sp, fontWeight: FontWeight.bold),
-          titleMedium: TextStyle(color: AppColors.textPrimaryDark, fontSize: 15.sp, fontWeight: FontWeight.bold),
-          titleSmall: TextStyle(color: AppColors.textPrimaryDark, fontSize: 13.sp, fontWeight: FontWeight.w600),
-          displayLarge: TextStyle(color: AppColors.textPrimaryDark, fontSize: 30.sp, fontWeight: FontWeight.bold),
-          displayMedium: TextStyle(color: AppColors.textPrimaryDark, fontSize: 28.sp, fontWeight: FontWeight.bold),
-          displaySmall: TextStyle(color: AppColors.textPrimaryDark, fontSize: 22.sp, fontWeight: FontWeight.bold),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.cream,
-            foregroundColor: AppColors.primary,
-            minimumSize: Size(double.infinity, 54.h),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-            elevation: 0,
-            textStyle: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, fontFamily: 'Rubik'),
-          ),
-        ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-            style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.cream,
-          side: const BorderSide(color: AppColors.cream),
-          minimumSize: Size(double.infinity, 54.h),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-          elevation: 0,
-          textStyle: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, fontFamily: 'Rubik'),
-        )),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Color(0xFF3D1F0D), // البني المحروق مسيطر للمدخلات
-          hintStyle: TextStyle(color: const Color(0xFFC4AD88), fontSize: 14.sp, fontFamily: 'Rubik'),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: Color(0xFFD6C49A)), // ذهبي/كريمي لكسر الحدة
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: Color(0xFFD6C49A)), // ذهبي/كريمي
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.cream, width: 1.5),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.danger),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
-          ),
-          errorStyle: TextStyle(color: AppColors.danger, fontSize: 12.sp, fontFamily: 'Rubik'),
-        ),
-        extensions: [
-          hoggaColors.dark,
-          AppColorsExtension(
-            barby:          AppColors.cream,
-            lightBarby:     const Color(0xFF3D1F0D),
-            lightBrown:     const Color(0xFF3D1F0D),
-            deepOrange:     AppColors.golden,
-            cardBackground: const Color(0xFF3D1F0D),
-            brown:          AppColors.golden,
-            grey:           const Color(0xFFD6C49A),
-            lightGrey:      const Color(0xFF5A3B2A),
-            mediumGrey:     const Color(0xFF8A6A45),
-            darkGrey:       const Color(0xFFFAF0D0),
-          ),
-        ],
-      );
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Color(0xFF3D1F0D), // البني المحروق مسيطر للمدخلات
+      hintStyle: TextStyle(
+        color: const Color(0xFFC4AD88),
+        fontSize: 12.sp,
+        fontFamily: 'Rubik',
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(
+          color: Color(0xFFD6C49A),
+        ), // ذهبي/كريمي لكسر الحدة
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: Color(0xFFD6C49A)), // ذهبي/كريمي
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.cream, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.danger),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14.r),
+        borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+      ),
+      errorStyle: TextStyle(
+        color: AppColors.danger,
+        fontSize: 11.sp,
+        fontFamily: 'Rubik',
+      ),
+    ),
+    extensions: [
+      hoggaColors.dark,
+      AppColorsExtension(
+        barby: AppColors.cream,
+        lightBarby: const Color(0xFF3D1F0D),
+        lightBrown: const Color(0xFF3D1F0D),
+        deepOrange: AppColors.golden,
+        cardBackground: const Color(0xFF3D1F0D),
+        brown: AppColors.golden,
+        grey: const Color(0xFFD6C49A),
+        lightGrey: const Color(0xFF5A3B2A),
+        mediumGrey: const Color(0xFF8A6A45),
+        darkGrey: const Color(0xFFFAF0D0),
+      ),
+    ],
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -503,7 +675,10 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   }
 
   @override
-  ThemeExtension<AppColorsExtension> lerp(ThemeExtension<AppColorsExtension>? other, double t) {
+  ThemeExtension<AppColorsExtension> lerp(
+    ThemeExtension<AppColorsExtension>? other,
+    double t,
+  ) {
     if (other is! AppColorsExtension) return this;
     return AppColorsExtension(
       barby: Color.lerp(barby, other.barby, t)!,

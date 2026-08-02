@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
@@ -31,8 +30,11 @@ class BasicInfoStep extends StatelessWidget {
         AuthTextField(
           hint: AppStrings.fullNameHint.tr(context),
           controller: nameController,
-          prefixIcon: Icon(Icons.person_outline,
-              color: context.textPrimary, size: 20),
+          prefixIcon: Icon(
+            Icons.person_outline,
+            color: context.textPrimary,
+            size: 20,
+          ),
           validator: (v) => AppValidators.validateRequired(context, v),
         ),
         const SizedBox(height: 14),
@@ -40,8 +42,11 @@ class BasicInfoStep extends StatelessWidget {
           hint: AppStrings.email.tr(context),
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
-          prefixIcon: Icon(Icons.mail_outline,
-              color: context.textPrimary, size: 20),
+          prefixIcon: Icon(
+            Icons.mail_outline,
+            color: context.textPrimary,
+            size: 20,
+          ),
           validator: (v) => AppValidators.validateEmail(context, v),
         ),
         const SizedBox(height: 20),
@@ -51,12 +56,16 @@ class BasicInfoStep extends StatelessWidget {
           alignment: AlignmentDirectional.centerEnd,
           child: Text(
             AppStrings.accountTier.tr(context),
-            style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            style: context.text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         const SizedBox(height: 10),
         Row(
-          children: [AppStrings.individual, AppStrings.corporate].map((typeKey) {
+          children: [AppStrings.individual, AppStrings.corporate].map((
+            typeKey,
+          ) {
             final type = typeKey.tr(context);
             final selected = accountType == typeKey;
             return Expanded(
@@ -82,7 +91,9 @@ class BasicInfoStep extends StatelessWidget {
                     type,
                     textAlign: TextAlign.center,
                     style: context.text.bodyMedium?.copyWith(
-                      color: selected ? context.colors.primary : context.textSecondary,
+                      color: selected
+                          ? context.colors.primary
+                          : context.textSecondary,
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                     ),
                   ),
@@ -114,14 +125,19 @@ class BasicInfoStep extends StatelessWidget {
                   ),
                 ),
                 child: agreedToTerms
-                    ? Icon(Icons.check,
-                        color: context.colors.onPrimary, size: 14)
+                    ? Icon(
+                        Icons.check,
+                        color: context.colors.onPrimary,
+                        size: 14,
+                      )
                     : null,
               ),
               const SizedBox(width: 10),
               Text(
                 AppStrings.iAgreeTo.tr(context),
-                style: context.text.bodySmall?.copyWith(color: context.textSecondary),
+                style: context.text.bodySmall?.copyWith(
+                  color: context.textSecondary,
+                ),
               ),
               Text(
                 AppStrings.termsOfUseTitle.tr(context),

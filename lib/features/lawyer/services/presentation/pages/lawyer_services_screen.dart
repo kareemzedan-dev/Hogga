@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -17,6 +16,7 @@ import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
 import 'package:hogga/core/widgets/custom_confirmation_sheet.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 
 class LawyerServicesScreen extends StatefulWidget {
   const LawyerServicesScreen({super.key});
@@ -30,7 +30,9 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => sl<LawyerServicesCubit>()..fetchServices()),
+        BlocProvider(
+          create: (context) => sl<LawyerServicesCubit>()..fetchServices(),
+        ),
         BlocProvider(create: (context) => sl<DeleteServiceCubit>()),
         BlocProvider(create: (context) => sl<ChangeServiceStatusCubit>()),
       ],
@@ -40,11 +42,17 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
             listener: (context, state) {
               if (state is DeleteServiceSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message), backgroundColor: Colors.green),
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.green,
+                  ),
                 );
               } else if (state is DeleteServiceError) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
                 );
               }
             },
@@ -53,11 +61,17 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
             listener: (context, state) {
               if (state is ChangeServiceStatusSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message), backgroundColor: Colors.green),
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.green,
+                  ),
                 );
               } else if (state is ChangeServiceStatusError) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
                 );
               }
             },
@@ -65,21 +79,12 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
         ],
         child: Scaffold(
           backgroundColor: context.pageBg,
-          appBar: AppBar(
-            backgroundColor: context.pageBg,
-            elevation: 0,
-            shape: Border(bottom: BorderSide(color: context.divColor.withValues(alpha: 0.5), width: 1)),
-            title: Text(AppStrings.myServices.tr(context), style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: context.textPrimary)),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 20.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
+          appBar: MainAppbar(title: AppStrings.myServices.tr(context)),
           body: BlocBuilder<LawyerServicesCubit, LawyerServicesState>(
             builder: (context, state) {
               return RefreshIndicator(
-                onRefresh: () => context.read<LawyerServicesCubit>().fetchServices(),
+                onRefresh: () =>
+                    context.read<LawyerServicesCubit>().fetchServices(),
                 color: context.accentGolden,
                 child: Builder(
                   builder: (context) {
@@ -88,25 +93,37 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
                     } else if (state is LawyerServicesError) {
                       return CustomErrorState(
                         message: state.message,
-                        onRetry: () => context.read<LawyerServicesCubit>().fetchServices(),
+                        onRetry: () =>
+                            context.read<LawyerServicesCubit>().fetchServices(),
                       );
                     } else if (state is LawyerServicesLoaded) {
                       final services = state.services;
                       return services.isEmpty
                           ? CustomEmptyState(
                               title: AppStrings.noServices.tr(context),
-                              subtitle: AppStrings.noServicesSubtitle.tr(context),
+                              subtitle: AppStrings.noServicesSubtitle.tr(
+                                context,
+                              ),
                               icon: Icons.design_services_outlined,
                               buttonLabel: AppStrings.addNewService.tr(context),
-                              onAction: () => Navigator.pushNamed(context, AppRoutes.lawyerAddService),
+                              onAction: () => Navigator.pushNamed(
+                                context,
+                                AppRoutes.lawyerAddService,
+                              ),
                             )
                           : ListView.separated(
                               physics: const AlwaysScrollableScrollPhysics(),
-                              padding: EdgeInsets.all(20.w).copyWith(bottom: 100.h),
+                              padding: EdgeInsets.all(
+                                20.w,
+                              ).copyWith(bottom: 100.h),
                               itemCount: services.length,
-                              separatorBuilder: (context, index) => SizedBox(height: 16.h),
+                              separatorBuilder: (context, index) =>
+                                  SizedBox(height: 16.h),
                               itemBuilder: (context, index) {
-                                return _buildServiceCard(context, services[index]);
+                                return _buildServiceCard(
+                                  context,
+                                  services[index],
+                                );
                               },
                             );
                     }
@@ -117,9 +134,14 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
             },
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.lawyerAddService),
+            onPressed: () =>
+                Navigator.pushNamed(context, AppRoutes.lawyerAddService),
             backgroundColor: context.colors.primary,
-            child: Icon(Icons.add, color: context.colors.secondary, size: 28.sp),
+            child: Icon(
+              Icons.add,
+              color: context.colors.secondary,
+              size: 28.sp,
+            ),
           ),
         ),
       ),
@@ -147,7 +169,11 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
                   color: context.accentGolden.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.design_services_rounded, color: context.accentGolden, size: 24.sp),
+                child: Icon(
+                  Icons.design_services_rounded,
+                  color: context.accentGolden,
+                  size: 24.sp,
+                ),
               ),
               SizedBox(width: 16.w),
               Expanded(
@@ -156,17 +182,24 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
                   children: [
                     Text(
                       service.name,
-                      style: context.text.titleMedium!.copyWith(fontSize: 13.sp),
+                      style: context.text.titleMedium!.copyWith(
+                        fontSize: 13.sp,
+                      ),
                     ),
                     if (service.categoriesItemName.isNotEmpty)
                       Text(
                         service.categoriesItemName,
-                        style: context.text.labelSmall?.copyWith(color: context.textSecondary),
+                        style: context.text.labelSmall?.copyWith(
+                          color: context.textSecondary,
+                        ),
                       ),
                     SizedBox(height: 4.h),
                     Text(
                       '${AppStrings.price.tr(context)}: ${service.price} ${AppStrings.currency.tr(context)}',
-                      style: context.text.bodySmall?.copyWith(color: context.success, fontWeight: FontWeight.w600),
+                      style: context.text.bodySmall?.copyWith(
+                        color: context.success,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -187,7 +220,11 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
                     icon: Icons.edit_note_rounded,
                     label: AppStrings.edit.tr(context),
                     color: context.colors.primary,
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.lawyerUpdateService, arguments: service),
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.lawyerUpdateService,
+                      arguments: service,
+                    ),
                   ),
                   SizedBox(width: 16.w),
                   _buildActionBtn(
@@ -209,15 +246,18 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
   Widget _buildToggleAction(BuildContext context, LawyerService service) {
     return BlocBuilder<ChangeServiceStatusCubit, ChangeServiceStatusState>(
       builder: (context, state) {
-        bool isActive = service.status == 'approved' || service.status == 'active';
+        bool isActive =
+            service.status == 'approved' || service.status == 'active';
         bool isLoading = false;
 
         if (state is ChangeServiceStatusLoading && state.id == service.id) {
           isActive = state.optimisticStatus;
           isLoading = true;
-        } else if (state is ChangeServiceStatusSuccess && state.id == service.id) {
+        } else if (state is ChangeServiceStatusSuccess &&
+            state.id == service.id) {
           isActive = state.newStatus;
-        } else if (state is ChangeServiceStatusError && state.id == service.id) {
+        } else if (state is ChangeServiceStatusError &&
+            state.id == service.id) {
           isActive = state.rollbackStatus;
         }
 
@@ -226,13 +266,19 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
           children: [
             Switch.adaptive(
               value: isActive,
-              activeColor: Colors.green,
+              activeThumbColor: Colors.green,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              onChanged: isLoading ? null : (_) => context.read<ChangeServiceStatusCubit>().changeStatus(service.id, isActive),
+              onChanged: isLoading
+                  ? null
+                  : (_) => context
+                        .read<ChangeServiceStatusCubit>()
+                        .changeStatus(service.id, isActive),
             ),
             SizedBox(width: 8.w),
             Text(
-              isActive ? AppStrings.activeLabel.tr(context) : AppStrings.inactiveLabel.tr(context),
+              isActive
+                  ? AppStrings.activeLabel.tr(context)
+                  : AppStrings.inactiveLabel.tr(context),
               style: context.text.labelSmall?.copyWith(
                 color: isActive ? Colors.green : context.textSecondary,
                 fontWeight: FontWeight.bold,
@@ -261,7 +307,10 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
           SizedBox(width: 4.w),
           Text(
             label,
-            style: context.text.labelSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
+            style: context.text.labelSmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),

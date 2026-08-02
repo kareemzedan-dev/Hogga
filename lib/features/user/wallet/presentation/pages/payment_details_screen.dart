@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/localization/app_localizations.dart';
@@ -21,7 +20,8 @@ class PaymentDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<PaymentDetailsCubit>()..fetchPaymentDetails(paymentId),
+      create: (context) =>
+          sl<PaymentDetailsCubit>()..fetchPaymentDetails(paymentId),
       child: Scaffold(
         backgroundColor: context.pageBg,
         appBar: MainAppbar(
@@ -34,13 +34,32 @@ class PaymentDetailsScreen extends StatelessWidget {
               return ListView(
                 padding: EdgeInsets.all(20.w),
                 children: [
-                  CustomShimmer.rectangular(height: 150.h, width: double.infinity, shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r))),
+                  CustomShimmer.rectangular(
+                    height: 150.h,
+                    width: double.infinity,
+                    shapeBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                  ),
                   SizedBox(height: 16.h),
-                  CustomShimmer.rectangular(height: 250.h, width: double.infinity, shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r))),
+                  CustomShimmer.rectangular(
+                    height: 250.h,
+                    width: double.infinity,
+                    shapeBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                  ),
                 ],
               );
             } else if (state is PaymentDetailsError) {
-              return Center(child: Text(state.message, style: context.text.bodyMedium?.copyWith(color: AppColors.error)));
+              return Center(
+                child: Text(
+                  state.message,
+                  style: context.text.bodyMedium?.copyWith(
+                    color: AppColors.error,
+                  ),
+                ),
+              );
             } else if (state is PaymentDetailsLoaded) {
               final item = state.paymentDetails;
               return SingleChildScrollView(
@@ -56,25 +75,33 @@ class PaymentDetailsScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: context.colors.primary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(color: context.colors.primary.withValues(alpha: 0.2)),
+                        border: Border.all(
+                          color: context.colors.primary.withValues(alpha: 0.2),
+                        ),
                       ),
                       child: Column(
                         children: [
                           Text(
                             AppStrings.paidAmount.tr(context),
-                            style: context.text.bodySmall?.copyWith(color: context.textSecondary),
+                            style: context.text.labelSmall?.copyWith(
+                              color: context.textSecondary,
+                              fontSize: 11.sp,
+                            ),
                           ),
                           SizedBox(height: 8.h),
                           Text(
                             item.amount,
-                            style: context.text.titleLarge?.copyWith(
+                            style: context.text.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: context.colors.primary,
+                              fontSize: 18.sp,
                             ),
                           ),
                           SizedBox(height: 12.h),
                           AppStatusBadge(
-                            status: item.statusKey,
+                            status: item.statusKey.isNotEmpty
+                                ? item.statusKey
+                                : item.status,
                           ),
                         ],
                       ),
@@ -86,19 +113,39 @@ class PaymentDetailsScreen extends StatelessWidget {
                       padding: EdgeInsets.all(16.w),
                       child: Column(
                         children: [
-                          _buildInfoRow(context, AppStrings.transactionNumber.tr(context), item.paymentNumber),
+                          _buildInfoRow(
+                            context,
+                            AppStrings.transactionNumber.tr(context),
+                            item.paymentNumber,
+                          ),
                           if (item.invoiceNumber != null) ...[
                             Divider(color: context.divColor, height: 24.h),
-                            _buildInfoRow(context, AppStrings.invoiceNumber.tr(context), item.invoiceNumber!),
+                            _buildInfoRow(
+                              context,
+                              AppStrings.invoiceNumber.tr(context),
+                              item.invoiceNumber!,
+                            ),
                           ],
                           if (item.clientReferenceId != null) ...[
                             Divider(color: context.divColor, height: 24.h),
-                            _buildInfoRow(context, AppStrings.referenceNumber.tr(context), item.clientReferenceId!),
+                            _buildInfoRow(
+                              context,
+                              AppStrings.referenceNumber.tr(context),
+                              item.clientReferenceId!,
+                            ),
                           ],
                           Divider(color: context.divColor, height: 24.h),
-                          _buildInfoRow(context, AppStrings.date.tr(context), item.date),
+                          _buildInfoRow(
+                            context,
+                            AppStrings.date.tr(context),
+                            item.date,
+                          ),
                           Divider(color: context.divColor, height: 24.h),
-                          _buildInfoRow(context, AppStrings.paymentMethod.tr(context), item.paymentMethod),
+                          _buildInfoRow(
+                            context,
+                            AppStrings.paymentMethod.tr(context),
+                            item.paymentMethod,
+                          ),
                         ],
                       ),
                     ),
@@ -107,9 +154,10 @@ class PaymentDetailsScreen extends StatelessWidget {
                     if (item.caseDetails != null) ...[
                       Text(
                         AppStrings.caseDetails.tr(context),
-                        style: context.text.titleSmall?.copyWith(
+                        style: context.text.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: context.textPrimary,
+                          fontSize: 13.sp,
                         ),
                       ),
                       SizedBox(height: 12.h),
@@ -120,12 +168,18 @@ class PaymentDetailsScreen extends StatelessWidget {
                           children: [
                             Text(
                               item.caseDetails!.title,
-                              style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: context.text.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12.sp,
+                              ),
                             ),
                             SizedBox(height: 8.h),
                             Text(
                               "${AppStrings.caseNumberLabel.tr(context)}: ${item.caseDetails!.caseNumber}",
-                              style: context.text.bodySmall?.copyWith(color: context.textSecondary),
+                              style: context.text.labelSmall?.copyWith(
+                                color: context.textSecondary,
+                                fontSize: 10.sp,
+                              ),
                             ),
                           ],
                         ),
@@ -136,46 +190,58 @@ class PaymentDetailsScreen extends StatelessWidget {
                     if (item.products.isNotEmpty) ...[
                       Text(
                         AppStrings.servicesAndProducts.tr(context),
-                        style: context.text.titleSmall?.copyWith(
+                        style: context.text.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: context.textPrimary,
+                          fontSize: 13.sp,
                         ),
                       ),
                       SizedBox(height: 12.h),
-                      ...item.products.map((product) => Padding(
-                        padding: EdgeInsets.only(bottom: 12.h),
-                        child: HoggaCard(
-                          padding: EdgeInsets.all(16.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product.name,
-                                      style: context.text.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(height: 4.h),
-                                    Text(
-                                      "${AppStrings.quantity.tr(context)}: ${product.quantity}",
-                                      style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontSize: 10.sp),
-                                    ),
-                                  ],
+                      ...item.products.map(
+                        (product) => Padding(
+                          padding: EdgeInsets.only(bottom: 12.h),
+                          child: HoggaCard(
+                            padding: EdgeInsets.all(16.w),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product.name,
+                                        style: context.text.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4.h),
+                                      Text(
+                                        "${AppStrings.quantity.tr(context)}: ${product.quantity}",
+                                        style: context.text.labelSmall
+                                            ?.copyWith(
+                                              color: context.textSecondary,
+                                              fontSize: 10.sp,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "${product.amount} ${item.currency}",
-                                style: context.text.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: context.colors.primary,
+                                Text(
+                                  "${product.amount} ${item.currency}",
+                                  style: context.text.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: context.colors.primary,
+                                    fontSize: 12.sp,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      )),
+                      ),
                     ],
                   ],
                 ),
@@ -195,7 +261,10 @@ class PaymentDetailsScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: context.text.bodySmall?.copyWith(color: context.textSecondary),
+          style: context.text.labelSmall?.copyWith(
+            color: context.textSecondary,
+            fontSize: 11.sp,
+          ),
         ),
         SizedBox(width: 16.w),
         Expanded(
@@ -205,6 +274,7 @@ class PaymentDetailsScreen extends StatelessWidget {
             style: context.text.bodySmall?.copyWith(
               fontWeight: FontWeight.w600,
               color: context.textPrimary,
+              fontSize: 11.sp,
             ),
           ),
         ),

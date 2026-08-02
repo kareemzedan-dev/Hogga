@@ -81,4 +81,17 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
       },
     );
   }
+
+  Future<String?> rateProvider({
+    required int providerId,
+    required int rating,
+    required String comment,
+  }) async {
+    final result = await repository.rateProvider(
+      providerId: providerId,
+      rating: rating,
+      comment: comment,
+    );
+    return result.fold((failure) => failure.message, (_) => null);
+  }
 }

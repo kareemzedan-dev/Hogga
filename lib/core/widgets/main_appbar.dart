@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
-import '../utils/app_colors.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -11,6 +9,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   final double? appBarHeight;
   final Color? backgroundColor;
   final PreferredSizeWidget? bottom;
+  final VoidCallback? onBack;
 
   const MainAppbar({
     super.key,
@@ -21,6 +20,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
     this.mainWidget,
     this.bottom,
     this.stackWidget,
+    this.onBack,
   });
 
   @override
@@ -29,8 +29,12 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     // Use provided background or fall back to theme's AppBar bg
-    final bgColor = backgroundColor ?? Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary;
-    final isDarkBg = ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark;
+    final bgColor =
+        backgroundColor ??
+        Theme.of(context).appBarTheme.backgroundColor ??
+        Theme.of(context).colorScheme.primary;
+    final isDarkBg =
+        ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark;
     final buttonBg = context.cardBg;
     final buttonFg = context.textSecondary;
 
@@ -50,7 +54,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       leading: Padding(
         padding: const EdgeInsets.all(11),
         child: GestureDetector(
-          onTap: () => Navigator.pop(context),
+          onTap: onBack ?? () => Navigator.pop(context),
           child: backBtn
               ? Container(
                   decoration: BoxDecoration(
@@ -60,20 +64,25 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(right: 4.0),
-                    child: Icon(Icons.arrow_back_ios, color: buttonFg, size: 15),
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      color: buttonFg,
+                      size: 15,
+                    ),
                   ),
                 )
               : const SizedBox(),
         ),
       ),
-      title: mainWidget ??
+      title:
+          mainWidget ??
           Text(
             title ?? '',
             style: context.text.titleMedium?.copyWith(
               color: context.textPrimary,
               fontWeight: FontWeight.bold,
-            ),),
-
+            ),
+          ),
     );
   }
 }

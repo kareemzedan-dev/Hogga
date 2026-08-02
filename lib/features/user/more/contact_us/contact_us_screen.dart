@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,7 +42,7 @@ class ContactUsScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: context.pageBg,
         appBar: MainAppbar(
-          title: AppStrings.contactUs.tr(context),
+          title: AppStrings.support.tr(context),
           backBtn: true,
         ),
         body: BlocBuilder<ContactUsCubit, ContactUsState>(
@@ -55,11 +54,26 @@ class ContactUsScreen extends StatelessWidget {
                   children: [
                     CustomShimmer.circular(width: 140.w, height: 140.w),
                     SizedBox(height: 40.h),
-                    CustomShimmer.rectangular(height: 80.h, shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r))),
+                    CustomShimmer.rectangular(
+                      height: 80.h,
+                      shapeBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24.r),
+                      ),
+                    ),
                     SizedBox(height: 20.h),
-                    CustomShimmer.rectangular(height: 80.h, shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r))),
+                    CustomShimmer.rectangular(
+                      height: 80.h,
+                      shapeBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24.r),
+                      ),
+                    ),
                     SizedBox(height: 20.h),
-                    CustomShimmer.rectangular(height: 80.h, shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r))),
+                    CustomShimmer.rectangular(
+                      height: 80.h,
+                      shapeBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24.r),
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -71,7 +85,8 @@ class ContactUsScreen extends StatelessWidget {
                     Text(state.message),
                     SizedBox(height: 16.h),
                     ElevatedButton(
-                      onPressed: () => context.read<ContactUsCubit>().getContactInfo(),
+                      onPressed: () =>
+                          context.read<ContactUsCubit>().getContactInfo(),
                       child: Text(AppStrings.retry.tr(context)),
                     ),
                   ],
@@ -205,8 +220,10 @@ class ContactUsScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    (context.isDark ? AppColors.golden : AppColors.primary).withValues(alpha: 0.15),
-                    (context.isDark ? AppColors.golden : AppColors.primary).withValues(alpha: 0.0),
+                    (context.isDark ? AppColors.golden : AppColors.primary)
+                        .withValues(alpha: 0.15),
+                    (context.isDark ? AppColors.golden : AppColors.primary)
+                        .withValues(alpha: 0.0),
                   ],
                 ),
               ),
@@ -257,12 +274,12 @@ class ContactUsScreen extends StatelessWidget {
   }
 
   Widget _buildContactCard(
-    BuildContext context, 
-    String title, 
-    String content, 
-    IconData icon, 
+    BuildContext context,
+    String title,
+    String content,
+    IconData icon,
     Color accentColor,
-    VoidCallback? onTap
+    VoidCallback? onTap,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -318,9 +335,9 @@ class ContactUsScreen extends StatelessWidget {
                 ),
                 if (onTap != null)
                   Icon(
-                    Icons.arrow_forward_ios_rounded, 
-                    size: 14.sp, 
-                    color: context.textSecondary.withValues(alpha: 0.5)
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14.sp,
+                    color: context.textSecondary.withValues(alpha: 0.5),
                   ),
               ],
             ),

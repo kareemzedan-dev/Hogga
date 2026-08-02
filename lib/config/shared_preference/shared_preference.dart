@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/storage/app_secure_storage.dart';
 
@@ -10,10 +12,13 @@ class AppPreferences {
 
   static SharedPreferences? _prefs;
   static String? _cachedToken;
+  static String? _cachedLocale;
 
   static Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
-    
+    final savedLocale = _prefs!.getString(_localeKey);
+    _cachedLocale = _isSupportedLocale(savedLocale) ? savedLocale : null;
+
     // Migration logic & Token Caching
     final secureStorage = AppSecureStorage();
     _cachedToken = await secureStorage.getToken();
@@ -30,7 +35,6 @@ class AppPreferences {
       }
     }
   }
-
 
   Future<bool> setString(String key, String value) async {
     return await _prefs!.setString(key, value);
@@ -62,11 +66,13 @@ class AppPreferences {
 
   Future<bool> clear() async {
     // Clear secure token too
+    final localeBeforeClear = locale;
     await AppSecureStorage().deleteToken();
     _cachedToken = null;
-    return await _prefs!.clear();
+    final cleared = await _prefs!.clear();
+    await saveLocale(localeBeforeClear);
+    return cleared;
   }
-
 
   static const String _tokenKey = 'token';
   static const String _emailKey = 'email';
@@ -147,13 +153,41 @@ class AppPreferences {
     await setBool(_isProviderKey, value);
   }
 
-  bool get isProvider => (getBool(_isProviderKey) ?? false) || role == 'provider';
+  bool get isProvider =>
+      (getBool(_isProviderKey) ?? false) || role == 'provider';
 
   Future<void> saveLocale(String localeCode) async {
-    await setString(_localeKey, localeCode);
+    final normalizedLocale = localeCode.toLowerCase();
+    if (!_isSupportedLocale(normalizedLocale)) {
+      return;
+    }
+    _cachedLocale = normalizedLocale;
+    await setString(_localeKey, normalizedLocale);
   }
 
-  String get locale => getString(_localeKey) ?? 'ar';
+  String get locale {
+    if (_isSupportedLocale(_cachedLocale)) {
+      return _cachedLocale!;
+    }
+
+    final savedLocale = getString(_localeKey);
+    if (_isSupportedLocale(savedLocale)) {
+      _cachedLocale = savedLocale;
+      return savedLocale!;
+    }
+
+    final systemLocale = PlatformDispatcher.instance.locale.languageCode
+        .toLowerCase();
+    if (_isSupportedLocale(systemLocale)) {
+      return systemLocale;
+    }
+
+    return 'ar';
+  }
+
+  static bool _isSupportedLocale(String? localeCode) {
+    return localeCode == 'ar' || localeCode == 'en';
+  }
 
   Future<void> logout() async {
     await clear();

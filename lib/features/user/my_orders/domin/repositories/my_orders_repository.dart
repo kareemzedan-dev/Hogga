@@ -4,12 +4,17 @@ import '../../data/datasources/my_orders_remote_data_source.dart';
 import '../../data/models/order_details.dart';
 import '../../data/models/order_model.dart';
 
-
-
 abstract class MyOrderRepository {
-  Future<Either<Failure, List<MyOrderData>>>  getOrder({required String type});
-  Future<Either<Failure, OrderDetailsData>> getOrderDetails({required int orderId});
+  Future<Either<Failure, List<MyOrderData>>> getOrder({required String type});
+  Future<Either<Failure, OrderDetailsData>> getOrderDetails({
+    required int orderId,
+  });
   Future<Either<Failure, String>> payLegalCase({required int orderId});
+  Future<Either<Failure, void>> rateProvider({
+    required int providerId,
+    required int rating,
+    required String comment,
+  });
 }
 
 class MyOrderRepositoryImpl implements MyOrderRepository {
@@ -18,7 +23,9 @@ class MyOrderRepositoryImpl implements MyOrderRepository {
   MyOrderRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure,List<MyOrderData>>> getOrder({required String type}) async {
+  Future<Either<Failure, List<MyOrderData>>> getOrder({
+    required String type,
+  }) async {
     try {
       final myOrders = await remoteDataSource.getOrder(type: type);
       return Right(myOrders);
@@ -30,9 +37,13 @@ class MyOrderRepositoryImpl implements MyOrderRepository {
   }
 
   @override
-  Future<Either<Failure,OrderDetailsData>> getOrderDetails({required int orderId}) async {
+  Future<Either<Failure, OrderDetailsData>> getOrderDetails({
+    required int orderId,
+  }) async {
     try {
-      final myOrderDetails = await remoteDataSource.getOrderDetails(orderId: orderId);
+      final myOrderDetails = await remoteDataSource.getOrderDetails(
+        orderId: orderId,
+      );
       return Right(myOrderDetails);
     } on Failure catch (e) {
       return Left(e);
@@ -46,6 +57,26 @@ class MyOrderRepositoryImpl implements MyOrderRepository {
     try {
       final paymentUrl = await remoteDataSource.payLegalCase(orderId: orderId);
       return Right(paymentUrl);
+    } on Failure catch (e) {
+      return Left(e);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> rateProvider({
+    required int providerId,
+    required int rating,
+    required String comment,
+  }) async {
+    try {
+      await remoteDataSource.rateProvider(
+        providerId: providerId,
+        rating: rating,
+        comment: comment,
+      );
+      return const Right(null);
     } on Failure catch (e) {
       return Left(e);
     } catch (e) {

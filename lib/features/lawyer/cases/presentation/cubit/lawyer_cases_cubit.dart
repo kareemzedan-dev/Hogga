@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/features/lawyer/cases/data/models/lawyer_case_details_model.dart';
 import 'package:hogga/features/lawyer/cases/data/models/lawyer_case_model.dart';
 import 'package:hogga/features/lawyer/cases/domain/repositories/cases_repository.dart';
@@ -16,10 +15,7 @@ class LawyerCasesLoaded extends LawyerCasesState {
   final List<LawyerCaseModel> cases;
   final String currentType;
 
-  LawyerCasesLoaded({
-    required this.cases,
-    this.currentType = 'active',
-  });
+  LawyerCasesLoaded({required this.cases, this.currentType = 'all'});
 
   LawyerCasesLoaded copyWith({
     List<LawyerCaseModel>? cases,
@@ -57,7 +53,7 @@ class LawyerCasesCubit extends Cubit<LawyerCasesState> {
 
   LawyerCasesCubit({required this.repository}) : super(LawyerCasesInitial());
 
-  Future<void> getCases({String type = 'active'}) async {
+  Future<void> getCases({String type = 'all'}) async {
     emit(LawyerCasesLoading());
     final result = await repository.getCases(type: type);
     result.fold(
@@ -69,13 +65,12 @@ class LawyerCasesCubit extends Cubit<LawyerCasesState> {
   Future<void> getCaseDetails(int caseId) async {
     emit(LawyerCaseDetailsLoading());
     final result = await repository.getCaseDetails(caseId);
-    result.fold(
-      (failure) => emit(LawyerCasesError(message: failure.message)),
-      (details) {
-        currentCaseDetails = details;
-        emit(LawyerCaseDetailsLoaded(caseDetails: details));
-      },
-    );
+    result.fold((failure) => emit(LawyerCasesError(message: failure.message)), (
+      details,
+    ) {
+      currentCaseDetails = details;
+      emit(LawyerCaseDetailsLoaded(caseDetails: details));
+    });
   }
 
   Future<void> addCaseSession({
@@ -91,13 +86,12 @@ class LawyerCasesCubit extends Cubit<LawyerCasesState> {
       date: date,
       details: details,
     );
-    result.fold(
-      (failure) => emit(LawyerCasesError(message: failure.message)),
-      (success) {
-        emit(LawyerCaseActionSuccess(message: success));
-        getCaseDetails(caseId);
-      },
-    );
+    result.fold((failure) => emit(LawyerCasesError(message: failure.message)), (
+      success,
+    ) {
+      emit(LawyerCaseActionSuccess(message: success));
+      getCaseDetails(caseId);
+    });
   }
 
   Future<void> uploadCaseDocument({
@@ -111,12 +105,11 @@ class LawyerCasesCubit extends Cubit<LawyerCasesState> {
       title: title,
       document: document,
     );
-    result.fold(
-      (failure) => emit(LawyerCasesError(message: failure.message)),
-      (success) {
-        emit(LawyerCaseActionSuccess(message: success));
-        getCaseDetails(caseId);
-      },
-    );
+    result.fold((failure) => emit(LawyerCasesError(message: failure.message)), (
+      success,
+    ) {
+      emit(LawyerCaseActionSuccess(message: success));
+      getCaseDetails(caseId);
+    });
   }
 }

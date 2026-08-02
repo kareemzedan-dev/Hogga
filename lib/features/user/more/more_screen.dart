@@ -48,8 +48,6 @@ class _MoreScreenState extends State<MoreScreen> {
               AppSizes.h(10),
               _buildProfileCard(context, isDark),
               AppSizes.h(20),
-              _buildWalletAndSupport(context, isDark),
-              AppSizes.h(24),
               _buildSettingsList(context, isDark),
               AppSizes.h(40),
             ],
@@ -145,62 +143,6 @@ class _MoreScreenState extends State<MoreScreen> {
     );
   }
 
-  Widget _buildWalletAndSupport(BuildContext context, bool isDark) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildActionCard(
-            context,
-            isDark,
-            icon: Icons.headset_mic_outlined,
-            title: AppStrings.support.tr(context),
-            onTap: () => Navigator.pushNamed(context, AppRoutes.contactUs),
-          ),
-        ),
-        AppSizes.w(16),
-        Expanded(
-          child: _buildActionCard(
-            context,
-            isDark,
-            icon: Icons.account_balance_wallet_outlined,
-            title: AppStrings.wallet.tr(context),
-            onTap: () => Navigator.pushNamed(context, AppRoutes.wallet),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard(
-    BuildContext context,
-    bool isDark, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return HoggaCard(
-      onTap: onTap,
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: context.isDark ? AppColors.golden : context.iconColor,
-            size: 28,
-          ),
-          AppSizes.h(12),
-          Text(
-            title,
-            style: context.text.bodyMedium?.copyWith(
-              color: context.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSettingsList(BuildContext context, bool isDark) {
     final isDarkMode = context.watch<ThemeCubit>().state == ThemeMode.dark;
 
@@ -226,19 +168,12 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
           ),
           _buildDivider(),
-          // _buildSettingsItem(
-          //   context,
-          //   icon: Icons.fingerprint,
-          //   title: AppStrings.fingerprintLogin,
-          //   trailing: Switch(
-          //     value: _isFingerprintEnabled,
-          //     onChanged: (val) => setState(() => _isFingerprintEnabled = val),
-          //     activeThumbColor: AppColors.golden,
-          //     inactiveTrackColor: AppColors.cream.withValues(alpha: 0.3),
-          //     inactiveThumbColor: AppColors.cream,
-          //   ),
-          // ),
-          _buildDivider(),
+          _buildSettingsItem(
+            context,
+            icon: Icons.headset_mic_outlined,
+            title: AppStrings.support.tr(context),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.contactUs),
+          ),
           _buildDivider(),
           _buildSettingsItem(
             context,

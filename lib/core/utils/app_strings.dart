@@ -847,6 +847,8 @@ class AppStrings {
 
   // Lawyer Additions
   static const String documentName = 'documentName';
+  static const String folderName = 'folderName';
+  static const String openDocument = 'openDocument';
   static const String upload = 'upload';
   static const String noFileSelected = 'noFileSelected';
   static const String deleteDocument = 'deleteDocument';
@@ -1161,6 +1163,13 @@ class AppStrings {
   static const String confirmAccept = 'confirmAccept';
   static const String confirmRefuse = 'confirmRefuse';
   static const String areYouSure = 'areYouSure';
+  static const String rateLawyer = 'rateLawyer';
+  static const String rateLawyerTitle = 'rateLawyerTitle';
+  static const String rateLawyerSubtitle = 'rateLawyerSubtitle';
+  static const String ratingComment = 'ratingComment';
+  static const String ratingCommentHint = 'ratingCommentHint';
+  static const String submitRating = 'submitRating';
+  static const String ratingSentSuccessfully = 'ratingSentSuccessfully';
 
   /// newly added strings should be placed above this line to maintain organization and readability.
 

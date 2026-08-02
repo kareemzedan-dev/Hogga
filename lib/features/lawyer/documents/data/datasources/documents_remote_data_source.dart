@@ -18,10 +18,13 @@ class DocumentsRemoteDataSourceImpl implements DocumentsRemoteDataSource {
   final ApiClient apiClient;
 
   DocumentsRemoteDataSourceImpl({required this.apiClient});
-  
+
   @override
   Future<LawyerDocumentsResponseModel> getDocuments({String? folder}) async {
-    final response = await apiClient.get(AppEndPoints.lawyerDocumentsEndPoint, queryParameters: folder != null ? {'folder': folder} : null);
+    final response = await apiClient.get(
+      AppEndPoints.lawyerDocumentsEndPoint,
+      queryParameters: folder != null ? {'folder': folder} : null,
+    );
     return LawyerDocumentsResponseModel.fromJson(response.data['data']);
   }
 
@@ -33,17 +36,19 @@ class DocumentsRemoteDataSourceImpl implements DocumentsRemoteDataSource {
   }) async {
     final formData = FormData.fromMap({
       'name': name,
-      'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
-      if (folder != null) 'folder': folder,
+      'file': await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split(RegExp(r'[\\/]')).last,
+      ),
+      if (folder != null && folder.trim().isNotEmpty) 'folder': folder.trim(),
     });
     await apiClient.post(AppEndPoints.lawyerDocumentsEndPoint, data: formData);
   }
 
   @override
   Future<void> deleteDocument(int documentId) async {
-    await apiClient.post(
+    await apiClient.delete(
       "${AppEndPoints.lawyerDocumentsEndPoint}/$documentId",
-      data: {'_method': 'DELETE'},
     );
   }
 }

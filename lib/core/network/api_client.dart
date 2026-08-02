@@ -27,12 +27,13 @@ class ApiClient {
           final locale = AppPreferences().locale;
 
           if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer ${token}';
+            options.headers['Authorization'] = 'Bearer $token';
           }
 
           options.headers['Accept'] = 'application/json';
           options.headers['Accept-Language'] = locale;
-          options.headers['lang'] = locale; // Keeping this as a backup common practice
+          options.headers['lang'] =
+              locale; // Keeping this as a backup common practice
 
           return handler.next(options);
         },
@@ -51,7 +52,7 @@ class ApiClient {
           request: true,
           requestBody: true,
           responseBody: true,
-          requestHeader: false,
+          requestHeader: true,
           responseHeader: false,
           error: true,
         ),
@@ -61,25 +62,34 @@ class ApiClient {
 
   final Map<String, Future<Response>> _inFlightRequests = {};
 
-  String _buildKey(String method, String path, Map<String, dynamic>? queryParameters, dynamic data) {
+  String _buildKey(
+    String method,
+    String path,
+    Map<String, dynamic>? queryParameters,
+    dynamic data,
+  ) {
     return '$method:$path:${queryParameters?.toString()}:${data?.toString()}';
   }
 
   Future<Response> get(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-      }) async {
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     final key = _buildKey('GET', path, queryParameters, null);
-    
+
     if (_inFlightRequests.containsKey(key)) {
       debugPrint('🚀 Deduplicating GET request: $path');
       return _inFlightRequests[key]!;
     }
 
-    final future = _executeGet(path, queryParameters: queryParameters, options: options);
+    final future = _executeGet(
+      path,
+      queryParameters: queryParameters,
+      options: options,
+    );
     _inFlightRequests[key] = future;
-    
+
     try {
       return await future;
     } finally {
@@ -88,13 +98,17 @@ class ApiClient {
   }
 
   Future<Response> _executeGet(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-      }) async {
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     try {
       await ApiErrorHandler.ensureConnected(RequestOptions(path: path));
-      return await dio.get(path, queryParameters: queryParameters, options: options);
+      return await dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
     } on DioException catch (e) {
       throw ApiErrorHandler.normalizeDioException(e);
     } catch (_) {
@@ -107,12 +121,12 @@ class ApiClient {
   }
 
   Future<Response> post(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        ProgressCallback? onSendProgress,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    ProgressCallback? onSendProgress,
+  }) async {
     if (kDebugMode && data is FormData) {
       debugPrint('FormData request -> $path');
       for (final file in data.files) {
@@ -140,14 +154,19 @@ class ApiClient {
   }
 
   Future<Response> put(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     try {
       await ApiErrorHandler.ensureConnected(RequestOptions(path: path));
-      return await dio.put(path, data: data, queryParameters: queryParameters, options: options);
+      return await dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
     } on DioException catch (e) {
       throw ApiErrorHandler.normalizeDioException(e);
     } catch (_) {
@@ -160,14 +179,19 @@ class ApiClient {
   }
 
   Future<Response> delete(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
     try {
       await ApiErrorHandler.ensureConnected(RequestOptions(path: path));
-      return await dio.delete(path, data: data, queryParameters: queryParameters, options: options);
+      return await dio.delete(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
     } on DioException catch (e) {
       throw ApiErrorHandler.normalizeDioException(e);
     } catch (_) {

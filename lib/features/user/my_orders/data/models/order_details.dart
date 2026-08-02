@@ -47,6 +47,40 @@ class OrderDetailsData {
     this.callDuration,
   });
 
+  bool get canRateLawyer {
+    final normalizedStatus = status.toLowerCase();
+    return normalizedStatus == 'finished' ||
+        normalizedStatus == 'completed' ||
+        normalizedStatus == 'complete' ||
+        normalizedStatus == 'done' ||
+        normalizedStatus == 'closed';
+  }
+
+  CaseProposal? get ratableProposal {
+    const preferredStatuses = {
+      'accepted',
+      'approved',
+      'selected',
+      'completed',
+      'complete',
+      'done',
+      'finished',
+    };
+
+    for (final proposal in proposals) {
+      if (proposal.providerId > 0 &&
+          preferredStatuses.contains(proposal.status.toLowerCase())) {
+        return proposal;
+      }
+    }
+
+    for (final proposal in proposals) {
+      if (proposal.providerId > 0) return proposal;
+    }
+
+    return null;
+  }
+
   factory OrderDetailsData.fromJson(Map<String, dynamic> json) {
     return OrderDetailsData(
       id: json['id'] ?? 0,
@@ -73,7 +107,9 @@ class OrderDetailsData {
       createdAt: json['created_at']?.toString() ?? '',
       duration: json['duration'] as int?,
       callDuration: json['call_duration'] != null
-          ? CallDuration.fromJson(Map<String, dynamic>.from(json['call_duration'] as Map))
+          ? CallDuration.fromJson(
+              Map<String, dynamic>.from(json['call_duration'] as Map),
+            )
           : null,
     );
   }
@@ -154,6 +190,7 @@ class CaseProposal {
   final int id;
   final String status;
   final int lawyerId;
+  final int providerId;
   final String lawyerName;
   final String? lawyerPhoto;
   final String? lawyerPhone;
@@ -168,6 +205,7 @@ class CaseProposal {
     required this.id,
     required this.status,
     required this.lawyerId,
+    required this.providerId,
     required this.lawyerName,
     this.lawyerPhoto,
     this.lawyerPhone,
@@ -179,10 +217,20 @@ class CaseProposal {
   });
 
   factory CaseProposal.fromJson(Map<String, dynamic> json) {
+    final lawyerId = _readInt(json['lawyer_id']);
+    final providerId =
+        _readInt(json['provider_id']) ??
+        _readInt(json['provider'] is Map ? json['provider']['id'] : null) ??
+        _readInt(json['lawyer_provider_id']) ??
+        _readInt(json['providerId']) ??
+        lawyerId ??
+        0;
+
     return CaseProposal(
       id: json['id'] ?? 0,
       status: json['status']?.toString() ?? '',
-      lawyerId: json['lawyer_id'] ?? 0,
+      lawyerId: lawyerId ?? 0,
+      providerId: providerId,
       lawyerName: json['lawyer_name']?.toString() ?? '',
       lawyerPhoto: json['lawyer_photo']?.toString(),
       lawyerPhone: json['lawyer_phone']?.toString(),
@@ -192,5 +240,11 @@ class CaseProposal {
       lawyerRating: json['lawyer_rating']?.toString() ?? '5.0',
       lawyerExperience: json['lawyer_experience']?.toString() ?? '0',
     );
+  }
+
+  static int? _readInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '');
   }
 }

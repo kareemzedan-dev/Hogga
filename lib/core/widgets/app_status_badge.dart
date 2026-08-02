@@ -5,10 +5,7 @@ import 'package:hogga/core/localization/app_localizations.dart';
 class AppStatusBadge extends StatelessWidget {
   final String status;
 
-  const AppStatusBadge({
-    super.key,
-    required this.status,
-  });
+  const AppStatusBadge({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +37,10 @@ class AppStatusBadge extends StatelessWidget {
         return AppStrings.confirmedStatus.tr(context);
       case 'pending':
         return AppStrings.pendingStatus.tr(context);
+      case 'paid':
+      case 'مدفوع':
+      case 'تم الدفع':
+        return AppStrings.paidStatus.tr(context);
       case 'cancelled':
         return AppStrings.cancelledStatus.tr(context);
       case 'delivered':
@@ -59,6 +60,10 @@ class AppStatusBadge extends StatelessWidget {
         return const Color(0xFF2E7D32); // Green
       case 'pending':
         return const Color(0xFFBF8C1E); // Mustard
+      case 'paid':
+      case 'مدفوع':
+      case 'تم الدفع':
+        return const Color(0xFF2E7D32);
       case 'cancelled':
         return const Color(0xFFEB5757); // Red
       case 'delivered':
@@ -69,6 +74,4 @@ class AppStatusBadge extends StatelessWidget {
         return Colors.grey;
     }
   }
-
-
 }

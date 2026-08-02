@@ -3,16 +3,28 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAuc0nkCJn_ky18gexgOGVjYwZE9dksFV4</string>
-	<key>BUNDLE_ID</key>
-	<string>com.hogga.app.hogga</string>
+	<string>AIzaSyA2cIrEI3FqgxkyGhC_HB84E_GutokU-ow</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1085294513517</string>
-	<key>GOOGLE_APP_ID</key>
-	<string>1:1085294513517:ios:6868de897b0274061ade64</string>
+	<string>1020097706745</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.hoggaapp.app</string>
 	<key>PROJECT_ID</key>
-	<string>hogga-74daa</string>
+	<string>hogga-app</string>
 	<key>STORAGE_BUCKET</key>
-	<string>hogga-74daa.firebasestorage.app</string>
+	<string>hogga-app.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1020097706745:ios:16beb7b0a74f44d3c08028</string>
 </dict>
 </plist>

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
@@ -9,6 +8,7 @@ import 'package:hogga/core/widgets/app_snakbar.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 
 import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_layout.dart';
+import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_phone_country_prefix.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_text_field.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_cubit.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_state.dart';
@@ -31,10 +31,10 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() {
     if (_formKey.currentState!.validate()) {
       context.read<AuthCubit>().login(
-            _emailController.text.trim(),
-            _passwordController.text,
-            isLawyer: widget.isLawyerLogin,
-          );
+        _emailController.text.trim(),
+        _passwordController.text,
+        isLawyer: widget.isLawyerLogin,
+      );
     }
   }
 
@@ -51,8 +51,11 @@ class _LoginScreenState extends State<LoginScreen> {
               state.user.isProvider ? AppRoutes.lawyerMain : AppRoutes.main,
             );
           } else if (state is AuthNeedVerification) {
-            Navigator.pushNamed(context, AppRoutes.verifyEmail,
-                arguments: state.email);
+            Navigator.pushNamed(
+              context,
+              AppRoutes.verifyEmail,
+              arguments: state.email,
+            );
           } else if (state is AuthError) {
             AppSnackbar.showError(context, message: state.message);
           }
@@ -68,8 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   hint: AppStrings.phone.tr(context),
                   controller: _emailController,
                   keyboardType: TextInputType.phone,
-                  prefixIcon: Icon(Icons.phone,
-                      color: context.textPrimary, size: 20),
+                  prefixIcon: const AuthPhoneCountryPrefix(),
                   validator: (v) => AppValidators.validatePhone(context, v),
                 ),
                 const SizedBox(height: 14),
@@ -77,8 +79,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   hint: AppStrings.password.tr(context),
                   controller: _passwordController,
                   obscureText: !_isPasswordVisible,
-                  prefixIcon: Icon(Icons.lock_outline,
-                      color: context.textPrimary, size: 20),
+                  prefixIcon: Icon(
+                    Icons.lock_outline,
+                    color: context.textPrimary,
+                    size: 20,
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
@@ -87,8 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: context.textPrimary,
                       size: 20,
                     ),
-                    onPressed: () =>
-                        setState(() => _isPasswordVisible = !_isPasswordVisible),
+                    onPressed: () => setState(
+                      () => _isPasswordVisible = !_isPasswordVisible,
+                    ),
                   ),
                   validator: (v) => AppValidators.validatePassword(context, v),
                 ),
@@ -100,12 +106,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () =>
                         Navigator.pushNamed(context, AppRoutes.forgotPassword),
                     child: Text(
-                        AppStrings.forgotPassword.tr(context),
-                        style: context.text.titleSmall?.copyWith(
-                          color: context.colors.primary,
-                          decoration: TextDecoration.underline,
-                          decorationColor: context.colors.primary,
-                        ),
+                      AppStrings.forgotPassword.tr(context),
+                      style: context.text.titleSmall?.copyWith(
+                        color: context.colors.primary,
+                        decoration: TextDecoration.underline,
+                        decorationColor: context.colors.primary,
+                      ),
                     ),
                   ),
                 ),
@@ -125,7 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 GestureDetector(
                   onTap: () => Navigator.pushNamed(
                     context,
-                    widget.isLawyerLogin ? AppRoutes.lawyerOnboarding : AppRoutes.register,
+                    widget.isLawyerLogin
+                        ? AppRoutes.lawyerOnboarding
+                        : AppRoutes.register,
                   ),
                   child: RichText(
                     textAlign: TextAlign.center,
@@ -133,7 +141,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         TextSpan(
                           text: AppStrings.dontHaveAccount.tr(context),
-                          style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
+                          style: context.text.bodyMedium?.copyWith(
+                            color: context.textSecondary,
+                          ),
                         ),
                         TextSpan(
                           text: AppStrings.register.tr(context),

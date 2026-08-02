@@ -34,7 +34,6 @@ class AgoraCallScreen extends StatefulWidget {
 
 class _AgoraCallScreenState extends State<AgoraCallScreen> {
   static const Duration _connectionRecoveryTimeout = Duration(seconds: 30);
-  static const Duration _remoteDropGracePeriod = Duration(seconds: 20);
 
   RtcEngine? _engine;
   bool _localUserJoined = false;
@@ -45,7 +44,6 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
   Timer? _callTimer;
   Timer? _ringingTimer;
   Timer? _connectionRecoveryTimer;
-  Timer? _remoteDropTimer;
   int _callDuration = 0;
   bool _isEndingCall = false;
   bool _summaryShown = false;
@@ -63,7 +61,6 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
     _callTimer?.cancel();
     _ringingTimer?.cancel();
     _connectionRecoveryTimer?.cancel();
-    _remoteDropTimer?.cancel();
     _disposeAgora();
     super.dispose();
   }
@@ -119,27 +116,12 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
     }
   }
 
-  void _handleRemoteOffline(
-    int callId,
-    UserOfflineReasonType reason,
-  ) {
+  void _handleRemoteOffline(int callId) {
     if (_isEndingCall || !mounted) {
       return;
     }
 
-    setState(() => _remoteUid = null);
-    if (reason != UserOfflineReasonType.userOfflineDropped) {
-      _endCall(callId);
-      return;
-    }
-
-    _startConnectionRecovery(callId);
-    _remoteDropTimer?.cancel();
-    _remoteDropTimer = Timer(_remoteDropGracePeriod, () {
-      if (_remoteUid == null && !_isEndingCall && mounted) {
-        _endCall(callId);
-      }
-    });
+    _endCall(callId);
   }
 
   Future<void> _markCallMissed(int callId) async {
@@ -149,7 +131,6 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
 
     _isEndingCall = true;
     _connectionRecoveryTimer?.cancel();
-    _remoteDropTimer?.cancel();
     final callCubit = context.read<CallCubit>();
     await callCubit.updateCallStatus(callId, 'missed');
     await _disposeAgora();
@@ -198,7 +179,6 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
           _ringingTimer?.cancel();
-          _remoteDropTimer?.cancel();
           _markConnectionRecovered();
           if (!mounted) {
             return;
@@ -216,7 +196,7 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
               int remoteUid,
               UserOfflineReasonType reason,
             ) {
-              _handleRemoteOffline(callToken.callId, reason);
+              _handleRemoteOffline(callToken.callId);
             },
         onConnectionStateChanged:
             (
@@ -229,16 +209,14 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
               } else if (state ==
                   ConnectionStateType.connectionStateConnected) {
                 _markConnectionRecovered();
-              } else if (state ==
-                      ConnectionStateType.connectionStateFailed &&
+              } else if (state == ConnectionStateType.connectionStateFailed &&
                   !_isEndingCall) {
                 _endCall(callToken.callId);
               }
             },
-        onRejoinChannelSuccess:
-            (RtcConnection connection, int elapsed) {
-              _markConnectionRecovered();
-            },
+        onRejoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          _markConnectionRecovered();
+        },
       ),
     );
 
@@ -274,7 +252,6 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
     _callTimer?.cancel();
     _ringingTimer?.cancel();
     _connectionRecoveryTimer?.cancel();
-    _remoteDropTimer?.cancel();
     context.read<CallCubit>().endCall(callId);
   }
 

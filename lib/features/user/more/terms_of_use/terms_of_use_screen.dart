@@ -1,5 +1,4 @@
 import 'package:hogga/core/theme/app_theme.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/main_appbar.dart';
@@ -16,7 +15,10 @@ class TermsOfUseScreen extends StatelessWidget {
         backBtn: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: context.horizontalPadding, vertical: 20),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.horizontalPadding,
+          vertical: 20,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -56,7 +58,9 @@ class TermsOfUseScreen extends StatelessWidget {
             Center(
               child: Text(
                 AppStrings.copyright.tr(context),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey),
               ),
             ),
             const SizedBox(height: 24),
@@ -66,7 +70,12 @@ class TermsOfUseScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, String content, IconData icon) {
+  Widget _buildSection(
+    BuildContext context,
+    String title,
+    String content,
+    IconData icon,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(20),
@@ -75,7 +84,7 @@ class TermsOfUseScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -87,15 +96,19 @@ class TermsOfUseScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: context.isDark ? AppColors.golden : AppColors.primary, size: 24),
+              Icon(
+                icon,
+                color: context.isDark ? AppColors.golden : AppColors.primary,
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: context.textPrimary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: context.textPrimary,
+                  ),
                 ),
               ),
             ],
@@ -104,9 +117,9 @@ class TermsOfUseScreen extends StatelessWidget {
           Text(
             content,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  height: 1.8,
-                  color: context.textSecondary,
-                ),
+              height: 1.8,
+              color: context.textSecondary,
+            ),
           ),
         ],
       ),

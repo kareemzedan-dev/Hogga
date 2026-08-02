@@ -25,7 +25,8 @@ class LawyerDocumentsCubit extends Cubit<LawyerDocumentsState> {
   final DocumentsRepository repository;
   String? currentFolder;
 
-  LawyerDocumentsCubit({required this.repository}) : super(LawyerDocumentsInitial());
+  LawyerDocumentsCubit({required this.repository})
+    : super(LawyerDocumentsInitial());
 
   Future<void> fetchDocuments({String? folder}) async {
     currentFolder = folder;
@@ -42,12 +43,16 @@ class LawyerDocumentsCubit extends Cubit<LawyerDocumentsState> {
     required File file,
     String? folder,
   }) async {
-    final result = await repository.uploadDocument(name: name, file: file, folder: folder);
+    final result = await repository.uploadDocument(
+      name: name,
+      file: file,
+      folder: folder,
+    );
     result.fold(
       (failure) => emit(LawyerDocumentsError(message: failure.message)),
-      (_) {
+      (_) async {
         emit(LawyerDocumentActionSuccess());
-        fetchDocuments(folder: folder);
+        await fetchDocuments(folder: folder);
       },
     );
   }

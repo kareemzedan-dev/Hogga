@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/localization/app_localizations.dart';
@@ -8,7 +7,6 @@ import '../../../../../core/utils/app_strings.dart';
 import '../../../../../core/widgets/main_appbar.dart';
 import '../../../../../core/widgets/hogga_card.dart';
 import '../../../../../core/widgets/custom_shimmer.dart';
-import '../../../../../core/widgets/app_status_badge.dart';
 import '../../../../../config/routes/app_routes.dart';
 import '../../../../../injection_container.dart';
 import '../cubits/wallet_cubit.dart';
@@ -23,10 +21,7 @@ class UserWalletScreen extends StatelessWidget {
       create: (context) => sl<WalletCubit>()..fetchPayments(),
       child: Scaffold(
         backgroundColor: context.pageBg,
-        appBar: MainAppbar(
-          title: AppStrings.wallet.tr(context),
-          backBtn: true,
-        ),
+        appBar: MainAppbar(title: AppStrings.wallet.tr(context), backBtn: true),
         body: BlocBuilder<WalletCubit, WalletState>(
           builder: (context, state) {
             if (state is WalletLoading) {
@@ -34,10 +29,23 @@ class UserWalletScreen extends StatelessWidget {
                 padding: EdgeInsets.all(20.w),
                 itemCount: 5,
                 separatorBuilder: (_, __) => SizedBox(height: 16.h),
-                itemBuilder: (_, __) => CustomShimmer.rectangular(height: 100.h, width: double.infinity, shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r))),
+                itemBuilder: (_, __) => CustomShimmer.rectangular(
+                  height: 100.h,
+                  width: double.infinity,
+                  shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                ),
               );
             } else if (state is WalletError) {
-              return Center(child: Text(state.message, style: context.text.bodyMedium?.copyWith(color: AppColors.error)));
+              return Center(
+                child: Text(
+                  state.message,
+                  style: context.text.bodyMedium?.copyWith(
+                    color: AppColors.error,
+                  ),
+                ),
+              );
             } else if (state is WalletLoaded) {
               final transactions = state.payments;
               if (transactions.isEmpty) {
@@ -47,11 +55,18 @@ class UserWalletScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.account_balance_wallet_outlined, size: 64.sp, color: context.textSecondary.withValues(alpha: 0.5)),
+                        Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 64.sp,
+                          color: context.textSecondary.withValues(alpha: 0.5),
+                        ),
                         SizedBox(height: 16.h),
                         Text(
                           AppStrings.noDataFound.tr(context),
-                          style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
+                          style: context.text.bodySmall?.copyWith(
+                            color: context.textSecondary,
+                            fontSize: 12.sp,
+                          ),
                         ),
                       ],
                     ),
@@ -76,9 +91,10 @@ class UserWalletScreen extends StatelessWidget {
                     SizedBox(height: 32.h),
                     Text(
                       AppStrings.lastTransactions.tr(context),
-                      style: context.text.titleMedium?.copyWith(
+                      style: context.text.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: context.textPrimary,
+                        fontSize: 14.sp,
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -86,38 +102,48 @@ class UserWalletScreen extends StatelessWidget {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: transactions.length,
-                      separatorBuilder: (context, index) => SizedBox(height: 16.h),
+                      separatorBuilder: (context, index) =>
+                          SizedBox(height: 16.h),
                       itemBuilder: (context, index) {
                         final item = transactions[index];
                         return InkWell(
                           onTap: () {
-                            Navigator.pushNamed(context, AppRoutes.paymentDetails, arguments: item.id);
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.paymentDetails,
+                              arguments: item.id,
+                            );
                           },
                           child: HoggaCard(
-                            padding: EdgeInsets.all(16.w),
+                            padding: EdgeInsets.all(14.w),
                             child: Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.all(12.w),
+                                  padding: EdgeInsets.all(10.w),
                                   decoration: BoxDecoration(
-                                    color: context.colors.primary.withValues(alpha: 0.1),
+                                    color: context.colors.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
                                     Icons.receipt_long_rounded,
                                     color: context.colors.primary,
-                                    size: 22.sp,
+                                    size: 19.sp,
                                   ),
                                 ),
-                                SizedBox(width: 16.w),
+                                SizedBox(width: 12.w),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item.caseDetails?.title ?? item.paymentNumber,
-                                        style: context.text.bodyMedium?.copyWith(
+                                        item.caseDetails?.title ??
+                                            item.paymentNumber,
+                                        style: context.text.bodySmall?.copyWith(
                                           fontWeight: FontWeight.bold,
+                                          fontSize: 12.sp,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -125,9 +151,11 @@ class UserWalletScreen extends StatelessWidget {
                                       SizedBox(height: 4.h),
                                       Text(
                                         item.date,
-                                        style: context.text.labelSmall?.copyWith(
-                                          color: context.textSecondary,
-                                        ),
+                                        style: context.text.labelSmall
+                                            ?.copyWith(
+                                              color: context.textSecondary,
+                                              fontSize: 10.sp,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -137,15 +165,12 @@ class UserWalletScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       "${item.amount} ${AppStrings.currencySymbol.tr(context)}",
-                                      style: context.text.bodyMedium?.copyWith(
+                                      style: context.text.bodySmall?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: context.textPrimary,
+                                        fontSize: 12.sp,
                                       ),
                                     ),
-                                    // SizedBox(height: 4.h),
-                                    // AppStatusBadge(
-                                    //   status: item.statusKey,
-                                    // ),
                                   ],
                                 ),
                               ],
@@ -168,7 +193,7 @@ class UserWalletScreen extends StatelessWidget {
   Widget _buildSummaryCard(BuildContext context, String total) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: context.cardBg,
         borderRadius: BorderRadius.circular(24.r),
@@ -185,7 +210,10 @@ class UserWalletScreen extends StatelessWidget {
         children: [
           Text(
             AppStrings.totalPayments.tr(context),
-            style: context.text.labelLarge?.copyWith(color: context.textSecondary),
+            style: context.text.labelMedium?.copyWith(
+              color: context.textSecondary,
+              fontSize: 12.sp,
+            ),
           ),
           SizedBox(height: 12.h),
           Row(
@@ -195,15 +223,19 @@ class UserWalletScreen extends StatelessWidget {
             children: [
               Text(
                 total,
-                style: context.text.headlineMedium?.copyWith(
+                style: context.text.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: context.colors.primary,
+                  fontSize: 24.sp,
                 ),
               ),
               SizedBox(width: 8.w),
               Text(
-                AppStrings.currencySymbol.tr(context), 
-                style: context.text.titleMedium?.copyWith(color: context.colors.primary),
+                AppStrings.currencySymbol.tr(context),
+                style: context.text.titleSmall?.copyWith(
+                  color: context.colors.primary,
+                  fontSize: 14.sp,
+                ),
               ),
             ],
           ),

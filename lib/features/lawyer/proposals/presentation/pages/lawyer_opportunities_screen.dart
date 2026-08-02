@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
@@ -15,14 +14,14 @@ import 'lawyer_opportunity_details_screen.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
-import 'package:hogga/core/utils/app_colors.dart';
 
 class LawyerOpportunitiesScreen extends StatefulWidget {
   final bool isBottomNav;
   const LawyerOpportunitiesScreen({super.key, this.isBottomNav = false});
 
   @override
-  State<LawyerOpportunitiesScreen> createState() => _LawyerOpportunitiesScreenState();
+  State<LawyerOpportunitiesScreen> createState() =>
+      _LawyerOpportunitiesScreenState();
 }
 
 class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
@@ -36,38 +35,49 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: context.pageBg,
+        appBar: AppBar(
           backgroundColor: context.pageBg,
-          appBar: AppBar(
-            backgroundColor: context.pageBg,
-            elevation: 0,
-            title: Text(AppStrings.services.tr(context), style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: context.textPrimary)),
-            centerTitle: true,
-            leading: widget.isBottomNav
-                ? null
-                : IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 20.sp),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-            bottom: TabBar(
-              labelColor: context.colors.primary,
-              unselectedLabelColor: context.textSecondary,
-              indicatorColor: context.colors.primary,
-              indicatorWeight: 3.h,
-              labelStyle: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-              tabs: [
-                Tab(text: AppStrings.clientRequests.tr(context)),
-                Tab(text: AppStrings.availableServices.tr(context)),
-              ],
+          elevation: 0,
+          title: Text(
+            AppStrings.services.tr(context),
+            style: context.text.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: context.textPrimary,
+              fontSize: 17.sp,
             ),
           ),
-          body: TabBarView(
-            children: [
-              _buildRequestsTab(),
-              _buildAvailableServicesTab(),
+          centerTitle: true,
+          leading: widget.isBottomNav
+              ? null
+              : IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: context.textPrimary,
+                    size: 18.sp,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+          bottom: TabBar(
+            labelColor: context.colors.primary,
+            unselectedLabelColor: context.textSecondary,
+            indicatorColor: context.colors.primary,
+            indicatorWeight: 3.h,
+            labelStyle: context.text.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 12.sp,
+            ),
+            tabs: [
+              Tab(text: AppStrings.clientRequests.tr(context)),
+              Tab(text: AppStrings.availableServices.tr(context)),
             ],
           ),
         ),
-      );
+        body: TabBarView(
+          children: [_buildRequestsTab(), _buildAvailableServicesTab()],
+        ),
+      ),
+    );
   }
 
   Widget _buildRequestsTab() {
@@ -83,8 +93,13 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
         builder: (context, state) {
           if (state is LawyerRequestsLoading) {
             return const LawyerShimmerLoading();
-          } else if (state is LawyerRequestsLoaded || state is LawyerRequestActionSuccess) {
-            final requests = state is LawyerRequestsLoaded ? state.requests : (context.read<LawyerRequestsCubit>().state as LawyerRequestsLoaded).requests;
+          } else if (state is LawyerRequestsLoaded ||
+              state is LawyerRequestActionSuccess) {
+            final requests = state is LawyerRequestsLoaded
+                ? state.requests
+                : (context.read<LawyerRequestsCubit>().state
+                          as LawyerRequestsLoaded)
+                      .requests;
             if (requests.isEmpty) {
               return CustomEmptyState(
                 title: AppStrings.noOpportunities.tr(context),
@@ -93,9 +108,10 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
               );
             }
             return RefreshIndicator(
-              onRefresh: () => context.read<LawyerRequestsCubit>().getRequests(),
+              onRefresh: () =>
+                  context.read<LawyerRequestsCubit>().getRequests(),
               child: ListView.separated(
-                padding: EdgeInsets.all(20.w),
+                padding: EdgeInsets.all(16.w),
                 itemCount: requests.length,
                 separatorBuilder: (context, index) => SizedBox(height: 16.h),
                 itemBuilder: (context, index) {
@@ -129,20 +145,25 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
             );
           }
           return RefreshIndicator(
-            onRefresh: () => context.read<LawyerProposalsCubit>().getProposalsData(),
+            onRefresh: () =>
+                context.read<LawyerProposalsCubit>().getProposalsData(),
             child: ListView.separated(
-              padding: EdgeInsets.all(20.w),
+              padding: EdgeInsets.all(16.w),
               itemCount: state.availableServices.length,
               separatorBuilder: (context, index) => SizedBox(height: 16.h),
               itemBuilder: (context, index) {
-                return _buildAvailableServiceCard(context, state.availableServices[index]);
+                return _buildAvailableServiceCard(
+                  context,
+                  state.availableServices[index],
+                );
               },
             ),
           );
         } else if (state is LawyerProposalsError) {
           return CustomErrorState(
             message: state.message,
-            onRetry: () => context.read<LawyerProposalsCubit>().getProposalsData(),
+            onRetry: () =>
+                context.read<LawyerProposalsCubit>().getProposalsData(),
           );
         }
         return const SizedBox.shrink();
@@ -152,145 +173,202 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
 
   // _buildEmptyState removed as it's replaced by CustomEmptyState
 
-  Widget _buildOpportunityCard(BuildContext context, LawyerCaseRequest request) {
+  Widget _buildOpportunityCard(
+    BuildContext context,
+    LawyerCaseRequest request,
+  ) {
     return InkWell(
       onTap: () {},
-        // MaterialPageRoute(builder: (context) => LawyerOpportunityDetailsScreen(requestId: request.id)),
-
+      // MaterialPageRoute(builder: (context) => LawyerOpportunityDetailsScreen(requestId: request.id)),
       child: LawyerCard(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(14.w),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: _buildInfoChip(
+                    context,
+                    request.statusText,
+                    color: context.accentGolden,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Flexible(
+                  child: Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Text(
+                      '${request.date} ${request.time}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.labelSmall?.copyWith(
+                        color: context.textSecondary,
+                        fontSize: 10.sp,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              request.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 12.sp,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: _buildCompactButton(
+                context,
+                text: AppStrings.viewDetails.tr(context),
+                isFilled: true,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LawyerOpportunityDetailsScreen(
+                      requestId: request.id,
+                      isDirectRequest: true,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvailableServiceCard(
+    BuildContext context,
+    LawyerAvailableService service,
+  ) {
+    return LawyerCard(
+      padding: EdgeInsets.all(14.w),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: context.accentGolden.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Text(
-                  request.statusText,
-                  style: context.text.labelSmall?.copyWith(color: context.accentGolden, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${request.date} ${request.time}',
-                style: context.text.labelSmall?.copyWith(color: context.textSecondary),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            request.title,
-            style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 13.sp),
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                onPressed: () => Navigator.push(
+              Flexible(
+                child: _buildInfoChip(
                   context,
-                  MaterialPageRoute(builder: (context) => LawyerOpportunityDetailsScreen(requestId: request.id, isDirectRequest: true)),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: context.colors.primary,
-                  foregroundColor: context.colors.onPrimary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(AppStrings.viewDetails.tr(context), style: context.text.labelSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 11.sp, color: context.colors.onPrimary)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-    );
-  }
-
-  Widget _buildAvailableServiceCard(BuildContext context, LawyerAvailableService service) {
-    return LawyerCard(
-      padding: EdgeInsets.all(16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: context.accentGolden.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Text(
                   service.categoryItemName,
-                  style: context.text.labelSmall?.copyWith(color: context.accentGolden, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Text(
-                service.createdAt,
-                style: context.text.labelSmall?.copyWith(color: context.textSecondary),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            service.title,
-            style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 13.sp),
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            children: [
-              if (service.minPrice != null || service.maxPrice != null)
-                Text(
-                  '${service.minPrice ?? '-'} - ${service.maxPrice ?? '-'} ${AppStrings.currencyRial.tr(context)}',
-                  style: context.text.titleSmall?.copyWith(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12.sp),
-                ),
-              const Spacer(),
-              Row(
-                children: [
-                  Icon(Icons.people_outline, size: 16.sp, color: context.textSecondary),
-                  SizedBox(width: 4.w),
-                  Text(
-                    AppStrings.proposalsCountLabel.tr(context, namedArgs: {'count': service.proposalsCount.toString()}),
-                    style: context.text.labelSmall?.copyWith(color: context.textSecondary),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 16.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              OutlinedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LawyerOpportunityDetailsScreen(requestId: service.id, isDirectRequest: false)),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: context.colors.primary,
-                  side: BorderSide(color: context.colors.primary),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  AppStrings.viewDetails.tr(context),
-                  style: context.text.labelSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 11.sp, color: context.colors.primary),
+                  color: context.accentGolden,
                 ),
               ),
               SizedBox(width: 8.w),
-              ElevatedButton(
+              Flexible(
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    service.createdAt,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.labelSmall?.copyWith(
+                      color: context.textSecondary,
+                      fontSize: 10.sp,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            service.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.text.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 12.sp,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Wrap(
+            spacing: 10.w,
+            runSpacing: 8.h,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (service.minPrice != null || service.maxPrice != null)
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 160.w),
+                  child: Text(
+                    '${service.minPrice ?? '-'} - ${service.maxPrice ?? '-'} ${AppStrings.currencyRial.tr(context)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.titleSmall?.copyWith(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11.sp,
+                    ),
+                  ),
+                ),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 150.w),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.people_outline,
+                      size: 14.sp,
+                      color: context.textSecondary,
+                    ),
+                    SizedBox(width: 4.w),
+                    Flexible(
+                      child: Text(
+                        AppStrings.proposalsCountLabel.tr(
+                          context,
+                          namedArgs: {
+                            'count': service.proposalsCount.toString(),
+                          },
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.text.labelSmall?.copyWith(
+                          color: context.textSecondary,
+                          fontSize: 10.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 14.h),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            alignment: WrapAlignment.end,
+            children: [
+              _buildCompactButton(
+                context,
+                text: AppStrings.viewDetails.tr(context),
+                isFilled: false,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LawyerOpportunityDetailsScreen(
+                      requestId: service.id,
+                      isDirectRequest: false,
+                    ),
+                  ),
+                ),
+              ),
+              _buildCompactButton(
+                context,
+                text: AppStrings.submitPriceOffer.tr(context),
+                isFilled: true,
                 onPressed: () => _showSubmitProposalSheet(
                   context,
                   service.id,
@@ -298,18 +376,6 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
                   minPrice: service.minPrice,
                   maxPrice: service.maxPrice,
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: context.colors.primary,
-                  foregroundColor: context.colors.onPrimary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  AppStrings.submitPriceOffer.tr(context),
-                  style: context.text.labelSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 11.sp, color: context.colors.onPrimary),
-                ),
               ),
             ],
           ),
@@ -318,7 +384,93 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
     );
   }
 
-  void _showSubmitProposalSheet(BuildContext context, int id, String title, {String? minPrice, String? maxPrice}) {
+  Widget _buildInfoChip(
+    BuildContext context,
+    String text, {
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: context.text.labelSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 10.sp,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactButton(
+    BuildContext context, {
+    required String text,
+    required VoidCallback onPressed,
+    required bool isFilled,
+  }) {
+    final backgroundColor = isFilled ? context.colors.primary : null;
+    final foregroundColor = isFilled
+        ? context.colors.onPrimary
+        : context.colors.primary;
+
+    if (!isFilled) {
+      return OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: foregroundColor,
+          side: BorderSide(color: context.colors.primary),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 7.h),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          text,
+          style: context.text.labelSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: 10.sp,
+            color: foregroundColor,
+          ),
+        ),
+      );
+    }
+
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+        padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 7.h),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        text,
+        style: context.text.labelSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: 10.sp,
+          color: foregroundColor,
+        ),
+      ),
+    );
+  }
+
+  void _showSubmitProposalSheet(
+    BuildContext context,
+    int id,
+    String title, {
+    String? minPrice,
+    String? maxPrice,
+  }) {
     final cubit = context.read<LawyerProposalsCubit>();
     showModalBottomSheet(
       context: context,
