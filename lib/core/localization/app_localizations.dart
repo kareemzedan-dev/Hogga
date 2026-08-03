@@ -844,7 +844,7 @@ class AppLocalizations {
       AppStrings.discount: 'Discount',
       AppStrings.receivedProposals: 'Received Proposals',
       AppStrings.confirmAcceptProposal:
-          'Are you sure you want to accept the proposal from {name} for {price}?',
+          'Are you sure you want to accept the proposal from {name}?',
       AppStrings.enterDocumentTitles: 'Enter title for each document',
       AppStrings.documentTitle: 'Document Title',
       AppStrings.pleaseEnterDocumentTitles:
@@ -868,7 +868,7 @@ class AppLocalizations {
       AppStrings.services: 'Services',
       AppStrings.clientRequests: 'Client Requests',
       AppStrings.availableServices: 'Available Services',
-      AppStrings.submitPriceOffer: 'Submit Price Offer',
+      AppStrings.submitPriceOffer: 'Submit Proposal',
       AppStrings.acceptTextConsultations: 'Text Consults',
       AppStrings.totalBalance: 'Total Balance',
       AppStrings.totalSent: 'Total Sent',
@@ -1891,7 +1891,7 @@ class AppLocalizations {
       AppStrings.discount: 'الخصم',
       AppStrings.receivedProposals: 'العروض المقدمة',
       AppStrings.confirmAcceptProposal:
-          'هل أنت متأكد من قبول العرض المقدم من {name} بسعر {price}؟',
+          'هل أنت متأكد من قبول العرض المقدم من {name}؟',
       AppStrings.enterDocumentTitles: 'أدخل عنوان كل مستند',
       AppStrings.documentTitle: 'عنوان المستند',
       AppStrings.uploadDocuments: 'رفع المستندات',
@@ -1957,7 +1957,7 @@ class AppLocalizations {
       AppStrings.clientRequests: 'طلبات العملاء',
       AppStrings.availableServices: 'الخدمات المتاحة',
       AppStrings.settings: 'الإعدادات',
-      AppStrings.submitPriceOffer: 'تقديم عرض سعر',
+      AppStrings.submitPriceOffer: 'تقديم عرض',
       AppStrings.acceptTextConsultations: 'استشارات نصية',
       AppStrings.totalBalance: 'إجمالي الرصيد',
       AppStrings.totalSent: 'إجمالي المسحوبات',

@@ -434,10 +434,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
         content: Text(
           AppStrings.confirmAcceptProposal.tr(
             context,
-            namedArgs: {
-              'name': proposal.lawyerName,
-              'price': proposal.price.toString(),
-            },
+            namedArgs: {'name': proposal.lawyerName},
           ),
           style: context.text.bodyMedium?.copyWith(
             color: context.textSecondary,

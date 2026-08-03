@@ -6,10 +6,8 @@ import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/features/lawyer/proposals/domain/entities/lawyer_proposal.dart';
 import 'package:hogga/features/lawyer/proposals/presentation/cubit/lawyer_proposals_cubit.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
-import 'package:flutter/material.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
-import 'package:hogga/core/widgets/hogga_card.dart';
 import 'package:hogga/features/lawyer/proposals/presentation/widgets/submit_proposal_sheet.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
@@ -38,7 +36,9 @@ class _LawyerProposalsScreenState extends State<LawyerProposalsScreen> {
           elevation: 0,
           title: Text(
             AppStrings.myProposals.tr(context),
-            style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: context.text.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           centerTitle: true,
         ),
@@ -53,7 +53,9 @@ class _LawyerProposalsScreenState extends State<LawyerProposalsScreen> {
           builder: (context, state) {
             if (state is LawyerProposalsLoading) {
               return const LawyerShimmerLoading();
-            } else if (state is LawyerProposalsLoaded || state is LawyerProposalActionLoading || state is LawyerProposalActionSuccess) {
+            } else if (state is LawyerProposalsLoaded ||
+                state is LawyerProposalActionLoading ||
+                state is LawyerProposalActionSuccess) {
               final proposalsData = state is LawyerProposalsLoaded
                   ? state.proposals
                   : context.read<LawyerProposalsCubit>().currentProposals;
@@ -64,11 +66,15 @@ class _LawyerProposalsScreenState extends State<LawyerProposalsScreen> {
                   subtitle: AppStrings.noProposalsSubtitle.tr(context),
                   icon: Icons.assignment_outlined,
                   buttonLabel: AppStrings.browseOpportunities.tr(context),
-                  onAction: () => Navigator.pushNamed(context, AppRoutes.lawyerOpportunities),
+                  onAction: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.lawyerOpportunities,
+                  ),
                 );
               }
               return RefreshIndicator(
-                onRefresh: () => context.read<LawyerProposalsCubit>().getProposalsData(),
+                onRefresh: () =>
+                    context.read<LawyerProposalsCubit>().getProposalsData(),
                 child: ListView.separated(
                   padding: EdgeInsets.all(20.w),
                   itemCount: proposalsData.length,
@@ -78,16 +84,18 @@ class _LawyerProposalsScreenState extends State<LawyerProposalsScreen> {
                     return ProposalCard(
                       proposal: proposal,
                       onEdit: () => _showEditProposalSheet(context, proposal),
-                      onDelete: () => _showDeleteConfirmation(context, proposal.id),
+                      onDelete: () =>
+                          _showDeleteConfirmation(context, proposal.id),
                     );
                   },
                 ),
               );
             } else if (state is LawyerProposalsError) {
-               return CustomErrorState(
-                 message: state.message,
-                 onRetry: () => context.read<LawyerProposalsCubit>().getProposalsData(),
-               );
+              return CustomErrorState(
+                message: state.message,
+                onRetry: () =>
+                    context.read<LawyerProposalsCubit>().getProposalsData(),
+              );
             }
             return const SizedBox.shrink();
           },
@@ -112,7 +120,13 @@ class _LawyerProposalsScreenState extends State<LawyerProposalsScreen> {
               Navigator.pop(innerContext);
               context.read<LawyerProposalsCubit>().deleteProposal(proposalId);
             },
-            child: Text(AppStrings.delete.tr(context), style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+            child: Text(
+              AppStrings.delete.tr(context),
+              style: const TextStyle(
+                color: AppColors.error,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -131,11 +145,9 @@ class _LawyerProposalsScreenState extends State<LawyerProposalsScreen> {
           caseId: proposal.legalCase.id,
           caseTitle: proposal.legalCase.title,
           proposalId: proposal.id,
-          initialPrice: proposal.price.toString(),
           initialDescription: proposal.description,
         ),
       ),
     );
   }
-  }
-
+}

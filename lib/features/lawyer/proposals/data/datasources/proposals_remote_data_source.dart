@@ -13,12 +13,10 @@ abstract class ProposalsRemoteDataSource {
   Future<List<LawyerProposal>> getProposals();
   Future<bool> submitProposal({
     required int serviceId,
-    required double price,
     required String description,
   });
   Future<bool> updateProposal({
     required int proposalId,
-    required double price,
     required String description,
   });
   Future<bool> deleteProposal(int proposalId);
@@ -28,10 +26,12 @@ class ProposalsRemoteDataSourceImpl implements ProposalsRemoteDataSource {
   final ApiClient apiClient;
 
   ProposalsRemoteDataSourceImpl({required this.apiClient});
-  
+
   @override
   Future<List<LawyerAvailableService>> getAvailableServices() async {
-    final response = await apiClient.get(AppEndPoints.lawyerAvailableServicesEndPoint);
+    final response = await apiClient.get(
+      AppEndPoints.lawyerAvailableServicesEndPoint,
+    );
     return (response.data['data'] as List)
         .map((e) => LawyerAvailableServiceModel.fromJson(e))
         .toList();
@@ -39,13 +39,17 @@ class ProposalsRemoteDataSourceImpl implements ProposalsRemoteDataSource {
 
   @override
   Future<AvailableServiceDetails> getAvailableServiceDetails(int id) async {
-    final response = await apiClient.get(AppEndPoints.getLawyerProposalServiceDetailsEndPoint(id));
+    final response = await apiClient.get(
+      AppEndPoints.getLawyerProposalServiceDetailsEndPoint(id),
+    );
     return AvailableServiceDetailsModel.fromJson(response.data['data']);
   }
 
   @override
   Future<List<LawyerProposal>> getProposals() async {
-    final response = await apiClient.get(AppEndPoints.lawyerMyProposalsEndPoint);
+    final response = await apiClient.get(
+      AppEndPoints.lawyerMyProposalsEndPoint,
+    );
     return (response.data['data'] as List)
         .map((e) => LawyerProposalModel.fromJson(e))
         .toList();
@@ -54,16 +58,11 @@ class ProposalsRemoteDataSourceImpl implements ProposalsRemoteDataSource {
   @override
   Future<bool> submitProposal({
     required int serviceId,
-    required double price,
     required String description,
   }) async {
     final response = await apiClient.post(
       AppEndPoints.lawyerSubmitProposalEndPoint,
-      data: {
-        'legal_case_id': serviceId,
-        'price': price.toString(),
-        'description': description,
-      },
+      data: {'legal_case_id': serviceId, 'description': description},
     );
     return response.data['status'] == true;
   }
@@ -71,16 +70,11 @@ class ProposalsRemoteDataSourceImpl implements ProposalsRemoteDataSource {
   @override
   Future<bool> updateProposal({
     required int proposalId,
-    required double price,
     required String description,
   }) async {
     final response = await apiClient.post(
       AppEndPoints.lawyerUpdateProposalEndPoint,
-      data: {
-        'proposal_id': proposalId,
-        'price': price.toString(),
-        'description': description,
-      },
+      data: {'proposal_id': proposalId, 'description': description},
     );
     return response.data['status'] == true;
   }

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -29,7 +28,9 @@ class ProposalCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.golden.withValues(alpha: 0.05) : context.cardBg,
+        color: isSelected
+            ? AppColors.golden.withValues(alpha: 0.05)
+            : context.cardBg,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isSelected ? AppColors.golden : context.divColor,
@@ -47,10 +48,16 @@ class ProposalCard extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 22.r,
                   backgroundColor: context.chipBg,
-                  backgroundImage: proposal.lawyerPhoto != null && proposal.lawyerPhoto!.isNotEmpty 
-                      ? CachedNetworkImageProvider(proposal.lawyerPhoto!) as ImageProvider
-                      : const AssetImage(AppAssets.userPlaceholder) as ImageProvider,
-                  child: proposal.lawyerPhoto == null || proposal.lawyerPhoto!.isEmpty
+                  backgroundImage:
+                      proposal.lawyerPhoto != null &&
+                          proposal.lawyerPhoto!.isNotEmpty
+                      ? CachedNetworkImageProvider(proposal.lawyerPhoto!)
+                            as ImageProvider
+                      : const AssetImage(AppAssets.userPlaceholder)
+                            as ImageProvider,
+                  child:
+                      proposal.lawyerPhoto == null ||
+                          proposal.lawyerPhoto!.isEmpty
                       ? Container(
                           width: double.infinity,
                           height: double.infinity,
@@ -58,7 +65,11 @@ class ProposalCard extends StatelessWidget {
                             color: AppColors.golden.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.person_outline_rounded, color: AppColors.golden, size: 24.sp),
+                          child: Icon(
+                            Icons.person_outline_rounded,
+                            color: AppColors.golden,
+                            size: 24.sp,
+                          ),
                         )
                       : null,
                 ),
@@ -81,18 +92,31 @@ class ProposalCard extends StatelessWidget {
                     AppSizes.h(4),
                     Row(
                       children: [
-                        Icon(Icons.work_outline, size: 12.sp, color: context.textSecondary),
+                        Icon(
+                          Icons.work_outline,
+                          size: 12.sp,
+                          color: context.textSecondary,
+                        ),
                         AppSizes.w(4),
                         Text(
                           '${proposal.lawyerExperience} ${AppStrings.years.tr(context)}',
-                          style: context.text.labelSmall?.copyWith(color: context.textSecondary),
+                          style: context.text.labelSmall?.copyWith(
+                            color: context.textSecondary,
+                          ),
                         ),
                         AppSizes.w(12),
-                        Icon(Icons.star_rounded, color: AppColors.golden, size: 14.sp),
+                        Icon(
+                          Icons.star_rounded,
+                          color: AppColors.golden,
+                          size: 14.sp,
+                        ),
                         AppSizes.w(4),
                         Text(
                           proposal.lawyerRating,
-                          style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontWeight: FontWeight.w600),
+                          style: context.text.labelSmall?.copyWith(
+                            color: context.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -102,34 +126,24 @@ class ProposalCard extends StatelessWidget {
             ],
           ),
           AppSizes.h(16),
-          
-          // Proposal Details (Price & Time)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildDetailItem(
-                context, 
-                AppStrings.proposalPrice.tr(context), 
-                '${proposal.price} ${AppStrings.currency.tr(context)}', 
-                Icons.attach_money_rounded,
-                Colors.green,
-              ),
-              _buildDetailItem(
-                context, 
-                AppStrings.deliveryTime.tr(context), 
-                '${proposal.days} ${AppStrings.days.tr(context)}', 
-                Icons.access_time_rounded,
-                Colors.blue,
-              ),
-            ],
+
+          _buildDetailItem(
+            context,
+            AppStrings.deliveryTime.tr(context),
+            '${proposal.days} ${AppStrings.days.tr(context)}',
+            Icons.access_time_rounded,
+            Colors.blue,
           ),
-          
+
           AppSizes.h(16),
-          
+
           // Cover Letter
           Text(
             AppStrings.proposalDescription.tr(context),
-            style: context.text.labelMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: 13.sp),
+            style: context.text.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 13.sp,
+            ),
           ),
           AppSizes.h(6),
           Text(
@@ -139,9 +153,9 @@ class ProposalCard extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          
+
           AppSizes.h(24),
-          
+
           // Actions
           CustomButton(
             onPressed: onAccept,
@@ -155,7 +169,13 @@ class ProposalCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailItem(BuildContext context, String label, String value, IconData icon, Color color) {
+  Widget _buildDetailItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Row(
       children: [
         Container(
@@ -170,8 +190,20 @@ class ProposalCard extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontSize: 10.sp)),
-            Text(value, style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: 13.sp)),
+            Text(
+              label,
+              style: context.text.labelSmall?.copyWith(
+                color: context.textSecondary,
+                fontSize: 10.sp,
+              ),
+            ),
+            Text(
+              value,
+              style: context.text.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 13.sp,
+              ),
+            ),
           ],
         ),
       ],

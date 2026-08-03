@@ -299,20 +299,6 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
             alignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              if (service.minPrice != null || service.maxPrice != null)
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 160.w),
-                  child: Text(
-                    '${service.minPrice ?? '-'} - ${service.maxPrice ?? '-'} ${AppStrings.currencyRial.tr(context)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.text.titleSmall?.copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11.sp,
-                    ),
-                  ),
-                ),
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: 150.w),
                 child: Row(
@@ -367,14 +353,12 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
               ),
               _buildCompactButton(
                 context,
-                text: AppStrings.submitPriceOffer.tr(context),
+                text: AppStrings.submitProposal.tr(context),
                 isFilled: true,
                 onPressed: () => _showSubmitProposalSheet(
                   context,
                   service.id,
                   service.title,
-                  minPrice: service.minPrice,
-                  maxPrice: service.maxPrice,
                 ),
               ),
             ],
@@ -464,13 +448,7 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
     );
   }
 
-  void _showSubmitProposalSheet(
-    BuildContext context,
-    int id,
-    String title, {
-    String? minPrice,
-    String? maxPrice,
-  }) {
+  void _showSubmitProposalSheet(BuildContext context, int id, String title) {
     final cubit = context.read<LawyerProposalsCubit>();
     showModalBottomSheet(
       context: context,
@@ -478,12 +456,7 @@ class _LawyerOpportunitiesScreenState extends State<LawyerOpportunitiesScreen> {
       backgroundColor: Colors.transparent,
       builder: (innerContext) => BlocProvider.value(
         value: cubit,
-        child: SubmitProposalSheet(
-          caseId: id,
-          caseTitle: title,
-          minPrice: minPrice,
-          maxPrice: maxPrice,
-        ),
+        child: SubmitProposalSheet(caseId: id, caseTitle: title),
       ),
     );
   }

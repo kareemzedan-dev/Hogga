@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -29,7 +28,9 @@ class ProposalCard extends StatelessWidget {
             children: [
               Text(
                 '${AppStrings.caseNumberLabel.tr(context)}: ${proposal.legalCase.caseNumber}',
-                style: context.text.bodySmall?.copyWith(color: context.textSecondary),
+                style: context.text.bodySmall?.copyWith(
+                  color: context.textSecondary,
+                ),
               ),
               _buildStatusBadge(context, proposal.status),
             ],
@@ -37,31 +38,18 @@ class ProposalCard extends StatelessWidget {
           SizedBox(height: 12.h),
           Text(
             proposal.legalCase.title,
-            style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: context.text.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           SizedBox(height: 8.h),
           Text(
             proposal.legalCase.categoryName,
-            style: context.text.bodySmall?.copyWith(color: context.accentGolden),
+            style: context.text.bodySmall?.copyWith(
+              color: context.accentGolden,
+            ),
           ),
           Divider(height: 24.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${AppStrings.yourOffer.tr(context)}:',
-                style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
-              ),
-              Text(
-                '${proposal.price} ${AppStrings.currencyRial.tr(context)}',
-                style: context.text.titleLarge?.copyWith(
-                  color: context.colors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
           Text(
             proposal.description,
             maxLines: 3,
@@ -80,7 +68,9 @@ class ProposalCard extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: context.colors.primary,
                       side: BorderSide(color: context.colors.primary),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
                     ),
                   ),
                 ),
@@ -93,7 +83,9 @@ class ProposalCard extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
                     ),
                   ),
                 ),

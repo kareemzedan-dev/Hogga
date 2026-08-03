@@ -55,7 +55,8 @@ class LawyerProposalsCubit extends Cubit<LawyerProposalsState> {
   List<LawyerAvailableService> currentAvailableServices = const [];
   List<LawyerProposal> currentProposals = const [];
 
-  LawyerProposalsCubit({required this.repository}) : super(LawyerProposalsInitial());
+  LawyerProposalsCubit({required this.repository})
+    : super(LawyerProposalsInitial());
 
   Future<void> getProposalsData() async {
     emit(LawyerProposalsLoading());
@@ -70,10 +71,12 @@ class LawyerProposalsCubit extends Cubit<LawyerProposalsState> {
           (proposals) {
             currentAvailableServices = services;
             currentProposals = proposals;
-            emit(LawyerProposalsLoaded(
-              availableServices: services,
-              proposals: proposals,
-            ));
+            emit(
+              LawyerProposalsLoaded(
+                availableServices: services,
+                proposals: proposals,
+              ),
+            );
           },
         );
       },
@@ -82,13 +85,11 @@ class LawyerProposalsCubit extends Cubit<LawyerProposalsState> {
 
   Future<void> submitProposal({
     required int serviceId,
-    required double price,
     required String description,
   }) async {
     emit(LawyerProposalActionLoading());
     final result = await repository.submitProposal(
       serviceId: serviceId,
-      price: price,
       description: description,
     );
     result.fold(
@@ -100,7 +101,11 @@ class LawyerProposalsCubit extends Cubit<LawyerProposalsState> {
         }
       },
       (success) {
-        emit(LawyerProposalActionSuccess(message: AppStrings.proposalSubmittedSuccess));
+        emit(
+          LawyerProposalActionSuccess(
+            message: AppStrings.proposalSubmittedSuccess,
+          ),
+        );
         getProposalsData();
       },
     );
@@ -108,13 +113,11 @@ class LawyerProposalsCubit extends Cubit<LawyerProposalsState> {
 
   Future<void> updateProposal({
     required int proposalId,
-    required double price,
     required String description,
   }) async {
     emit(LawyerProposalActionLoading());
     final result = await repository.updateProposal(
       proposalId: proposalId,
-      price: price,
       description: description,
     );
     result.fold(

@@ -13,7 +13,8 @@ class ProposalsRepositoryImpl implements ProposalsRepository {
   ProposalsRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, List<LawyerAvailableService>>> getAvailableServices() async {
+  Future<Either<Failure, List<LawyerAvailableService>>>
+  getAvailableServices() async {
     try {
       final remoteData = await remoteDataSource.getAvailableServices();
       return Right(remoteData);
@@ -25,7 +26,9 @@ class ProposalsRepositoryImpl implements ProposalsRepository {
   }
 
   @override
-  Future<Either<Failure, AvailableServiceDetails>> getAvailableServiceDetails(int id) async {
+  Future<Either<Failure, AvailableServiceDetails>> getAvailableServiceDetails(
+    int id,
+  ) async {
     try {
       final remoteData = await remoteDataSource.getAvailableServiceDetails(id);
       return Right(remoteData);
@@ -51,13 +54,11 @@ class ProposalsRepositoryImpl implements ProposalsRepository {
   @override
   Future<Either<Failure, bool>> submitProposal({
     required int serviceId,
-    required double price,
     required String description,
   }) async {
     try {
       final success = await remoteDataSource.submitProposal(
         serviceId: serviceId,
-        price: price,
         description: description,
       );
       return Right(success);
@@ -74,13 +75,11 @@ class ProposalsRepositoryImpl implements ProposalsRepository {
   @override
   Future<Either<Failure, bool>> updateProposal({
     required int proposalId,
-    required double price,
     required String description,
   }) async {
     try {
       final success = await remoteDataSource.updateProposal(
         proposalId: proposalId,
-        price: price,
         description: description,
       );
       return Right(success);
