@@ -377,6 +377,8 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
   }
 
   Widget _buildProposalsSection(OrderDetailsData order) {
+    final bool isCaseAcceptedOrClosed = order.isAcceptedOrActive;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -398,6 +400,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
             return ProposalCard(
               proposal: proposal,
               isSelected: _selectedProposalId == proposal.id,
+              canAccept: !isCaseAcceptedOrClosed,
               onAccept: () {
                 // Show confirmation logic
                 setState(() => _selectedProposalId = proposal.id);

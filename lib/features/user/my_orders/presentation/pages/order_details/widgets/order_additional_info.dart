@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
@@ -44,18 +43,26 @@ class OrderReceiptSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          _buildReceiptRow(context, AppStrings.subtotal.tr(context), order.financials.subtotal),
+          _buildReceiptRow(
+            context,
+            AppStrings.serviceFee.tr(context),
+            order.financials.subtotal,
+          ),
           _buildReceiptRow(
             context,
             AppStrings.discount.tr(context),
             order.financials.discount,
             isDiscount: true,
           ),
-          _buildReceiptRow(context, AppStrings.taxValue.tr(context), order.financials.taxAmount),
+          _buildReceiptRow(
+            context,
+            AppStrings.tax.tr(context),
+            order.financials.taxAmount,
+          ),
           const Divider(height: 28),
           _buildReceiptRow(
             context,
-            AppStrings.totalProfessionalFees.tr(context),
+            AppStrings.total.tr(context),
             order.financials.totalPrice,
             highlight: true,
           ),

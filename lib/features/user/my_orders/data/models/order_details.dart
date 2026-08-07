@@ -56,6 +56,20 @@ class OrderDetailsData {
         normalizedStatus == 'closed';
   }
 
+  bool get isAcceptedOrActive {
+    final normalizedStatus = status.toLowerCase();
+    return normalizedStatus == 'accepted' ||
+        normalizedStatus == 'approved' ||
+        normalizedStatus == 'in_progress' ||
+        normalizedStatus == 'completed' ||
+        normalizedStatus == 'complete' ||
+        normalizedStatus == 'done' ||
+        normalizedStatus == 'finished' ||
+        normalizedStatus == 'canceled' ||
+        normalizedStatus == 'cancelled' ||
+        proposals.any((p) => p.isAccepted);
+  }
+
   CaseProposal? get ratableProposal {
     const preferredStatuses = {
       'accepted',
@@ -122,6 +136,7 @@ class Financials {
   final double totalPrice;
   final String paymentMethod;
   final String paymentStatus;
+  final String paymentStatusText;
   final String? paymentUrl;
 
   Financials({
@@ -131,8 +146,12 @@ class Financials {
     required this.totalPrice,
     required this.paymentMethod,
     required this.paymentStatus,
+    required this.paymentStatusText,
     this.paymentUrl,
   });
+
+  String get displayPaymentStatus =>
+      paymentStatusText.isNotEmpty ? paymentStatusText : paymentStatus;
 
   bool get hasPaymentUrl => paymentUrl != null && paymentUrl!.isNotEmpty;
 
@@ -144,6 +163,7 @@ class Financials {
       totalPrice: double.tryParse(json['total_price']?.toString() ?? '0') ?? 0,
       paymentMethod: json['payment_method']?.toString() ?? '',
       paymentStatus: json['payment_status']?.toString() ?? '',
+      paymentStatusText: json['payment_status_text']?.toString() ?? '',
       paymentUrl: json['payment_url']?.toString(),
     );
   }
@@ -215,6 +235,11 @@ class CaseProposal {
     this.lawyerRating = '5.0',
     this.lawyerExperience = '0',
   });
+
+  bool get isAccepted {
+    final normalizedStatus = status.toLowerCase();
+    return normalizedStatus == 'accepted' || normalizedStatus == 'approved';
+  }
 
   factory CaseProposal.fromJson(Map<String, dynamic> json) {
     final lawyerId = _readInt(json['lawyer_id']);

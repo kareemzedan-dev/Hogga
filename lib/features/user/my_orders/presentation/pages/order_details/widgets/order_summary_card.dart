@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -73,7 +72,7 @@ class OrderSummaryCard extends StatelessWidget {
           _buildInfoRow(
             context,
             AppStrings.paymentStatus.tr(context),
-            order.financials.paymentStatus,
+            order.financials.displayPaymentStatus,
           ),
           const SizedBox(height: 18),
           Text(

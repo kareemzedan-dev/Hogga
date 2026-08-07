@@ -12,6 +12,7 @@ import '../../../../data/models/order_details.dart';
 class ProposalCard extends StatelessWidget {
   final CaseProposal proposal;
   final bool isSelected;
+  final bool canAccept;
   final VoidCallback onAccept;
   final VoidCallback onViewProfile;
 
@@ -21,20 +22,29 @@ class ProposalCard extends StatelessWidget {
     required this.onAccept,
     required this.onViewProfile,
     this.isSelected = false,
+    this.canAccept = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool isAccepted = proposal.isAccepted;
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: isSelected
-            ? AppColors.golden.withValues(alpha: 0.05)
-            : context.cardBg,
+        color: isAccepted
+            ? const Color(0xFF27AE60).withValues(alpha: 0.05)
+            : isSelected
+                ? AppColors.golden.withValues(alpha: 0.05)
+                : context.cardBg,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isSelected ? AppColors.golden : context.divColor,
-          width: isSelected ? 1.5 : 1,
+          color: isAccepted
+              ? const Color(0xFF27AE60)
+              : isSelected
+                  ? AppColors.golden
+                  : context.divColor,
+          width: isAccepted || isSelected ? 1.5 : 1,
         ),
       ),
       child: Column(
@@ -154,16 +164,47 @@ class ProposalCard extends StatelessWidget {
             ),
           ),
 
-          AppSizes.h(24),
+          if (isAccepted || canAccept) AppSizes.h(24),
 
           // Actions
-          CustomButton(
-            onPressed: onAccept,
-            text: AppStrings.accept.tr(context),
-            backgroundColor: AppColors.golden,
-            textColor: Colors.white,
-            icon: Icons.check_circle_outline_rounded,
-          ),
+          if (isAccepted) ...[
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF27AE60).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: const Color(0xFF27AE60)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    color: Color(0xFF27AE60),
+                    size: 20,
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    AppStrings.acceptedProposal.tr(context),
+                    style: context.text.labelLarge?.copyWith(
+                      color: const Color(0xFF27AE60),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (canAccept) ...[
+            CustomButton(
+              onPressed: onAccept,
+              text: AppStrings.accept.tr(context),
+              backgroundColor: AppColors.golden,
+              textColor: Colors.white,
+              icon: Icons.check_circle_outline_rounded,
+            ),
+          ],
         ],
       ),
     );

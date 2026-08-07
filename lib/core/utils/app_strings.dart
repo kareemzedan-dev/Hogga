@@ -983,6 +983,7 @@ class AppStrings {
   static const String optionalDocuments = 'optionalDocuments';
   static const String addFile = 'addFile';
   static const String accepted = 'accepted';
+  static const String acceptedProposal = 'acceptedProposal';
 
   static const String rejected = 'rejected';
   static const String pendingReview = 'pendingReview';
