@@ -53,7 +53,7 @@ class BasicInfoStep extends StatelessWidget {
 
         // ── Account type selector ──────────────────────────────
         Align(
-          alignment: AlignmentDirectional.centerEnd,
+          alignment: AlignmentDirectional.centerStart,
           child: Text(
             AppStrings.accountTier.tr(context),
             style: context.text.titleSmall?.copyWith(

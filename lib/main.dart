@@ -68,8 +68,7 @@ Future<void> _initializePostFrameServices() async {
 Future<void> _safeInitialize(
   String name,
   Future<void> Function() initializer,
-) async
-{
+) async {
   try {
     await initializer();
   } catch (error, stackTrace) {
@@ -113,7 +112,7 @@ class MyApp extends StatelessWidget {
                       }
                     },
                     child: MaterialApp(
-                      title: 'حُجّة ',
+                      title: locale.languageCode == 'ar' ? 'حُجّة' : 'Hogga',
                       debugShowCheckedModeBanner: false,
                       navigatorKey: AppNavigator.navigatorKey,
                       scaffoldMessengerKey: AppNavigator.messengerKey,

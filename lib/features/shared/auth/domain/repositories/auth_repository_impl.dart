@@ -32,6 +32,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String accountType,
     required bool termsAccepted,
     required String role,
+    String? referralCode,
   }) async {
     try {
       final user = await remoteDataSource.register(
@@ -42,6 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
         accountType: accountType,
         termsAccepted: termsAccepted,
         registerAs: role,
+        referralCode: referralCode,
       );
       return Right(user);
     } on Failure catch (e) {

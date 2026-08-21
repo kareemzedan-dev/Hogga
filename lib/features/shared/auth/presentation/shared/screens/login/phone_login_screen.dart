@@ -11,6 +11,7 @@ import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_cubit.
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_state.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_phone_country_prefix.dart';
 
+import 'package:hogga/core/widgets/custom_back_button.dart';
 import '../../widgets/auth_text_field.dart';
 
 class PhoneLoginScreen extends StatefulWidget {
@@ -31,9 +32,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: context.textPrimary),
-          onPressed: () => Navigator.pop(context),
+        leading: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: CustomBackButton(),
         ),
       ),
       body: Form(

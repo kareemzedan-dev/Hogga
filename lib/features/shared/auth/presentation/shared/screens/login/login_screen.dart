@@ -133,7 +133,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     context,
                     widget.isLawyerLogin
                         ? AppRoutes.lawyerOnboarding
-                        : AppRoutes.register,
+                        : AppRoutes.phoneLogin,
+                    arguments: widget.isLawyerLogin ? null : 'user',
                   ),
                   child: RichText(
                     textAlign: TextAlign.center,

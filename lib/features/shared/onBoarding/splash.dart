@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
-import 'package:hogga/core/widgets/update_dialog.dart';
-import 'package:hogga/features/shared/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:hogga/injection_container.dart';
+import 'package:hogga/features/shared/onBoarding/widgets/localized_app_logo.dart';
 import '../../../config/shared_preference/shared_preference.dart';
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_strings.dart';
-import '../../../core/utils/app_assets.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,16 +30,29 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _logoScaleAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
+      ),
     );
     _logoFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeIn)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
     );
-    _textSlideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.4, 1.0, curve: Curves.easeOutCubic)),
-    );
+    _textSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.4, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
     _textFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.4, 1.0, curve: Curves.easeIn)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+      ),
     );
 
     _controller.forward();
@@ -52,39 +61,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _checkAppStatus() async {
     // Proceed directly to navigation as app config endpoint doesn't exist
-    await Future.delayed(const Duration(seconds: 1)); // Small delay for smooth transition
+    await Future.delayed(
+      const Duration(seconds: 1),
+    ); // Small delay for smooth transition
     if (!mounted) return;
     _navigateNext();
-  }
-
-  bool _isUpdateRequired(String current, String minimum) {
-    return _compareVersions(current, minimum) < 0;
-  }
-
-  bool _isUpdateAvailable(String current, String latest) {
-    return _compareVersions(current, latest) < 0;
-  }
-
-  int _compareVersions(String v1, String v2) {
-    final nums1 = v1.split('.').map(int.parse).toList();
-    final nums2 = v2.split('.').map(int.parse).toList();
-    for (var i = 0; i < 3; i++) {
-      if (nums1[i] > nums2[i]) return 1;
-      if (nums1[i] < nums2[i]) return -1;
-    }
-    return 0;
-  }
-
-  void _showUpdateDialog(String message, String url, bool force) {
-    showDialog(
-      context: context,
-      barrierDismissible: !force,
-      builder: (context) => UpdateDialog(
-        message: message,
-        storeUrl: url,
-        canCancel: !force,
-      ),
-    );
   }
 
   void _navigateNext() {
@@ -111,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
     final size = MediaQuery.of(context).size;
     final bgColor = isDark ? AppColors.primary : AppColors.cream;
     final fgColor = isDark ? AppColors.cream : AppColors.primary;
-    final accentColor = AppColors.golden;
+    final logoFontSize = (size.width * 0.12).clamp(36.0, 56.0);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -126,10 +107,11 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(
-                      isDark ? AppAssets.hoggaDark : AppAssets.hoggaLight,
-                      width: size.width * 0.55,
-                      fit: BoxFit.contain,
+                    LocalizedAppLogo(
+                      isDark: isDark,
+                      imageWidth: size.width * 0.55,
+                      fontSize: logoFontSize,
+                      textColor: fgColor,
                     ),
                   ],
                 ),
@@ -147,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
                       fontFamily: 'Rubik',
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: fgColor.withOpacity(0.55),
+                      color: fgColor.withValues(alpha: 0.55),
                       letterSpacing: 0.3,
                     ),
                     textAlign: TextAlign.center,

@@ -97,10 +97,10 @@ class PerformanceStatsGrid extends StatelessWidget {
           const Spacer(),
           Text(
             value,
-            style: context.text.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+            style: context.text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
               color: context.textPrimary,
-              fontSize: 17.sp,
+              fontSize: 15.sp,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -110,7 +110,7 @@ class PerformanceStatsGrid extends StatelessWidget {
             label,
             style: context.text.labelSmall?.copyWith(
               color: context.textSecondary,
-              fontSize: 10.sp,
+              fontSize: 9.sp,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

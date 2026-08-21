@@ -10,7 +10,6 @@ import 'package:hogga/core/widgets/hogga_card.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_empty_state.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_section_header.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
-import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_stat_box.dart';
 import 'package:hogga/features/lawyer/wallet/data/models/lawyer_wallet_transaction_model.dart';
 import 'package:hogga/features/lawyer/wallet/presentation/cubit/lawyer_wallet_cubit.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
@@ -25,6 +24,7 @@ class LawyerWalletScreen extends StatefulWidget {
 
 class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
   String _selectedType = 'all';
+
   final List<Map<String, String>> _types = [
     {'label': AppStrings.all, 'value': 'all'},
     {'label': AppStrings.income, 'value': 'income'},
@@ -34,153 +34,181 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: context.pageBg,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: widget.isBottomNav
+            ? null
+            : IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 20.sp),
+                onPressed: () => Navigator.pop(context),
+              ),
         backgroundColor: context.pageBg,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leading: widget.isBottomNav
-              ? null
-              : IconButton(
-                  icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 20.sp),
-                  onPressed: () => Navigator.pop(context),
-                ),
-          backgroundColor: context.pageBg,
-          elevation: 0,
-          shape: Border(
-            bottom: BorderSide(
-              color: context.divColor.withValues(alpha: 0.5),
-              width: 1,
-            ),
-          ),
-          title: Text(
-            AppStrings.lawyerWallet.tr(context),
-            style: context.theme.appBarTheme.titleTextStyle,
-          ),
-          centerTitle: true,
+        elevation: 0,
+        title: Text(
+          AppStrings.lawyerWallet.tr(context),
+          style: context.theme.appBarTheme.titleTextStyle,
         ),
-        body: BlocConsumer<LawyerWalletCubit, LawyerWalletState>(
-          buildWhen: (previous, current) {
-            return current is LawyerWalletLoading || 
-                   current is LawyerWalletLoaded || 
-                   current is LawyerWalletError;
-          },
-          listener: (context, state) {
-            if (state is LawyerWalletActionSuccess) {
-              AppSnackbar.showSuccess(context, message: state.message);
-            } else if (state is LawyerWalletActionError) {
-              AppSnackbar.showError(context, message: state.message);
-            }
-          },
-          builder: (context, state) {
-            if (state is LawyerWalletLoading) {
-              return const LawyerShimmerLoading();
-            } else if (state is LawyerWalletError) {
-              return Center(
-                child: Text(
-                  state.message.tr(context),
-                  style: context.text.bodyMedium?.copyWith(color: context.colors.error),
+        centerTitle: true,
+      ),
+      body: BlocConsumer<LawyerWalletCubit, LawyerWalletState>(
+        buildWhen: (previous, current) =>
+            current is LawyerWalletLoading || current is LawyerWalletLoaded || current is LawyerWalletError,
+        listener: (context, state) {
+          if (state is LawyerWalletActionSuccess) {
+            AppSnackbar.showSuccess(context, message: state.message);
+          } else if (state is LawyerWalletActionError) {
+            AppSnackbar.showError(context, message: state.message);
+          }
+        },
+        builder: (context, state) {
+          if (state is LawyerWalletLoading) {
+            return const LawyerShimmerLoading();
+          } else if (state is LawyerWalletError) {
+            return Center(
+              child: Text(
+                state.message.tr(context),
+                style: context.text.bodyMedium?.copyWith(color: context.colors.error),
+              ),
+            );
+          } else if (state is LawyerWalletLoaded) {
+            return RefreshIndicator(
+              onRefresh: () => context.read<LawyerWalletCubit>().getWalletData(filter: _selectedType),
+              color: context.accentGolden,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBalanceCard(context, state),
+                    SizedBox(height: 24.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppStrings.lastTransactions.tr(context),
+                          style: context.text.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: context.textPrimary,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => _showFilterSheet(context),
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                            decoration: BoxDecoration(
+                              color: context.accentGolden.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(color: context.accentGolden.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.tune_rounded, color: context.accentGolden, size: 16.sp),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  AppStrings.filter.tr(context),
+                                  style: context.text.labelMedium?.copyWith(
+                                    color: context.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    _buildTransactionFilters(context),
+                    SizedBox(height: 16.h),
+                    _buildFilteredList(context, state),
+                  ],
                 ),
-              );
-            } else if (state is LawyerWalletLoaded) {
-              return RefreshIndicator(
-                onRefresh: () => context.read<LawyerWalletCubit>().getWalletData(filter: _selectedType),
-                color: context.accentGolden,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      _buildBalanceCard(context, state),
-                      SizedBox(height: 24.h),
-                      _buildStatsRow(context, state),
-                      SizedBox(height: 24.h),
-                      LawyerSectionHeader(
-                        title: AppStrings.lastTransactions.tr(context),
-                        actionLabel: AppStrings.filter.tr(context),
-                        onActionPressed: () => _showFilterSheet(context),
-                      ),
-                      _buildTransactionFilters(context),
-                      SizedBox(height: 16.h),
-                      _buildFilteredList(context, state),
-                    ],
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-      );
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
   }
 
   Widget _buildBalanceCard(BuildContext context, LawyerWalletLoaded state) {
+    final double balance = state.wallet.balance;
+    final bool canWithdraw = balance >= 10.0;
+    
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
       decoration: BoxDecoration(
         color: context.cardBg,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.cream, width: 1),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: context.divColor),
       ),
       child: Column(
         children: [
-          Text(AppStrings.availableBalance.tr(context), style: context.text.labelLarge),
-          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.account_balance_wallet_rounded,
+                size: 16.sp,
+                color: context.accentGolden,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                AppStrings.availableBalance.tr(context),
+                style: context.text.labelMedium?.copyWith(
+                  color: context.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                '${state.wallet.balance}',
-                style: context.text.headlineSmall,
+                balance.toStringAsFixed(3),
+                style: context.text.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: context.textPrimary,
+                ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 6.w),
               Text(
-                state.wallet.currency,
-                style: context.text.titleMedium,
+                AppStrings.currencySymbol.tr(context),
+                style: context.text.titleSmall?.copyWith(
+                  color: context.accentGolden,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => _showWithdrawDialog(context, state.wallet.balance),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.accentGolden,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-              elevation: 0,
-            ),
-            child: Text(
-              AppStrings.requestWithdrawal.tr(context),
-              style: context.text.labelLarge!.copyWith(color: context.colors.onSecondary),
-            ),
+          SizedBox(height: 20.h),
+          CustomButton(
+            text: AppStrings.requestWithdrawal.tr(context),
+            backgroundColor: canWithdraw ? context.accentGolden : context.divColor,
+            textColor: canWithdraw ? context.textPrimary : context.textSecondary,
+            fontWeight: FontWeight.bold,
+            isSmall: false,
+            onPressed: canWithdraw ? () => _showWithdrawDialog(context, balance) : null,
           ),
+          if (!canWithdraw) ...[
+            SizedBox(height: 8.h),
+            Text(
+              'الحد الأدنى للسحب 10 ${AppStrings.currencySymbol.tr(context)}',
+              style: context.text.labelSmall?.copyWith(
+                color: context.textSecondary,
+              ),
+            ),
+          ],
         ],
       ),
-    );
-  }
-
-  Widget _buildStatsRow(BuildContext context, LawyerWalletLoaded state) {
-    return Row(
-      children: [
-        Expanded(
-          child: LawyerStatBox(
-            label: AppStrings.pendingBalance.tr(context),
-            value: '${state.wallet.pendingBalance}',
-            icon: Icons.timer_outlined,
-            color: Colors.orange,
-          ),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: LawyerStatBox(
-            label: AppStrings.totalSent.tr(context),
-            value: '${state.wallet.totalSent}',
-            icon: Icons.payments_outlined,
-            color: Colors.blue,
-          ),
-        ),
-      ],
     );
   }
 
@@ -188,54 +216,52 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: context.pageBg,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30.r))),
-      builder: (context) {
-        return Container(
-          padding: EdgeInsets.all(24.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppStrings.viewOptions.tr(context),
-                style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 24.h),
-              _buildFilterOption(context, AppStrings.byDateNewest.tr(context), Icons.calendar_today_rounded, true),
-              _buildFilterOption(context, AppStrings.byAmountHighest.tr(context), Icons.sort_rounded, false),
-              _buildFilterOption(context, AppStrings.onlyBankTransfers.tr(context), Icons.account_balance_rounded, false),
-              SizedBox(height: 24.h),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: context.colors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                  ),
-                  child: Text(
-                    AppStrings.apply.tr(context),
-                    style: context.text.labelLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.cream,
-                    ),
-                  ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 32.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: context.divColor,
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-            ],
-          ),
-        );
-      },
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              AppStrings.viewOptions.tr(context),
+              style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16.h),
+            _buildFilterOption(context, AppStrings.byDateNewest.tr(context), Icons.calendar_today_rounded, true),
+            _buildFilterOption(context, AppStrings.byAmountHighest.tr(context), Icons.sort_rounded, false),
+            _buildFilterOption(context, AppStrings.onlyBankTransfers.tr(context), Icons.account_balance_rounded, false),
+            SizedBox(height: 24.h),
+            CustomButton(
+              text: AppStrings.apply.tr(context),
+              backgroundColor: context.accentGolden,
+              textColor: context.textPrimary,
+              fontWeight: FontWeight.bold,
+              onPressed: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildFilterOption(BuildContext context, String label, IconData icon, bool isSelected) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.symmetric(vertical: 12.h),
       child: Row(
         children: [
-          Icon(icon, color: isSelected ? context.accentGolden : context.textSecondary, size: 20),
+          Icon(icon, color: isSelected ? context.accentGolden : context.textSecondary, size: 20.sp),
           SizedBox(width: 12.w),
           Text(
             label,
@@ -245,7 +271,7 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
             ),
           ),
           const Spacer(),
-          if (isSelected) Icon(Icons.check_circle_rounded, color: context.accentGolden, size: 20),
+          if (isSelected) Icon(Icons.check_circle_rounded, color: context.accentGolden, size: 20.sp),
         ],
       ),
     );
@@ -270,7 +296,7 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
               },
               selectedColor: context.accentGolden,
               labelStyle: context.text.labelSmall?.copyWith(
-                color: isSelected ? context.colors.onPrimary : context.textPrimary,
+                color: isSelected ? context.textPrimary : context.textPrimary,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               backgroundColor: context.cardBg,
@@ -301,55 +327,83 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
       );
     }
 
-    return _buildTransactionList(context, filtered);
-  }
-
-  Widget _buildTransactionList(BuildContext context, List<LawyerWalletTransactionModel> transactions) {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: transactions.length,
-      separatorBuilder: (_, __) => SizedBox(height: 16.h),
+      itemCount: filtered.length,
+      separatorBuilder: (_, __) => SizedBox(height: 8.h),
       itemBuilder: (context, index) {
-        final transaction = transactions[index];
-        final isIncome = transaction.isIncome;
+        final tx = filtered[index];
+        final isIncome = tx.isIncome;
+        final isReferral = tx.isReferralBonus;
+
         return HoggaCard(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(12.w),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
-                  color: (isIncome ? Colors.green : context.colors.error).withOpacity(0.1),
+                  color: isReferral
+                      ? context.accentGolden.withValues(alpha: 0.1)
+                      : (isIncome ? context.success : context.colors.error).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-                  color: isIncome ? Colors.green : context.colors.error,
-                  size: 20,
+                  isReferral ? Icons.card_giftcard_rounded : (isIncome ? Icons.arrow_downward : Icons.arrow_upward),
+                  color: isReferral ? context.accentGolden : (isIncome ? context.success : context.colors.error),
+                  size: 16.sp,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      transaction.title,
-                      style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            tx.title,
+                            style: context.text.labelMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: context.textPrimary,
+                            ),
+                          ),
+                        ),
+                        if (isReferral) ...[
+                          SizedBox(width: 6.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                            decoration: BoxDecoration(
+                              color: context.accentGolden.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            child: Text(
+                              AppStrings.referralBonus.tr(context),
+                              style: context.text.labelSmall?.copyWith(
+                                color: context.accentGolden,
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
+                    SizedBox(height: 4.h),
                     Text(
-                      transaction.date,
-                      style: context.text.labelSmall?.copyWith(color: context.textSecondary),
+                      tx.date,
+                      style: context.text.bodySmall?.copyWith(color: context.textSecondary, fontSize: 10.sp),
                     ),
                   ],
                 ),
               ),
               Text(
-                '${isIncome ? "+" : "-"}${transaction.amount} ${AppStrings.currencySymbol.tr(context)}',
-                style: context.text.titleSmall?.copyWith(
+                '${isIncome ? "+" : "-"}${(double.tryParse(tx.amount.toString()) ?? 0.0).toStringAsFixed(3)} ${AppStrings.currencySymbol.tr(context)}',
+                style: context.text.labelMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: isIncome ? Colors.green : context.colors.error,
+                  color: isIncome ? context.success : context.colors.error,
                 ),
               ),
             ],
@@ -396,111 +450,96 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-              Center(
-                child: Container(
-                  width: 40.w,
-                  height: 4.h,
-                  decoration: BoxDecoration(
-                    color: context.divColor,
-                    borderRadius: BorderRadius.circular(2.r),
-                  ),
+                    Center(
+                      child: Container(
+                        width: 40.w,
+                        height: 4.h,
+                        decoration: BoxDecoration(
+                          color: context.divColor,
+                          borderRadius: BorderRadius.circular(2.r),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 24.h),
+                    Text(
+                      AppStrings.requestWithdrawal.tr(context),
+                      style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20.h),
+                    _buildInputField(context, amountController, AppStrings.amount.tr(context), TextInputType.number),
+                    SizedBox(height: 16.h),
+                    _buildInputField(context, nameController, AppStrings.accountName.tr(context), TextInputType.text),
+                    SizedBox(height: 16.h),
+                    _buildInputField(context, bankController, AppStrings.bankName.tr(context), TextInputType.text),
+                    SizedBox(height: 16.h),
+                    _buildInputField(context, ibanController, AppStrings.iban.tr(context), TextInputType.text),
+                    SizedBox(height: 24.h),
+                    CustomButton(
+                      text: AppStrings.sendRequest.tr(context),
+                      backgroundColor: context.accentGolden,
+                      textColor: context.textPrimary,
+                      isLoading: isLoading,
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              final parsedAmount = double.tryParse(amountController.text.trim());
+                              if (parsedAmount == null || parsedAmount <= 0) {
+                                AppSnackbar.showError(context, messageKey: AppStrings.errorServer);
+                                return;
+                              }
+                              if (parsedAmount > availableBalance) {
+                                AppSnackbar.showError(context, messageKey: AppStrings.errorServer);
+                                return;
+                              }
+                              if (nameController.text.trim().isEmpty ||
+                                  bankController.text.trim().isEmpty ||
+                                  ibanController.text.trim().isEmpty) {
+                                AppSnackbar.showError(context, messageKey: AppStrings.requiredField);
+                                return;
+                              }
+                              context.read<LawyerWalletCubit>().withdrawRequest(
+                                    amount: parsedAmount,
+                                    accountName: nameController.text.trim(),
+                                    bankName: bankController.text.trim(),
+                                    iban: ibanController.text.trim(),
+                                  );
+                            },
+                    ),
+                    SizedBox(height: 24.h),
+                  ],
                 ),
               ),
-              SizedBox(height: 20.h),
-              Text(
-                AppStrings.requestWithdrawal.tr(context),
-                style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20.h),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
-                decoration: InputDecoration(
-                  labelText: AppStrings.amount.tr(context),
-                  labelStyle: context.text.bodyMedium?.copyWith(color: context.textSecondary, fontSize: 14.sp),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
-                  filled: true,
-                  fillColor: context.cardBg,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              TextField(
-                controller: nameController,
-                style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
-                decoration: InputDecoration(
-                  labelText: AppStrings.accountName.tr(context),
-                  labelStyle: context.text.bodyMedium?.copyWith(color: context.textSecondary, fontSize: 14.sp),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
-                  filled: true,
-                  fillColor: context.cardBg,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              TextField(
-                controller: bankController,
-                style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
-                decoration: InputDecoration(
-                  labelText: AppStrings.bankName.tr(context),
-                  labelStyle: context.text.bodyMedium?.copyWith(color: context.textSecondary, fontSize: 14.sp),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
-                  filled: true,
-                  fillColor: context.cardBg,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              TextField(
-                controller: ibanController,
-                style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
-                decoration: InputDecoration(
-                  labelText: AppStrings.iban.tr(context),
-                  labelStyle: context.text.bodyMedium?.copyWith(color: context.textSecondary, fontSize: 14.sp),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
-                  filled: true,
-                  fillColor: context.cardBg,
-                ),
-              ),
-              SizedBox(height: 24.h),
-              CustomButton(
-                text: AppStrings.sendRequest.tr(context),
-                backgroundColor: context.accentGolden,
-                isLoading: isLoading,
-                onPressed: isLoading ? null : () {
-                  final parsedAmount = double.tryParse(amountController.text.trim());
-                  if (parsedAmount == null || parsedAmount <= 0) {
-                    AppSnackbar.showError(context, messageKey: AppStrings.errorServer);
-                    return;
-                  }
-                  if (parsedAmount > availableBalance) {
-                    AppSnackbar.showError(context, message: 'الرصيد المتاح غير كافٍ لإتمام عملية السحب.');
-                    return;
-                  }
-                  if (nameController.text.trim().isEmpty ||
-                      bankController.text.trim().isEmpty ||
-                      ibanController.text.trim().isEmpty) {
-                    AppSnackbar.showError(context, messageKey: AppStrings.requiredField);
-                    return;
-                  }
-                  context.read<LawyerWalletCubit>().withdrawRequest(
-                        amount: parsedAmount,
-                        accountName: nameController.text.trim(),
-                        bankName: bankController.text.trim(),
-                        iban: ibanController.text.trim(),
-                      );
-                },
-              ),
-              SizedBox(height: 20.h),
-            ],
-          ),
+            );
+          },
         ),
-      );
-      },
-    )
-      )
+      ),
+    );
+  }
+
+  Widget _buildInputField(BuildContext context, TextEditingController controller, String label, TextInputType type) {
+    return TextField(
+      controller: controller,
+      keyboardType: type,
+      style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: context.text.bodyMedium?.copyWith(color: context.textSecondary, fontSize: 13.sp),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: context.divColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: context.divColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r),
+          borderSide: BorderSide(color: context.accentGolden),
+        ),
+        filled: true,
+        fillColor: context.cardBg,
+      ),
     );
   }
 }

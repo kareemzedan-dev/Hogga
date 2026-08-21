@@ -1,5 +1,5 @@
 class AppEndPoints {
-  static const String baseUrl = "https://hogga.wingital.com/api/";
+  static const String baseUrl = "https://dashboard.hogga-oman.com/api/";
   static const String loginEndPoint = "auth/login";
   static const String logoutEndPoint = "/logout";
   static const String registerEndPoint = "auth/register";
@@ -47,6 +47,8 @@ class AppEndPoints {
   static const String lawyerWalletTransactionsEndPoint =
       "lawyer/wallet/transactions";
   static const String lawyerWithdrawEndPoint = "lawyer/wallet/withdraw";
+  static const String lawyerReferralMyCodeEndPoint = "lawyer/referral/my-code";
+  static const String lawyerReferralHistoryEndPoint = "lawyer/referral/history";
   static const String lawyerOnlineStatusEndPoint = "lawyer/home/toggle-active";
   static const String lawyerAvailabilityEndPoint = "lawyer/availability";
   static const String getProfileEndPoint = "user/profile";

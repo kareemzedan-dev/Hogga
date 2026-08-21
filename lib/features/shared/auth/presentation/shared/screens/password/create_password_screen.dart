@@ -5,7 +5,7 @@ import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_text
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/utils/validators.dart';
-import 'package:hogga/core/utils/validators.dart';
+import 'package:hogga/core/widgets/custom_back_button.dart';
 
 class CreatePasswordScreen extends StatefulWidget {
   final String phone;
@@ -30,9 +30,9 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: context.textPrimary),
-          onPressed: () => Navigator.pop(context),
+        leading: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: CustomBackButton(),
         ),
       ),
       body: Form(

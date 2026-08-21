@@ -10,6 +10,8 @@ class LawyerHomeModel extends LawyerHome {
     LawyerBookingModel? super.upcomingAppointment,
     required LawyerSettingsModel super.settings,
     super.subscriptionSummary,
+    super.referralCampaign,
+    super.freeConsultations,
   });
 
   factory LawyerHomeModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,12 @@ class LawyerHomeModel extends LawyerHome {
       subscriptionSummary: json['subscription_summary'] != null
           ? SubscriptionSummary.fromJson(json['subscription_summary'])
           : null,
+      referralCampaign: json['referral_campaign'] != null
+          ? ReferralCampaignModel.fromJson(json['referral_campaign'])
+          : null,
+      freeConsultations: json['free_consultations'] != null
+          ? FreeConsultationsModel.fromJson(json['free_consultations'])
+          : null,
     );
   }
 
@@ -33,6 +41,8 @@ class LawyerHomeModel extends LawyerHome {
     LawyerBooking? upcomingAppointment,
     LawyerSettings? settings,
     SubscriptionSummary? subscriptionSummary,
+    ReferralCampaign? referralCampaign,
+    FreeConsultations? freeConsultations,
   }) {
     return LawyerHomeModel(
       lawyer: (lawyer as LawyerInfoModel?) ?? (this.lawyer as LawyerInfoModel),
@@ -40,6 +50,26 @@ class LawyerHomeModel extends LawyerHome {
       upcomingAppointment: (upcomingAppointment as LawyerBookingModel?) ?? (this.upcomingAppointment as LawyerBookingModel?),
       settings: (settings as LawyerSettingsModel?) ?? (this.settings as LawyerSettingsModel),
       subscriptionSummary: subscriptionSummary ?? this.subscriptionSummary,
+      referralCampaign: (referralCampaign as ReferralCampaignModel?) ?? (this.referralCampaign as ReferralCampaignModel?),
+      freeConsultations: (freeConsultations as FreeConsultationsModel?) ?? (this.freeConsultations as FreeConsultationsModel?),
+    );
+  }
+}
+
+class ReferralCampaignModel extends ReferralCampaign {
+  ReferralCampaignModel({
+    required super.status,
+    required super.bonusAmount,
+    required super.referralCode,
+  });
+
+  factory ReferralCampaignModel.fromJson(Map<String, dynamic> json) {
+    return ReferralCampaignModel(
+      status: json['status']?.toString() ?? 'off',
+      bonusAmount: (json['bonus_amount'] is num)
+          ? (json['bonus_amount'] as num).toDouble()
+          : (double.tryParse(json['bonus_amount']?.toString() ?? '0') ?? 0.0),
+      referralCode: json['referral_code']?.toString() ?? '',
     );
   }
 }
@@ -109,6 +139,24 @@ class LawyerSettingsModel extends LawyerSettings {
       acceptInstantConsultations: acceptInstantConsultations ?? this.acceptInstantConsultations,
       acceptServices: acceptServices ?? this.acceptServices,
       isActive: isActive ?? this.isActive,
+    );
+  }
+}
+
+class FreeConsultationsModel extends FreeConsultations {
+  FreeConsultationsModel({
+    required super.lawyerPercentage,
+    required super.limit,
+    required super.used,
+    required super.remaining,
+  });
+
+  factory FreeConsultationsModel.fromJson(Map<String, dynamic> json) {
+    return FreeConsultationsModel(
+      lawyerPercentage: (json['lawyer_percentage'] ?? 0).toDouble(),
+      limit: json['free_consultations_limit'] ?? 0,
+      used: json['free_consultations_used'] ?? 0,
+      remaining: json['free_consultations_remaining'] ?? 0,
     );
   }
 }

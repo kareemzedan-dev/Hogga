@@ -71,6 +71,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String role,
     required String accountType,
     required bool termsAccepted,
+    String? referralCode,
   }) async
   {
     emit(AuthLoading());
@@ -83,6 +84,7 @@ class AuthCubit extends Cubit<AuthState> {
       role: role,
       accountType: accountType,
       termsAccepted: termsAccepted,
+      referralCode: referralCode,
     );
 
     result.fold(

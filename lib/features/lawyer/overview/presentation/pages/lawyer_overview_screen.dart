@@ -7,6 +7,7 @@ import 'package:hogga/core/utils/app_strings.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/features/lawyer/overview/presentation/cubit/lawyer_overview_cubit.dart';
 import 'package:hogga/features/lawyer/overview/domain/entities/lawyer_home.dart';
+import 'package:hogga/features/lawyer/overview/presentation/widgets/free_consultations_card.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import 'package:hogga/core/widgets/custom_text.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_card.dart';
@@ -22,6 +23,7 @@ import '../widgets/availability_board.dart';
 import '../widgets/performance_stats_grid.dart';
 import '../widgets/next_appointment_card.dart';
 import '../widgets/lawyer_toolbox.dart';
+import '../widgets/referral_banner_card.dart';
 
 import 'package:hogga/features/lawyer/subscription/presentation/cubit/subscription_cubit.dart';
 import 'package:hogga/features/lawyer/subscription/presentation/cubit/subscription_state.dart';
@@ -121,9 +123,16 @@ class _LawyerOverviewScreenState extends State<LawyerOverviewScreen> {
                       //   summary: home.subscriptionSummary,
                       //   isLoading: false,
                       // ),
-                      SizedBox(height: 16.h),
                       AvailabilityBoard(settings: home.settings),
                       SizedBox(height: 16.h),
+                      if (home.freeConsultations != null) ...[
+                        FreeConsultationsCard(freeConsultations: home.freeConsultations),
+                        SizedBox(height: 16.h),
+                      ],
+                      if (home.referralCampaign != null) ...[
+                        ReferralBannerCard(campaign: home.referralCampaign),
+                        SizedBox(height: 16.h),
+                      ],
                       // NextAppointmentCard(next: home.upcomingAppointment),
                       // SizedBox(height: 16.h),
                       PerformanceStatsGrid(overview: home.overview),

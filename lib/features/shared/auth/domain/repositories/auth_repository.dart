@@ -15,6 +15,7 @@ abstract class AuthRepository {
     required String accountType,
     required bool termsAccepted,
     required String role,
+    String? referralCode,
   });
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, void>> resetPassword({required String phone, required String otpCode, required String password});

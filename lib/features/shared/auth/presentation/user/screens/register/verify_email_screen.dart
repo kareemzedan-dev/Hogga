@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
@@ -19,11 +18,15 @@ class VerifyEmailScreen extends StatefulWidget {
 }
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
-  static const int _codeLength = 4;
-  final List<TextEditingController> _controllers =
-      List.generate(_codeLength, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes =
-      List.generate(_codeLength, (_) => FocusNode());
+  static const int _codeLength = 6;
+  final List<TextEditingController> _controllers = List.generate(
+    _codeLength,
+    (_) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(
+    _codeLength,
+    (_) => FocusNode(),
+  );
 
   int _resendCountdown = 60;
   bool _canResend = false;
@@ -48,13 +51,16 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   @override
   void dispose() {
-    for (final c in _controllers) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
 
-  String get _fullCode =>
-      _controllers.map((c) => c.text).join();
+  String get _fullCode => _controllers.map((c) => c.text).join();
 
   void _verify() {
     if (_fullCode.length == _codeLength) {
@@ -76,13 +82,22 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   Widget build(BuildContext context) {
     return AuthLayout(
       title: AppStrings.activationCode.tr(context),
-      subtitle: AppStrings.enterOtpSentTo.tr(context, namedArgs: {'email': widget.email}),
+      subtitle: AppStrings.enterOtpSentTo.tr(
+        context,
+        namedArgs: {'email': widget.email},
+      ),
       child: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthVerified) {
-            AppSnackbar.showSuccess(context, messageKey: AppStrings.verifiedSuccessfully);
+            AppSnackbar.showSuccess(
+              context,
+              messageKey: AppStrings.verifiedSuccessfully,
+            );
             Navigator.pushNamedAndRemoveUntil(
-                context, AppRoutes.login, (r) => false);
+              context,
+              AppRoutes.login,
+              (r) => false,
+            );
           } else if (state is AuthError) {
             AppSnackbar.showError(context, message: state.message);
           }
@@ -96,16 +111,16 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(_codeLength, (i) {
                   return Container(
-                    width: 60,
-                    height: 64,
-                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    width: 44,
+                    height: 56,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      color: context.colors.primary.withOpacity(0.08),
+                      color: context.colors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: _focusNodes[i].hasFocus
                             ? context.colors.primary
-                            : context.colors.primary.withOpacity(0.2),
+                            : context.colors.primary.withValues(alpha: 0.2),
                         width: _focusNodes[i].hasFocus ? 1.5 : 1,
                       ),
                     ),
@@ -148,16 +163,21 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     children: [
                       TextSpan(
                         text: '${AppStrings.didNotReceiveCode.tr(context)}  ',
-                        style: context.text.bodySmall?.copyWith(color: context.colors.primary.withOpacity(0.5)),
+                        style: context.text.bodySmall?.copyWith(
+                          color: context.colors.primary.withValues(alpha: 0.5),
+                        ),
                       ),
                       TextSpan(
                         text: _canResend
                             ? AppStrings.resendCode.tr(context)
-                            : AppStrings.resendIn.tr(context, namedArgs: {'seconds': '$_resendCountdown'}),
+                            : AppStrings.resendIn.tr(
+                                context,
+                                namedArgs: {'seconds': '$_resendCountdown'},
+                              ),
                         style: context.text.bodySmall?.copyWith(
                           color: _canResend
                               ? context.colors.primary
-                              : context.colors.primary.withOpacity(0.4),
+                              : context.colors.primary.withValues(alpha: 0.4),
                           fontWeight: FontWeight.w600,
                           decoration: _canResend
                               ? TextDecoration.underline
@@ -176,8 +196,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               SizedBox(
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: (state is AuthLoading ||
-                          _fullCode.length < _codeLength)
+                  onPressed:
+                      (state is AuthLoading || _fullCode.length < _codeLength)
                       ? null
                       : _verify,
                   child: state is AuthLoading
@@ -187,7 +207,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: context.colors.onPrimary,
-                          ))
+                          ),
+                        )
                       : Text(AppStrings.next.tr(context)),
                 ),
               ),

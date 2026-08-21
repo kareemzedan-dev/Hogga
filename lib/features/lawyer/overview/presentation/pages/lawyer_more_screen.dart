@@ -37,15 +37,81 @@ class LawyerMoreScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildProfileSection(context),
-            SizedBox(height: 24.h),
+            SizedBox(height: 12.h),
+
+            Row(
+              children: [
+                Expanded(
+                  child: LawyerCard(
+                    padding: EdgeInsets.zero,
+                    child: InkWell(
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.lawyerWallet),
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20.h),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.account_balance_wallet_rounded,
+                              color: context.accentGolden,
+                              size: 28.sp,
+                            ),
+                            SizedBox(height: 12.h),
+                            Text(
+                              AppStrings.lawyerWallet.tr(context),
+                              textAlign: TextAlign.center,
+                              style: context.text.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.accentGolden,
+                                fontSize: 11.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: LawyerCard(
+                    padding: EdgeInsets.zero,
+                    child: InkWell(
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.lawyerReferral),
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20.h),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.card_giftcard_rounded,
+                              color: context.accentGolden,
+                              size: 28.sp,
+                            ),
+                            SizedBox(height: 12.h),
+                            Text(
+                              AppStrings.referralProgram.tr(context),
+                              textAlign: TextAlign.center,
+                              style: context.text.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.accentGolden,
+                                fontSize: 11.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
 
             LawyerCard(
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  // AccountStatusTile hidden - can be re-enabled when needed
-                  // const AccountStatusTile(),
-                  // Divider(height: 1, color: context.divColor),
                   _buildThemeToggle(context),
                   Divider(height: 1, color: context.divColor),
                   _buildLanguageToggle(context),
@@ -129,6 +195,8 @@ class LawyerMoreScreen extends StatelessWidget {
       ),
     );
   }
+
+
 
   Widget _buildThemeToggle(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeMode>(

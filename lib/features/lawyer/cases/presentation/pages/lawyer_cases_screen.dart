@@ -107,10 +107,10 @@ class _LawyerCasesScreenState extends State<LawyerCasesScreen> {
                             )
                           : ListView.separated(
                               physics: const AlwaysScrollableScrollPhysics(),
-                              padding: EdgeInsets.all(20.w),
+                              padding: EdgeInsets.all(12.w),
                               itemCount: filteredCases.length,
                               separatorBuilder: (_, __) =>
-                                  SizedBox(height: 16.h),
+                                  SizedBox(height: 0.h),
                               itemBuilder: (context, index) =>
                                   CaseCard(lawyerCase: filteredCases[index]),
                             ),

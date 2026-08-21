@@ -7,6 +7,8 @@ class LawyerHome {
   final LawyerBooking? upcomingAppointment;
   final LawyerSettings settings;
   final SubscriptionSummary? subscriptionSummary;
+  final ReferralCampaign? referralCampaign;
+  final FreeConsultations? freeConsultations;
 
   LawyerHome({
     required this.lawyer,
@@ -14,6 +16,8 @@ class LawyerHome {
     this.upcomingAppointment,
     required this.settings,
     this.subscriptionSummary,
+    this.referralCampaign,
+    this.freeConsultations,
   });
 
   LawyerHome copyWith({
@@ -22,6 +26,8 @@ class LawyerHome {
     LawyerBooking? upcomingAppointment,
     LawyerSettings? settings,
     SubscriptionSummary? subscriptionSummary,
+    ReferralCampaign? referralCampaign,
+    FreeConsultations? freeConsultations,
   }) {
     return LawyerHome(
       lawyer: lawyer ?? this.lawyer,
@@ -29,8 +35,24 @@ class LawyerHome {
       upcomingAppointment: upcomingAppointment ?? this.upcomingAppointment,
       settings: settings ?? this.settings,
       subscriptionSummary: subscriptionSummary ?? this.subscriptionSummary,
+      referralCampaign: referralCampaign ?? this.referralCampaign,
+      freeConsultations: freeConsultations ?? this.freeConsultations,
     );
   }
+}
+
+class ReferralCampaign {
+  final String status;
+  final double bonusAmount;
+  final String referralCode;
+
+  ReferralCampaign({
+    required this.status,
+    required this.bonusAmount,
+    required this.referralCode,
+  });
+
+  bool get isOn => status.toLowerCase() == 'on';
 }
 
 class LawyerInfo {
@@ -87,4 +109,18 @@ class LawyerSettings {
       isActive: isActive ?? this.isActive,
     );
   }
+}
+
+class FreeConsultations {
+  final double lawyerPercentage;
+  final int limit;
+  final int used;
+  final int remaining;
+
+  FreeConsultations({
+    required this.lawyerPercentage,
+    required this.limit,
+    required this.used,
+    required this.remaining,
+  });
 }

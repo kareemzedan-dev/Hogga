@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,21 +16,67 @@ class HomeMainBanner extends StatefulWidget {
 }
 
 class _HomeMainBannerState extends State<HomeMainBanner> {
+  final PageController _pageController = PageController();
+  Timer? _timer;
   int _currentIndex = 0;
+  int _lastBannerCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final banners = context.read<HomeCubit>().state.banners;
+    if (banners.isNotEmpty) {
+      _startAutoScroll(banners.length);
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoScroll(int count) {
+    _timer?.cancel();
+    if (count <= 1) return;
+    _lastBannerCount = count;
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_pageController.hasClients) {
+        final nextPage = (_currentIndex + 1) % count;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
+    return BlocConsumer<HomeCubit, HomeState>(
+      listenWhen: (previous, current) => previous.banners != current.banners,
+      listener: (context, state) {
+        if (state.banners.length != _lastBannerCount) {
+          _startAutoScroll(state.banners.length);
+        }
+      },
       buildWhen: (previous, current) => previous.banners != current.banners,
       builder: (context, state) {
         final banners = state.banners;
         if (banners.isEmpty) return const SizedBox.shrink();
+
+        if (_timer == null && banners.length > 1) {
+          _startAutoScroll(banners.length);
+        }
 
         return Column(
           children: [
             SizedBox(
               height: 160.h,
               child: PageView.builder(
+                controller: _pageController,
                 itemCount: banners.length,
                 onPageChanged: (i) => setState(() => _currentIndex = i),
                 itemBuilder: (context, index) =>

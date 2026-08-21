@@ -27,7 +27,7 @@ class CaseCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 6.h),
       child: HoggaCard(
         color: context.cardBg,
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(16.w),
         borderRadius: 20.r,
         onTap: () {
           Navigator.pushNamed(
@@ -230,40 +230,45 @@ class CaseCard extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: 18.h),
 
             // ── Action button: one communication method per service type ──
             if (lawyerCase.statusKey == 'accepted' &&
                 lawyerCase.hasChatRoom &&
                 _hasCommunicationAction())
-              Padding(
-                padding: EdgeInsets.only(bottom: 10.h),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 46.h,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _openService(context),
-                    icon: Icon(
-                      _getActionIcon(),
-                      size: 18.sp,
-                      color: _serviceColor(),
-                    ),
-                    label: Text(
-                      _getActionLabel(context),
-                      style: context.text.labelLarge?.copyWith(
-                        color: _serviceColor(),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: _serviceColor()),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.r),
+              Column(
+                children: [
+                  SizedBox(height: 18.h),
+
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10.h),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 46.h,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _openService(context),
+                        icon: Icon(
+                          _getActionIcon(),
+                          size: 18.sp,
+                          color: _serviceColor(),
+                        ),
+                        label: Text(
+                          _getActionLabel(context),
+                          style: context.text.labelLarge?.copyWith(
+                            color: _serviceColor(),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: _serviceColor()),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.r),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
           ],
         ),

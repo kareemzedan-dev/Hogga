@@ -8,7 +8,7 @@ import 'package:pusher_client/pusher_client.dart';
 
 class WebSocketService {
   static const String _pusherKey = 'vfgfv6bvtvd5xmi0c6za';
-  static const String _pusherHost = 'hogga.wingital.com';
+  static const String _pusherHost = 'dashboard.hogga-oman.com';
 
   static Echo? echo;
   static PusherClient? _pusher;

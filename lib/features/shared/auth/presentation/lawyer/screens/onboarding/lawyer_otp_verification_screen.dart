@@ -13,10 +13,12 @@ class LawyerOtpVerificationScreen extends StatefulWidget {
   const LawyerOtpVerificationScreen({super.key, required this.phone});
 
   @override
-  State<LawyerOtpVerificationScreen> createState() => _LawyerOtpVerificationScreenState();
+  State<LawyerOtpVerificationScreen> createState() =>
+      _LawyerOtpVerificationScreenState();
 }
 
-class _LawyerOtpVerificationScreenState extends State<LawyerOtpVerificationScreen> {
+class _LawyerOtpVerificationScreenState
+    extends State<LawyerOtpVerificationScreen> {
   final TextEditingController _otpController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   int _timerSeconds = 120;
@@ -30,7 +32,7 @@ class _LawyerOtpVerificationScreenState extends State<LawyerOtpVerificationScree
 
   void _verifyOtp() {
     final otp = _otpController.text;
-    if (otp.length == 4) {
+    if (otp.length == 6) {
       context.read<LawyerRegistrationCubit>().verifyOtp(widget.phone, otp);
     } else {
       AppSnackbar.showError(context, messageKey: AppStrings.invalidOtp);
@@ -68,7 +70,8 @@ class _LawyerOtpVerificationScreenState extends State<LawyerOtpVerificationScree
         ),
       ),
       body: BlocConsumer<LawyerRegistrationCubit, LawyerRegistrationState>(
-        listenWhen: (previous, current) => !previous.isPhoneVerified && current.isPhoneVerified,
+        listenWhen: (previous, current) =>
+            !previous.isPhoneVerified && current.isPhoneVerified,
         listener: (context, state) {
           if (state.isPhoneVerified && state.verifiedPhone == widget.phone) {
             Navigator.pop(context, true);
@@ -93,9 +96,14 @@ class _LawyerOtpVerificationScreenState extends State<LawyerOtpVerificationScree
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  AppStrings.enterVerificationCode.tr(context, namedArgs: {'phone': widget.phone}),
+                  AppStrings.enterVerificationCode.tr(
+                    context,
+                    namedArgs: {'phone': widget.phone},
+                  ),
                   textAlign: TextAlign.center,
-                  style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
+                  style: context.text.bodyMedium?.copyWith(
+                    color: context.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 60),
                 // OTP Inputs
@@ -103,44 +111,53 @@ class _LawyerOtpVerificationScreenState extends State<LawyerOtpVerificationScree
                   child: Directionality(
                     textDirection: TextDirection.ltr,
                     child: Pinput(
-                      length: 4,
+                      length: 6,
                       controller: _otpController,
                       focusNode: _focusNode,
                       defaultPinTheme: PinTheme(
-                        width: 64,
-                        height: 64,
+                        width: 46,
+                        height: 56,
                         textStyle: context.text.headlineMedium?.copyWith(
                           color: context.colors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: BoxDecoration(
-                          color: context.isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                          color: context.isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: context.divColor),
                         ),
                       ),
                       focusedPinTheme: PinTheme(
-                        width: 64,
-                        height: 64,
+                        width: 46,
+                        height: 56,
                         textStyle: context.text.headlineMedium?.copyWith(
                           color: context.colors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: BoxDecoration(
-                          color: context.isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1),
+                          color: context.isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: context.colors.primary, width: 2),
+                          border: Border.all(
+                            color: context.colors.primary,
+                            width: 2,
+                          ),
                         ),
                       ),
                       submittedPinTheme: PinTheme(
-                        width: 64,
-                        height: 64,
+                        width: 46,
+                        height: 56,
                         textStyle: context.text.headlineMedium?.copyWith(
                           color: context.colors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: BoxDecoration(
-                          color: context.isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                          color: context.isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: context.divColor),
                         ),
@@ -158,13 +175,16 @@ class _LawyerOtpVerificationScreenState extends State<LawyerOtpVerificationScree
                         children: [
                           Text(
                             AppStrings.didNotReceiveCode.tr(context),
-                            style: context.text.bodyMedium
-                                ?.copyWith(color: context.textSecondary),
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.textSecondary,
+                            ),
                           ),
                           TextButton(
                             onPressed: _timerSeconds == 0
                                 ? () {
-                                    context.read<LawyerRegistrationCubit>().sendOtp(widget.phone);
+                                    context
+                                        .read<LawyerRegistrationCubit>()
+                                        .sendOtp(widget.phone);
                                     setState(() => _timerSeconds = 120);
                                     _startTimer();
                                   }
@@ -175,11 +195,14 @@ class _LawyerOtpVerificationScreenState extends State<LawyerOtpVerificationScree
                                   : AppStrings.resendNow.tr(context),
                               style: context.text.bodyMedium?.copyWith(
                                 color: _timerSeconds > 0
-                                    ? context.textSecondary
-                                        .withValues(alpha: 0.3)
+                                    ? context.textSecondary.withValues(
+                                        alpha: 0.3,
+                                      )
                                     : context.colors.primary,
                                 fontWeight: FontWeight.bold,
-                                decoration: _timerSeconds == 0 ? TextDecoration.underline : TextDecoration.none,
+                                decoration: _timerSeconds == 0
+                                    ? TextDecoration.underline
+                                    : TextDecoration.none,
                                 decorationColor: context.colors.primary,
                               ),
                             ),

@@ -9,6 +9,7 @@ import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_cubit.
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_state.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 import 'package:pinput/pinput.dart';
+import 'package:hogga/core/widgets/custom_back_button.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
@@ -33,8 +34,12 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void _verifyOtp() {
     final otp = _otpController.text;
-    if (otp.length == 4) {
-      context.read<AuthCubit>().verifyOtp(widget.phone, otp, isForReset: widget.isForReset);
+    if (otp.length == 6) {
+      context.read<AuthCubit>().verifyOtp(
+        widget.phone,
+        otp,
+        isForReset: widget.isForReset,
+      );
     } else {
       AppSnackbar.showError(context, messageKey: AppStrings.invalidOtp);
     }
@@ -65,17 +70,25 @@ class _OTPScreenState extends State<OTPScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: context.textPrimary),
-          onPressed: () => Navigator.pop(context),
+        leading: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: CustomBackButton(),
         ),
       ),
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthVerified) {
-            Navigator.pushNamed(context, AppRoutes.createPassword, arguments: widget.phone);
+            Navigator.pushNamed(
+              context,
+              AppRoutes.createPassword,
+              arguments: widget.phone,
+            );
           } else if (state is AuthResetPasswordOtpVerified) {
-            Navigator.pushReplacementNamed(context, AppRoutes.resetPassword, arguments: widget.phone);
+            Navigator.pushReplacementNamed(
+              context,
+              AppRoutes.resetPassword,
+              arguments: widget.phone,
+            );
           } else if (state is AuthError) {
             AppSnackbar.showError(context, message: state.message);
           } else if (state is AuthOperationSuccess) {
@@ -105,44 +118,53 @@ class _OTPScreenState extends State<OTPScreen> {
                   child: Directionality(
                     textDirection: TextDirection.ltr,
                     child: Pinput(
-                      length: 4,
+                      length: 6,
                       controller: _otpController,
                       focusNode: _focusNode,
                       defaultPinTheme: PinTheme(
-                        width: 64,
-                        height: 64,
+                        width: 46,
+                        height: 56,
                         textStyle: context.text.headlineMedium?.copyWith(
                           color: context.colors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: BoxDecoration(
-                          color: context.isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                          color: context.isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: context.divColor),
                         ),
                       ),
                       focusedPinTheme: PinTheme(
-                        width: 64,
-                        height: 64,
+                        width: 46,
+                        height: 56,
                         textStyle: context.text.headlineMedium?.copyWith(
                           color: context.colors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: BoxDecoration(
-                          color: context.isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1),
+                          color: context.isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: context.colors.primary, width: 2),
+                          border: Border.all(
+                            color: context.colors.primary,
+                            width: 2,
+                          ),
                         ),
                       ),
                       submittedPinTheme: PinTheme(
-                        width: 64,
-                        height: 64,
+                        width: 46,
+                        height: 56,
                         textStyle: context.text.headlineMedium?.copyWith(
                           color: context.colors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                         decoration: BoxDecoration(
-                          color: context.isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                          color: context.isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: context.divColor),
                         ),
@@ -160,13 +182,17 @@ class _OTPScreenState extends State<OTPScreen> {
                         children: [
                           Text(
                             AppStrings.didNotReceiveCode.tr(context),
-                            style: context.text.bodyMedium
-                                ?.copyWith(color: context.textSecondary),
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.textSecondary,
+                            ),
                           ),
                           TextButton(
                             onPressed: _timerSeconds == 0
                                 ? () {
-                                    context.read<AuthCubit>().resendOtp(widget.phone, 'register');
+                                    context.read<AuthCubit>().resendOtp(
+                                      widget.phone,
+                                      'register',
+                                    );
                                     setState(() => _timerSeconds = 120);
                                     _startTimer();
                                   }
@@ -177,11 +203,14 @@ class _OTPScreenState extends State<OTPScreen> {
                                   : AppStrings.resendNow.tr(context),
                               style: context.text.bodyMedium?.copyWith(
                                 color: _timerSeconds > 0
-                                    ? context.textSecondary
-                                        .withValues(alpha: 0.3)
+                                    ? context.textSecondary.withValues(
+                                        alpha: 0.3,
+                                      )
                                     : context.colors.primary,
                                 fontWeight: FontWeight.bold,
-                                decoration: _timerSeconds == 0 ? TextDecoration.underline : TextDecoration.none,
+                                decoration: _timerSeconds == 0
+                                    ? TextDecoration.underline
+                                    : TextDecoration.none,
                                 decorationColor: context.colors.primary,
                               ),
                             ),

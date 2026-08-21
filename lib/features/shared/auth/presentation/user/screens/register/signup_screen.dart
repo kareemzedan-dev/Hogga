@@ -54,6 +54,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _next() {
     if (_formKey.currentState!.validate()) {
+      if (_step == 1 && !_agreedToTerms) {
+        AppSnackbar.showError(context, messageKey: AppStrings.agreeToTermsError);
+        return;
+      }
       if (_step == 2) {
         _signup();
       } else {

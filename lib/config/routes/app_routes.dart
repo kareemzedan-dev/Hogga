@@ -4,7 +4,6 @@ import '../../features/shared/onBoarding/on_boarding.dart';
 import '../../features/user/hogga_services/presentation/pages/hub/service_subtypes_screen.dart';
 import '../../features/user/main_screen/pages/main_screen.dart';
 import '../../features/shared/auth/presentation/shared/screens/login/login_screen.dart';
-import '../../features/shared/auth/presentation/user/screens/register/signup_screen.dart';
 import '../../features/shared/auth/presentation/lawyer/screens/onboarding/lawyer_onboarding_screen.dart';
 import '../../features/shared/auth/presentation/shared/screens/password/forgot_password_screen.dart';
 import '../../features/shared/auth/presentation/shared/screens/password/reset_password_screen.dart';
@@ -17,7 +16,7 @@ import 'package:hogga/features/user/wallet/presentation/pages/payment_webview_sc
 import '../../features/lawyer/bookings/presentation/pages/lawyer_order_details_screen.dart';
 import '../../features/lawyer/cases/presentation/pages/lawyer_case_details_screen.dart';
 import '../../features/user/hogga_services/presentation/pages/lawyer/lawyer_profile_screen.dart';
-import '../../features/lawyer/settings/presentation/pages/lawyer_settings_screen.dart';
+
 import '../../features/lawyer/documents/presentation/pages/lawyer_documents_screen.dart';
 import '../../features/lawyer/library/presentation/pages/lawyer_legal_library_screen.dart';
 import '../../features/lawyer/tasks/presentation/pages/lawyer_tasks_screen.dart';
@@ -68,6 +67,12 @@ import '../../features/user/my_orders/presentation/cubit/my_orders_cubit.dart';
 import '../../features/user/my_orders/presentation/pages/my_order_details.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/lawyer/subscription/presentation/pages/lawyer_subscription_screen.dart';
+import '../../features/lawyer/wallet/presentation/pages/lawyer_wallet_screen.dart';
+import '../../features/lawyer/wallet/presentation/cubit/lawyer_wallet_cubit.dart';
+import '../../features/lawyer/referral/presentation/pages/lawyer_referral_screen.dart';
+import '../../features/lawyer/referral/presentation/pages/lawyer_referral_history_screen.dart';
+import '../../features/lawyer/referral/presentation/cubit/referral_cubit.dart';
+import '../../features/lawyer/referral/presentation/cubit/referral_history_cubit.dart';
 
 class AppRoutes {
   static const String initial = '/';
@@ -132,6 +137,9 @@ class AppRoutes {
   static const String lawyerUpdateService = '/lawyer_update_service';
   static const String lawyerBookings = '/lawyer_bookings';
   static const String lawyerSubscription = '/lawyer_subscription';
+  static const String lawyerWallet = '/lawyer_wallet';
+  static const String lawyerReferral = '/lawyer_referral';
+  static const String lawyerReferralHistory = '/lawyer_referral_history';
   static const String chat = '/chat';
   static const String chatList = '/chat_list';
   static const String voiceCall = '/voice_call';
@@ -173,7 +181,12 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const WelcomePage());
       case register:
         final role = (setting.arguments as String?) ?? 'user';
-        return MaterialPageRoute(builder: (_) => SignupScreen(role: role));
+        if (role == 'lawyer') {
+          return MaterialPageRoute(
+            builder: (_) => const LawyerOnboardingScreen(),
+          );
+        }
+        return MaterialPageRoute(builder: (_) => const PhoneLoginScreen());
       case phoneLogin:
         return MaterialPageRoute(builder: (_) => const PhoneLoginScreen());
       case otpVerification:
@@ -384,8 +397,7 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => LawyerProfileScreen(providerId: providerId),
         );
-      case AppRoutes.lawyerSettings:
-        return MaterialPageRoute(builder: (_) => const LawyerSettingsScreen());
+
       case AppRoutes.lawyerCaseDetails:
         return MaterialPageRoute(
           builder: (_) => const LawyerCaseDetailsScreen(),
@@ -435,6 +447,30 @@ class AppRoutes {
       case AppRoutes.lawyerSubscription:
         return MaterialPageRoute(
           builder: (_) => const LawyerSubscriptionScreen(),
+        );
+      case AppRoutes.lawyerWallet:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => di.sl<LawyerWalletCubit>()..getWalletData(),
+            child: const LawyerWalletScreen(),
+          ),
+        );
+      case AppRoutes.lawyerReferral:
+        return MaterialPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => di.sl<ReferralCubit>()),
+              BlocProvider(create: (_) => di.sl<ReferralHistoryCubit>()),
+            ],
+            child: const LawyerReferralScreen(),
+          ),
+        );
+      case AppRoutes.lawyerReferralHistory:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => di.sl<ReferralHistoryCubit>(),
+            child: const LawyerReferralHistoryScreen(),
+          ),
         );
       case chat:
         final args = setting.arguments as Map<String, dynamic>? ?? {};

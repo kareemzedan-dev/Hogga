@@ -21,6 +21,7 @@ abstract class AuthRemoteDataSource {
     required String accountType,
     required bool termsAccepted,
     required String registerAs,
+    String? referralCode,
   });
   Future<void> logout();
   Future<void> resetPassword({required String phone, required String otpCode, required String password});
@@ -119,20 +120,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String accountType,
     required bool termsAccepted,
     required String registerAs,
+    String? referralCode,
   }) async
   {
     try {
+      final payload = <String, dynamic>{
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'account_type': accountType,
+        'terms_accepted': termsAccepted,
+        'register': registerAs,
+      };
+
+      if (referralCode != null && referralCode.trim().isNotEmpty) {
+        payload['referral_code'] = referralCode.trim();
+      }
+
       final response = await apiClient.post(
         AppEndPoints.registerEndPoint,
-        data: {
-          'name': name,
-          'email': email,
-          'phone': phone,
-          'password': password,
-          'account_type': accountType,
-          'terms_accepted': termsAccepted,
-          'register': registerAs,
-        },
+        data: payload,
       );
 
       final responseData = response.data;
@@ -164,13 +172,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
     } on DioException catch (e) {
-      if (e.response?.statusCode == 422) {
+      if (e.response?.statusCode == 422 || e.response?.statusCode == 400) {
         throw AuthFailure(_extractErrorMessage(e, AppStrings.errorRegistrationFailed));
       }
       throw ServerFailure(
         e.message ?? AppStrings.errorRegistrationFailed,
       );
     } catch (e) {
+      if (e is Failure) rethrow;
       throw ServerFailure(AppStrings.errorServer);
     }
   }

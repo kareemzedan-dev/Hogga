@@ -54,6 +54,13 @@ import 'features/user/notifications/presentation/cubit/notifications_cubit.dart'
 
 
 // Lawyer Features
+// Referral
+import 'features/lawyer/referral/data/datasources/referral_remote_data_source.dart';
+import 'features/lawyer/referral/data/repositories/referral_repository_impl.dart';
+import 'features/lawyer/referral/domain/repositories/referral_repository.dart';
+import 'features/lawyer/referral/presentation/cubit/referral_cubit.dart';
+import 'features/lawyer/referral/presentation/cubit/referral_history_cubit.dart';
+
 // Wallet
 import 'features/lawyer/wallet/data/datasources/wallet_remote_data_source.dart';
 import 'features/lawyer/wallet/data/repositories/wallet_repository_impl.dart';
@@ -235,6 +242,12 @@ Future<void> init() async {
   sl.registerLazySingleton<LawyerChatRepository>(() => LawyerChatRepository(remoteDataSource: sl()));
   sl.registerLazySingleton<LawyerChatRemoteDataSource>(() => LawyerChatRemoteDataSource(apiClient: sl()));
 
+
+  // Lawyer Referral
+  sl.registerFactory(() => ReferralCubit(repository: sl()));
+  sl.registerFactory(() => ReferralHistoryCubit(repository: sl()));
+  sl.registerLazySingleton<ReferralRepository>(() => ReferralRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<ReferralRemoteDataSource>(() => ReferralRemoteDataSourceImpl(apiClient: sl()));
 
   // Lawyer Wallet
   sl.registerFactory(() => LawyerWalletCubit(repository: sl()));

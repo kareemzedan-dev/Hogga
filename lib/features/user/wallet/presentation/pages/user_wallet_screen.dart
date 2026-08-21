@@ -191,53 +191,98 @@ class UserWalletScreen extends StatelessWidget {
   }
 
   Widget _buildSummaryCard(BuildContext context, String total) {
+    final isDark = context.isDark;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: context.cardBg,
         borderRadius: BorderRadius.circular(24.r),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [
+                  context.colors.primary.withValues(alpha: 0.35),
+                  context.cardBg,
+                ]
+              : [
+                  context.accentGolden.withValues(alpha: 0.12),
+                  context.colors.primary.withValues(alpha: 0.05),
+                ],
+        ),
+        border: Border.all(
+          color: context.accentGolden.withValues(alpha: isDark ? 0.3 : 0.25),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: context.colors.primary.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
-        border: Border.all(color: context.divColor),
       ),
-      child: Column(
+      child: Stack(
+        clipBehavior: Clip.antiAlias,
         children: [
-          Text(
-            AppStrings.totalPayments.tr(context),
-            style: context.text.labelMedium?.copyWith(
-              color: context.textSecondary,
-              fontSize: 12.sp,
+          Positioned(
+            left: -15.w,
+            bottom: -20.h,
+            child: Icon(
+              Icons.account_balance_wallet_rounded,
+              size: 110.sp,
+              color: context.accentGolden.withValues(alpha: isDark ? 0.06 : 0.04),
             ),
           ),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                total,
-                style: context.text.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.primary,
-                  fontSize: 24.sp,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 20.h),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.payments_outlined,
+                      size: 16.sp,
+                      color: context.accentGolden,
+                    ),
+                    SizedBox(width: 6.w),
+                    Text(
+                      AppStrings.totalPayments.tr(context),
+                      style: context.text.labelMedium?.copyWith(
+                        color: context.textSecondary,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                AppStrings.currencySymbol.tr(context),
-                style: context.text.titleSmall?.copyWith(
-                  color: context.colors.primary,
-                  fontSize: 14.sp,
+                SizedBox(height: 10.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      total,
+                      style: context.text.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: context.textPrimary,
+                        fontSize: 28.sp,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      AppStrings.currencySymbol.tr(context),
+                      style: context.text.titleMedium?.copyWith(
+                        color: context.accentGolden,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

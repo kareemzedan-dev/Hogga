@@ -1,10 +1,13 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
+import 'package:hogga/core/localization/localization_cubit.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_sizes.dart';
 import 'package:hogga/core/utils/app_strings.dart';
+import 'package:hogga/features/shared/onBoarding/widgets/localized_app_logo.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -24,16 +27,32 @@ class WelcomePage extends StatelessWidget {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
                   children: [
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: BlocBuilder<LocalizationCubit, Locale>(
+                        builder: (context, locale) {
+                          final isArabic = locale.languageCode == 'ar';
+                          return _buildLanguageButton(
+                            context,
+                            label: isArabic ? 'English' : 'العربية',
+                            onTap: () {
+                              context.read<LocalizationCubit>().changeLanguage(
+                                isArabic ? 'en' : 'ar',
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
                     SizedBox(height: 28.h),
                     Hero(
                       tag: 'app_logo',
-                      child: Image.asset(
-                        isDark
-                            ? 'assets/images/hoga_dark.png'
-                            : 'assets/images/hoga_light.png',
-                        height: 86.h,
-                        width: 184.w,
-                        fit: BoxFit.contain,
+                      child: LocalizedAppLogo(
+                        isDark: isDark,
+                        imageHeight: 86.h,
+                        imageWidth: 184.w,
+                        fontSize: 44.sp,
+                        textColor: context.textPrimary,
                       ),
                     ),
                     SizedBox(height: 18.h),
@@ -107,6 +126,48 @@ class WelcomePage extends StatelessWidget {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageButton(
+    BuildContext context, {
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: context.cardBg.withValues(alpha: context.isDark ? 0.65 : 1),
+            borderRadius: BorderRadius.circular(22.r),
+            border: Border.all(
+              color: context.colors.primary.withValues(alpha: 0.22),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.language_rounded,
+                color: context.colors.primary,
+                size: 16.r,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                label,
+                style: context.text.labelMedium?.copyWith(
+                  color: context.colors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
