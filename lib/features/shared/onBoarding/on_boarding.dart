@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/theme/app_theme.dart';
+import 'package:hogga/core/utils/app_assets.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,23 +21,23 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     _OnBoardingPage(
       title: AppStrings.onboardingTitle1,
       subtitle: AppStrings.onboardingSubtitle1,
-      illustration: const _LawyerCardsIllustration(),
+      illustration: _LawyerCardsIllustration(),
     ),
     _OnBoardingPage(
       title: AppStrings.onboardingTitle2,
       subtitle: AppStrings.onboardingSubtitle2,
-      illustration: const _ConsultationIllustration(),
+      illustration: _ConsultationIllustration(),
     ),
     _OnBoardingPage(
       title: AppStrings.onboardingTitle3,
       subtitle: AppStrings.onboardingSubtitle3,
-      illustration: const _CaseIllustration(),
+      illustration: _CaseIllustration(),
     ),
   ];
 
   void _next() {
     if (_currentIndex == _pages.length - 1) {
-      Navigator.pushReplacementNamed(context, AppRoutes.welcome);
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     } else {
       _controller.nextPage(
         duration: const Duration(milliseconds: 350),
@@ -48,6 +48,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -55,121 +57,174 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
         statusBarBrightness: context.isDark ? Brightness.dark : Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: context.pageBg,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              // ── Main Content ──────────────────────────────────────
-              Column(
+        backgroundColor: const Color(0xFF1B0F08),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // ── Background with Scale of Justice Watermark ───────────
+            Image.asset(
+              AppAssets.authBackground,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+
+            // Subtle dark tint to ensure text clarity
+            Container(
+              color: Colors.black.withValues(alpha: 0.15),
+            ),
+
+            // ── Foreground Content ──────────────────────────────────
+            SafeArea(
+              child: Stack(
                 children: [
-                  SizedBox(height: 56.h),
-                  // Illustration area
-                  Expanded(
-                    flex: 5,
-                    child: PageView.builder(
-                      controller: _controller,
-                      itemCount: _pages.length,
-                      onPageChanged: (i) => setState(() => _currentIndex = i),
-                      itemBuilder: (_, i) => _pages[i].illustration,
-                    ),
-                  ),
-
-                  // Text area
-                  Expanded(
-                    flex: 4,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 28.w),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: Column(
-                          key: ValueKey(_currentIndex),
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _pages[_currentIndex].title.tr(context),
-                              textAlign: TextAlign.center,
-                              style: context.text.headlineMedium?.copyWith(
-                                height: 1.4,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 24.sp,
-                              ),
-                            ),
-                            SizedBox(height: 12.h),
-                            Text(
-                              _pages[_currentIndex].subtitle.tr(context),
-                              textAlign: TextAlign.center,
-                              style: context.text.bodyMedium?.copyWith(
-                                color: context.textSecondary,
-                                height: 1.6,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Indicators
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_pages.length, (i) {
-                      final isActive = _currentIndex == i;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: EdgeInsets.symmetric(horizontal: 4.w),
-                        height: 6.h,
-                        width: isActive ? 24.w : 6.w,
-                        decoration: BoxDecoration(
-                          color: isActive ? context.colors.primary.withValues(alpha: 0.8) : context.colors.primary.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(6.r),
-                        ),
-                      );
-                    }),
-                  ),
-
-                  SizedBox(height: 28.h),
-
-                  // Button
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    child: ElevatedButton(
-                      onPressed: _next,
-                      child: Text(
-                        _currentIndex == _pages.length - 1 ? AppStrings.startNow.tr(context) : AppStrings.nextStep.tr(context),
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 24.h),
-                ],
-              ),
-
-              // ── Skip Button ───────────────────────────────────────
-              Positioned(
-                top: 12.h,
-                left: 16.w,
-                child: TextButton(
-                  onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.welcome),
-                  child: Row(
+                  // ── Main Content ──────────────────────────────────────
+                  Column(
                     children: [
-                      Text(
-                        AppStrings.skip.tr(context),
-                        style: context.text.labelMedium?.copyWith(
-                          color: context.textSecondary,
+                      SizedBox(height: 52.h),
+                      // Illustration area
+                      Expanded(
+                        flex: 5,
+                        child: PageView.builder(
+                          controller: _controller,
+                          itemCount: _pages.length,
+                          onPageChanged: (i) => setState(() => _currentIndex = i),
+                          itemBuilder: (_, i) => _pages[i].illustration,
                         ),
                       ),
-                      SizedBox(width: 4.w),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        size: 14.sp,
-                        color: context.textSecondary,
+
+                      // Text area
+                      Expanded(
+                        flex: 4,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 28.w),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Column(
+                              key: ValueKey(_currentIndex),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _pages[_currentIndex].title.tr(context),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: const Color(0xFFF5E8D0),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16.sp,
+                                    height: 1.35,
+                                    fontFamily: 'Rubik',
+                                  ),
+                                ),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  _pages[_currentIndex].subtitle.tr(context),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: const Color(0xFFDEC396),
+                                    fontSize: 12.sp,
+                                    height: 1.45,
+                                    fontFamily: 'Rubik',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
+
+                      // Indicators
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(_pages.length, (i) {
+                          final isActive = _currentIndex == i;
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: EdgeInsets.symmetric(horizontal: 4.w),
+                            height: 6.h,
+                            width: isActive ? 24.w : 6.w,
+                            decoration: BoxDecoration(
+                              color: isActive
+                                  ? const Color(0xFFDFBF7A)
+                                  : const Color(0xFFDFBF7A).withValues(alpha: 0.35),
+                              borderRadius: BorderRadius.circular(6.r),
+                            ),
+                          );
+                        }),
+                      ),
+
+                      SizedBox(height: 24.h),
+
+                      // Button
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 46.h,
+                          child: ElevatedButton(
+                            onPressed: _next,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFDFBF7A),
+                              foregroundColor: const Color(0xFF1B0F08),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                            ),
+                            child: Text(
+                              _currentIndex == _pages.length - 1
+                                  ? AppStrings.startNow.tr(context)
+                                  : AppStrings.nextStep.tr(context),
+                              style: TextStyle(
+                                color: const Color(0xFF23150C),
+                                fontSize: 13.5.sp,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Rubik',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 24.h),
                     ],
                   ),
-                ),
+
+                  // ── Skip Button ───────────────────────────────────────
+                  PositionedDirectional(
+                    top: 12.h,
+                    start: 16.w,
+                    child: TextButton(
+                      onPressed: () =>
+                          Navigator.pushReplacementNamed(context, AppRoutes.login),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            AppStrings.skip.tr(context),
+                            style: TextStyle(
+                              color: const Color(0xFFDEC396),
+                              fontSize: 11.5.sp,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Rubik',
+                            ),
+                          ),
+                          SizedBox(width: 3.w),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 18.r,
+                            color: const Color(0xFFDEC396),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -194,31 +249,33 @@ class _LawyerCardsIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Center(
       child: SizedBox(
-        width: 300.w,
-        height: 220.h,
+        width: 310.w,
+        height: 185.h,
         child: Stack(
           alignment: Alignment.center,
+          clipBehavior: Clip.none,
           children: [
-            // Back card
+            // Back card (tilted symmetrically based on direction)
             Positioned(
-              top: 0,
+              top: 6.h,
               child: Transform.rotate(
-                angle: -0.08,
+                angle: isRtl ? 0.06 : -0.06,
                 child: _LawyerCard(
                   name: AppStrings.onboardingLawyer1.tr(context),
                   specialty: AppStrings.onboardingSpec1.tr(context),
                   rating: 4.8,
                   price: AppStrings.onboardingPrice1.tr(context),
                   status: AppStrings.onboardingStatusAvailable.tr(context),
-                  opacity: 0.8,
+                  opacity: 0.75,
                 ),
               ),
             ),
-            // Front card
+            // Front card (consistently overlapping the back card in both languages)
             Positioned(
-              bottom: 0,
+              top: 60.h,
               child: _LawyerCard(
                 name: AppStrings.onboardingLawyer2.tr(context),
                 specialty: AppStrings.onboardingSpec2.tr(context),
@@ -228,23 +285,26 @@ class _LawyerCardsIllustration extends StatelessWidget {
                 opacity: 1,
               ),
             ),
-            // Badge
-            Positioned(
-              top: 10,
-              left: 10,
+            // Badge positioned directionally at the top corner of the back card
+            PositionedDirectional(
+              top: 0,
+              start: 8.w,
               child: Container(
-                width: 28,
-                height: 28,
+                width: 26.w,
+                height: 26.w,
                 decoration: const BoxDecoration(
                   color: Colors.redAccent,
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
-                  child: Text('3',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold)),
+                child: Center(
+                  child: Text(
+                    '3',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -277,53 +337,71 @@ class _LawyerCard extends StatelessWidget {
     return Opacity(
       opacity: opacity,
       child: Container(
-        width: 280.w,
-        padding: EdgeInsets.all(14.w),
+        width: 295.w,
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: context.pageBg,
-          border: Border.all(color: context.colors.onSurface.withValues(alpha: 0.9)),
+          border: Border.all(color: context.colors.onSurface.withValues(alpha: 0.85)),
           borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.18),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: context.text.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
+                      fontSize: 12.5.sp,
                     ),
                   ),
                   SizedBox(height: 2.h),
                   Text(
                     specialty,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: context.text.labelSmall?.copyWith(
+                      fontSize: 10.5.sp,
+                      color: context.textSecondary,
                     ),
                   ),
-                  SizedBox(height: 4.h),
-                  Wrap(
-                    spacing: 6.w,
-                    runSpacing: 4.h,
+                  SizedBox(height: 5.h),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
                         decoration: BoxDecoration(
-                          color: status == AppStrings.onboardingStatusAvailable.tr(context) ? Colors.green.withValues(alpha: 0.3) : context.accentGolden.withValues(alpha: 0.3),
+                          color: status == AppStrings.onboardingStatusAvailable.tr(context)
+                              ? Colors.green.withValues(alpha: 0.25)
+                              : context.accentGolden.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Text(
                           status,
                           style: context.text.labelSmall?.copyWith(
-                            fontSize: 10.sp,
+                            fontSize: 9.5.sp,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
+                      SizedBox(width: 5.w),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
                         decoration: BoxDecoration(
-                          color: context.accentGolden.withValues(alpha: 0.3),
+                          color: context.accentGolden.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Row(
@@ -332,11 +410,12 @@ class _LawyerCard extends StatelessWidget {
                             Text(
                               '$rating',
                               style: context.text.labelSmall?.copyWith(
-                                fontSize: 10.sp,
+                                fontSize: 9.5.sp,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             SizedBox(width: 3.w),
-                            Icon(Icons.star, color: const Color(0xFFFFB800), size: 12.sp),
+                            Icon(Icons.star, color: const Color(0xFFFFB800), size: 11.sp),
                           ],
                         ),
                       ),
@@ -345,41 +424,46 @@ class _LawyerCard extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 8.w),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   price,
                   style: context.text.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
+                    fontSize: 12.5.sp,
                   ),
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: 4.h),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.r),
+                    color: context.accentGolden.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
                     AppStrings.onboardingDetails.tr(context),
                     style: context.text.labelSmall?.copyWith(
                       fontWeight: FontWeight.w700,
+                      fontSize: 9.5.sp,
+                      color: context.accentGolden,
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(width: 12.w),
-            // Avatar at the end (left)
+            SizedBox(width: 10.w),
+            // Avatar
             Container(
-              width: 48.w,
-              height: 48.h,
+              width: 44.w,
+              height: 44.w,
               decoration: BoxDecoration(
-                color: context.accentGolden,
+                color: context.accentGolden.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(Icons.person, size: 28.sp),
+              child: Icon(Icons.person, size: 26.sp, color: Colors.white),
             ),
           ],
         ),
@@ -401,7 +485,7 @@ class _ConsultationIllustration extends StatelessWidget {
         decoration: BoxDecoration(
 
           shape: BoxShape.circle,
-          border: Border.all(color:  context.colors.onSurface.withOpacity(0.8), width: 2),
+          border: Border.all(color: context.colors.onSurface.withValues(alpha: 0.8), width: 2),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -436,7 +520,7 @@ class _MiniChip extends StatelessWidget {
       decoration: BoxDecoration(
 
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.colors.onSurface.withOpacity(0.8)),
+        border: Border.all(color: context.colors.onSurface.withValues(alpha: 0.8)),
       ),
       child: Column(
         children: [

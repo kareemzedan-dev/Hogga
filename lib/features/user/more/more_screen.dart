@@ -10,10 +10,10 @@ import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_sizes.dart';
-import 'package:hogga/core/widgets/custom_confirmation_sheet.dart';
 import 'package:hogga/core/utils/app_assets.dart';
 import 'package:hogga/core/widgets/logout_confirmation_sheet.dart';
 import 'package:hogga/core/widgets/hogga_card.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_cubit.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_state.dart';
@@ -32,13 +32,9 @@ class _MoreScreenState extends State<MoreScreen> {
     final isDark = context.isDark;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: context.pageBg,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: Text(AppStrings.profile.tr(context)),
+      appBar: MainAppbar(
+        title: AppStrings.profile.tr(context),
+        backBtn: false,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -89,7 +85,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       style: context.text.titleLarge?.copyWith(
                         color: context.textPrimary,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
                     Text(
@@ -249,7 +245,7 @@ class _MoreScreenState extends State<MoreScreen> {
             titleColor: AppColors.error,
             iconColor: AppColors.error,
             showArrow: false,
-            onTap: () => _showDeleteAccountSheet(context),
+            onTap: () => showDeleteAccountConfirmationSheet(context),
           ),
         ],
       ),
@@ -308,30 +304,6 @@ class _MoreScreenState extends State<MoreScreen> {
       color: context.divColor,
       indent: 16,
       endIndent: 16,
-    );
-  }
-
-  void _showDeleteAccountSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => CustomConfirmationSheet(
-        iconPath:
-            AppAssets.logoutLogo, // Reuse logout logo or find a delete one
-        title: AppStrings.deleteAccountTitle.tr(context),
-        subtitle: AppStrings.deleteAccountSubtitle.tr(context),
-        actionText: AppStrings.deleteAccountAction.tr(context),
-        onAction: () {
-          // Implement delete account logic here
-          AppPreferences().logout();
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.welcome,
-            (route) => false,
-          );
-        },
-      ),
     );
   }
 }

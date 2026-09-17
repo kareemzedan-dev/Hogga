@@ -41,11 +41,15 @@ class ChatRemoteDataSource {
     }
 
     if (file != null) {
-      formData.files.add(MapEntry(
-        'file',
-        await MultipartFile.fromFile(file.path,
-            filename: file.path.split('/').last),
-      ));
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          ),
+        ),
+      );
     }
 
     final response = await apiClient.post(
@@ -65,11 +69,16 @@ class ChatRemoteDataSource {
     await apiClient.post(AppEndPoints.connectCall(callId));
   }
 
-  Future<int> endCall(int callId) async {
-    final response = await apiClient.post(AppEndPoints.endCall(callId));
+  Future<int> endCall(int callId, {int duration = 0}) async {
+    final response = await apiClient.post(
+      AppEndPoints.endCall(callId),
+      data: {'duration': duration},
+    );
     // API returns duration in seconds in data.duration
-    final duration = response.data?['data']?['duration'];
-    return (duration is num && duration > 0) ? duration.toInt() : 0;
+    final responseDuration = response.data?['data']?['duration'];
+    return (responseDuration is num && responseDuration > 0)
+        ? responseDuration.toInt()
+        : 0;
   }
 
   Future<void> updateCallStatus(int callId, String status) async {

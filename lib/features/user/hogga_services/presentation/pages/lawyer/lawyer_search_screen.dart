@@ -11,6 +11,7 @@ import 'package:hogga/core/utils/app_sizes.dart';
 import 'package:hogga/features/user/home/presentation/cubit/home_cubit.dart';
 import 'package:hogga/features/user/home/presentation/cubit/home_state.dart';
 import 'package:hogga/core/widgets/custom_text_field.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 
 class LawyerSearchScreen extends StatefulWidget {
@@ -69,14 +70,8 @@ class _LawyerSearchScreenState extends State<LawyerSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          AppStrings.searchLawyer.tr(context),
-          style: context.theme.appBarTheme.titleTextStyle,
-        ),
+      appBar: MainAppbar(
+        title: AppStrings.searchLawyer.tr(context),
       ),
       body: Column(
         children: [

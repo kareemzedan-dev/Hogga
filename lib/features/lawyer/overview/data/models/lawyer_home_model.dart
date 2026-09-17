@@ -22,8 +22,11 @@ class LawyerHomeModel extends LawyerHome {
           ? LawyerBookingModel.fromJson(json['upcoming_appointment'])
           : null,
       settings: LawyerSettingsModel.fromJson(json['settings'] ?? {}),
-      subscriptionSummary: json['subscription_summary'] != null
-          ? SubscriptionSummary.fromJson(json['subscription_summary'])
+      subscriptionSummary:
+          (json['subscription'] ?? json['subscription_summary']) != null
+          ? SubscriptionSummary.fromJson(
+              json['subscription'] ?? json['subscription_summary'],
+            )
           : null,
       referralCampaign: json['referral_campaign'] != null
           ? ReferralCampaignModel.fromJson(json['referral_campaign'])
@@ -46,12 +49,22 @@ class LawyerHomeModel extends LawyerHome {
   }) {
     return LawyerHomeModel(
       lawyer: (lawyer as LawyerInfoModel?) ?? (this.lawyer as LawyerInfoModel),
-      overview: (overview as LawyerOverviewModel?) ?? (this.overview as LawyerOverviewModel),
-      upcomingAppointment: (upcomingAppointment as LawyerBookingModel?) ?? (this.upcomingAppointment as LawyerBookingModel?),
-      settings: (settings as LawyerSettingsModel?) ?? (this.settings as LawyerSettingsModel),
+      overview:
+          (overview as LawyerOverviewModel?) ??
+          (this.overview as LawyerOverviewModel),
+      upcomingAppointment:
+          (upcomingAppointment as LawyerBookingModel?) ??
+          (this.upcomingAppointment as LawyerBookingModel?),
+      settings:
+          (settings as LawyerSettingsModel?) ??
+          (this.settings as LawyerSettingsModel),
       subscriptionSummary: subscriptionSummary ?? this.subscriptionSummary,
-      referralCampaign: (referralCampaign as ReferralCampaignModel?) ?? (this.referralCampaign as ReferralCampaignModel?),
-      freeConsultations: (freeConsultations as FreeConsultationsModel?) ?? (this.freeConsultations as FreeConsultationsModel?),
+      referralCampaign:
+          (referralCampaign as ReferralCampaignModel?) ??
+          (this.referralCampaign as ReferralCampaignModel?),
+      freeConsultations:
+          (freeConsultations as FreeConsultationsModel?) ??
+          (this.freeConsultations as FreeConsultationsModel?),
     );
   }
 }
@@ -114,6 +127,7 @@ class LawyerSettingsModel extends LawyerSettings {
   LawyerSettingsModel({
     required super.acceptTextConsultations,
     required super.acceptInstantConsultations,
+    super.acceptScheduledConsultations,
     required super.acceptServices,
     required super.isActive,
   });
@@ -122,6 +136,9 @@ class LawyerSettingsModel extends LawyerSettings {
     return LawyerSettingsModel(
       acceptTextConsultations: json['accept_text_consultations'] == true,
       acceptInstantConsultations: json['accept_instant_consultations'] == true,
+      acceptScheduledConsultations:
+          json['accept_scheduled_consultations'] == true ||
+          json['accept_scheduled_consultations'] == 1,
       acceptServices: json['accept_services'] == true,
       isActive: json['is_active'] == true,
     );
@@ -131,12 +148,17 @@ class LawyerSettingsModel extends LawyerSettings {
   LawyerSettingsModel copyWith({
     bool? acceptTextConsultations,
     bool? acceptInstantConsultations,
+    bool? acceptScheduledConsultations,
     bool? acceptServices,
     bool? isActive,
   }) {
     return LawyerSettingsModel(
-      acceptTextConsultations: acceptTextConsultations ?? this.acceptTextConsultations,
-      acceptInstantConsultations: acceptInstantConsultations ?? this.acceptInstantConsultations,
+      acceptTextConsultations:
+          acceptTextConsultations ?? this.acceptTextConsultations,
+      acceptInstantConsultations:
+          acceptInstantConsultations ?? this.acceptInstantConsultations,
+      acceptScheduledConsultations:
+          acceptScheduledConsultations ?? this.acceptScheduledConsultations,
       acceptServices: acceptServices ?? this.acceptServices,
       isActive: isActive ?? this.isActive,
     );

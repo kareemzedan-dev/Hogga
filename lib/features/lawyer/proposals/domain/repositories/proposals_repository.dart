@@ -10,13 +10,15 @@ abstract class ProposalsRepository {
     int id,
   );
   Future<Either<Failure, List<LawyerProposal>>> getProposals();
-  Future<Either<Failure, bool>> submitProposal({
+  Future<Either<Failure, String>> submitProposal({
     required int serviceId,
+    required double offerPrice,
     required String description,
   });
-  Future<Either<Failure, bool>> updateProposal({
+  Future<Either<Failure, String>> updateProposal({
     required int proposalId,
+    required double offerPrice,
     required String description,
   });
-  Future<Either<Failure, bool>> deleteProposal(int proposalId);
+  Future<Either<Failure, String>> deleteProposal(int proposalId);
 }

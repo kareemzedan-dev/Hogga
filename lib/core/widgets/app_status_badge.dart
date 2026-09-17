@@ -4,26 +4,31 @@ import 'package:hogga/core/localization/app_localizations.dart';
 
 class AppStatusBadge extends StatelessWidget {
   final String status;
+  final String? statusText;
 
-  const AppStatusBadge({super.key, required this.status});
+  const AppStatusBadge({super.key, required this.status, this.statusText});
 
   @override
   Widget build(BuildContext context) {
-    final String text = _translateStatus(context, status);
+    final String text = (statusText != null && statusText!.trim().isNotEmpty)
+        ? statusText!.trim()
+        : _translateStatus(context, status);
     final Color color = _getStatusColor(status);
     final Color bgColor = color.withValues(alpha: 0.1);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         text,
+        textAlign: TextAlign.center,
         style: context.text.labelSmall?.copyWith(
           color: color,
           fontWeight: FontWeight.bold,
+          fontSize: 10,
         ),
       ),
     );
@@ -32,6 +37,7 @@ class AppStatusBadge extends StatelessWidget {
   String _translateStatus(BuildContext context, String status) {
     switch (status.toLowerCase()) {
       case 'accepted':
+      case 'active':
         return AppStrings.confirmedStatus.tr(context);
       case 'confirmed':
         return AppStrings.confirmedStatus.tr(context);
@@ -42,7 +48,12 @@ class AppStatusBadge extends StatelessWidget {
       case 'تم الدفع':
         return AppStrings.paidStatus.tr(context);
       case 'cancelled':
+      case 'canceled':
         return AppStrings.cancelledStatus.tr(context);
+      case 'finished':
+      case 'completed':
+      case 'complete':
+        return AppStrings.completed.tr(context);
       case 'delivered':
         return AppStrings.deliveredStatus.tr(context);
       case 'shipped':
@@ -55,6 +66,7 @@ class AppStatusBadge extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'accepted':
+      case 'active':
         return const Color(0xFF2E7D32);
       case 'confirmed':
         return const Color(0xFF2E7D32); // Green
@@ -65,7 +77,12 @@ class AppStatusBadge extends StatelessWidget {
       case 'تم الدفع':
         return const Color(0xFF2E7D32);
       case 'cancelled':
+      case 'canceled':
         return const Color(0xFFEB5757); // Red
+      case 'finished':
+      case 'completed':
+      case 'complete':
+        return const Color(0xFF2D9CDB);
       case 'delivered':
         return const Color(0xFF2D9CDB); // Blue
       case 'shipped':

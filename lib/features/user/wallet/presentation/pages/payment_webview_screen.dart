@@ -12,12 +12,14 @@ class PaymentWebViewScreen extends StatefulWidget {
   final String paymentUrl;
   final String caseNumber;
   final int? caseId;
+  final String? recordType;
 
   const PaymentWebViewScreen({
     super.key,
     required this.paymentUrl,
     required this.caseNumber,
     this.caseId,
+    this.recordType,
   });
 
   @override
@@ -92,7 +94,11 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       context,
       AppRoutes.orderConfirmed,
       (route) => false,
-      arguments: {'caseNumber': widget.caseNumber, 'caseId': widget.caseId},
+      arguments: {
+        'caseNumber': widget.caseNumber,
+        'caseId': widget.caseId,
+        'recordType': widget.recordType,
+      },
     );
   }
 
@@ -126,6 +132,10 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
   }
 
   void _leavePayment() {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context, false);
+      return;
+    }
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.main,
@@ -302,7 +312,7 @@ class _PaymentCancelDialog extends StatelessWidget {
               style: context.text.titleMedium?.copyWith(
                 color: context.textPrimary,
                 fontWeight: FontWeight.w700,
-                fontSize: 18.sp,
+                fontSize: 11.sp,
               ),
             ),
             SizedBox(height: 10.h),
@@ -311,7 +321,7 @@ class _PaymentCancelDialog extends StatelessWidget {
               textAlign: TextAlign.center,
               style: context.text.bodyMedium?.copyWith(
                 color: context.textSecondary,
-                fontSize: 13.sp,
+                fontSize: 11.sp,
                 height: 1.55,
               ),
             ),
@@ -331,7 +341,7 @@ class _PaymentCancelDialog extends StatelessWidget {
                 child: Text(
                   primaryText,
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -362,7 +372,7 @@ class _PaymentCancelDialog extends StatelessWidget {
                 child: Text(
                   secondaryText,
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

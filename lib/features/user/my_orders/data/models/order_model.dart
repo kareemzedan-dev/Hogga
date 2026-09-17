@@ -5,7 +5,11 @@ class MyOrderResponse {
 
   factory MyOrderResponse.fromJson(Map<String, dynamic> json) {
     final rawData = json['data'];
-    final list = rawData is List ? rawData : <dynamic>[];
+    final list = rawData is List
+        ? rawData
+        : rawData is Map
+        ? rawData['items'] as List? ?? <dynamic>[]
+        : <dynamic>[];
     return MyOrderResponse(
       data: list
           .whereType<Map>()
@@ -26,6 +30,10 @@ class MyOrderData {
   final int lawyersCount;
   final DateTime createdAt;
   final String formattedDate;
+  final String recordType;
+  final String recordTypeText;
+  final bool isCompletedByUser;
+  final bool isCompletedByProvider;
   // Payment status
   final String paymentStatus;
   final String paymentStatusText;
@@ -50,9 +58,13 @@ class MyOrderData {
     required this.lawyersCount,
     required this.createdAt,
     required this.formattedDate,
+    this.recordType = 'service',
+    this.recordTypeText = '',
+    this.isCompletedByUser = false,
+    this.isCompletedByProvider = false,
     this.paymentStatus = 'pending',
     this.paymentStatusText = '',
-    this.serviceTypeKey = 'article',
+    this.serviceTypeKey = '',
     this.serviceTypeText = '',
     this.duration,
     this.callDuration,
@@ -60,37 +72,65 @@ class MyOrderData {
     this.paymentUrl,
   });
 
-  bool get isPaid => paymentStatus == 'paid';
+  bool get isPaid => paymentStatus.toLowerCase() == 'paid';
+  bool get isConsultation =>
+      recordType.toLowerCase() == 'consultation' ||
+      caseNumber.toUpperCase().startsWith('CONS') ||
+      recordTypeText.contains('استشارة') ||
+      recordTypeText.contains('استشاره');
   bool get hasChatRoom => chatRoomId != null;
   bool get hasPaymentUrl => paymentUrl != null && paymentUrl!.isNotEmpty;
-  bool get isCallType => serviceTypeKey == 'audio' || serviceTypeKey == 'video';
+  bool get isCallType {
+    final key = serviceTypeKey.toLowerCase();
+    return key.contains('audio') ||
+        key.contains('video') ||
+        key.contains('phone') ||
+        key.contains('voice');
+  }
 
   factory MyOrderData.fromJson(Map<String, dynamic> json) {
-    final dateString = json['date']?.toString();
+    final dateString = (json['date'] ?? json['created_at'])?.toString();
     return MyOrderData(
-      id: json['id'] ?? 0,
+      id: _readInt(json['id']) ?? 0,
       caseNumber: json['case_number']?.toString() ?? '',
       productName: json['title']?.toString() ?? '',
       status: json['status_key']?.toString() ?? 'pending',
       statusText: json['status_text']?.toString() ?? '',
       total: double.tryParse(json['total_price']?.toString() ?? '0') ?? 0,
       categoryName: json['category_name']?.toString() ?? '',
-      lawyersCount: json['lawyers_count'] ?? 0,
+      lawyersCount: _readInt(json['lawyers_count']) ?? 0,
       createdAt: dateString != null && dateString.isNotEmpty
           ? DateTime.tryParse(dateString) ?? DateTime.now()
           : DateTime.now(),
       formattedDate: json['formatted_date']?.toString() ?? '',
+      recordType: json['record_type']?.toString() ?? 'service',
+      recordTypeText: json['record_type_text']?.toString() ?? '',
+      isCompletedByUser: json['is_completed_by_user'] == true,
+      isCompletedByProvider: json['is_completed_by_provider'] == true,
       paymentStatus: json['payment_status']?.toString() ?? 'pending',
       paymentStatusText: json['payment_status_text']?.toString() ?? '',
-      serviceTypeKey: json['service_type_key']?.toString() ?? 'article',
+      serviceTypeKey: json['service_type_key']?.toString() ?? '',
       serviceTypeText: json['service_type_text']?.toString() ?? '',
-      duration: json['duration'] as int?,
-      callDuration: json['call_duration'] != null
-          ? CallDuration.fromJson(Map<String, dynamic>.from(json['call_duration'] as Map))
+      duration: _readInt(json['duration']),
+      callDuration: json['call_duration'] != null || json['call'] != null
+          ? CallDuration.fromJson(
+              Map<String, dynamic>.from(
+                (json['call_duration'] ?? json['call']) as Map,
+              ),
+            )
           : null,
-      chatRoomId: json['chat_room_id'] as int?,
+      chatRoomId:
+          _readInt(json['chat_room_id']) ??
+          _readInt(json['chat_info'] is Map ? json['chat_info']['id'] : null),
       paymentUrl: json['payment_url']?.toString(),
     );
+  }
+
+  static int? _readInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString());
   }
 }
 

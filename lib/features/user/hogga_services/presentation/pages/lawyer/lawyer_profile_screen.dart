@@ -57,9 +57,15 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
             backgroundColor: context.colors.primary,
             elevation: 0,
             leading: IconButton(
-              icon: const CircleAvatar(
+              icon: CircleAvatar(
                 backgroundColor: Colors.white24,
-                child: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.cream, size: 16),
+                child: Icon(
+                  Directionality.of(context) == TextDirection.rtl
+                      ? Icons.chevron_right_rounded
+                      : Icons.chevron_left_rounded,
+                  color: AppColors.cream,
+                  size: 22,
+                ),
               ),
               onPressed: () => Navigator.pop(context),
             ),

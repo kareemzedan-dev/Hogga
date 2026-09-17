@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -7,9 +8,8 @@ import 'dart:async';
 import 'package:hogga/core/widgets/app_snakbar.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_cubit.dart';
 import 'package:hogga/features/shared/auth/presentation/shared/cubit/auth_state.dart';
-import 'package:hogga/core/widgets/custom_button.dart';
+import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_layout.dart';
 import 'package:pinput/pinput.dart';
-import 'package:hogga/core/widgets/custom_back_button.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
@@ -65,17 +65,14 @@ class _OTPScreenState extends State<OTPScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.pageBg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: CustomBackButton(),
-        ),
-      ),
-      body: BlocConsumer<AuthCubit, AuthState>(
+    final isEn = AppLocalizations.of(context)?.locale.languageCode == 'en';
+    return AuthLayout(
+      title: AppStrings.otpCode.tr(context),
+      subtitle: isEn
+          ? 'Enter the 6-digit verification code sent to your phone'
+          : 'أدخل رمز التحقق المكون من 6 أرقام المرسل إلى هاتفك',
+      showBack: true,
+      child: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthVerified) {
             Navigator.pushNamed(
@@ -96,139 +93,162 @@ class _OTPScreenState extends State<OTPScreen> {
           }
         },
         builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    AppStrings.activationCode.tr(context),
-                    textAlign: TextAlign.center,
-                    style: context.text.headlineLarge?.copyWith(
-                      color: context.colors.primary,
-                      fontWeight: FontWeight.bold,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 16.h),
+
+              // ── 6-digit Pinput inputs ────────────────────────────
+              Center(
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Pinput(
+                    length: 6,
+                    controller: _otpController,
+                    focusNode: _focusNode,
+                    defaultPinTheme: PinTheme(
+                      width: 48.w,
+                      height: 56.h,
+                      textStyle: TextStyle(
+                        fontSize: 20.sp,
+                        color: const Color(0xFFF5E8D0),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Rubik',
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF261810).withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(14.r),
+                        border: Border.all(
+                          color: const Color(0xFF4A3425).withValues(alpha: 0.85),
+                          width: 1.2,
+                        ),
+                      ),
+                    ),
+                    focusedPinTheme: PinTheme(
+                      width: 48.w,
+                      height: 56.h,
+                      textStyle: TextStyle(
+                        fontSize: 20.sp,
+                        color: const Color(0xFFF5E8D0),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Rubik',
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF382317),
+                        borderRadius: BorderRadius.circular(14.r),
+                        border: Border.all(
+                          color: const Color(0xFFDFBF7A),
+                          width: 1.8,
+                        ),
+                      ),
+                    ),
+                    submittedPinTheme: PinTheme(
+                      width: 48.w,
+                      height: 56.h,
+                      textStyle: TextStyle(
+                        fontSize: 20.sp,
+                        color: const Color(0xFFF5E8D0),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Rubik',
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF382317).withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(14.r),
+                        border: Border.all(
+                          color: const Color(0xFFDFBF7A).withValues(alpha: 0.8),
+                          width: 1.2,
+                        ),
+                      ),
+                    ),
+                    showCursor: true,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 28.h),
+
+              // ── Resend Code Block ────────────────────────────────
+              Text(
+                AppStrings.didNotReceiveCode.tr(context),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFFDEC396),
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Rubik',
+                ),
+              ),
+              SizedBox(height: 6.h),
+              GestureDetector(
+                onTap: _timerSeconds == 0
+                    ? () {
+                        context.read<AuthCubit>().resendOtp(
+                              widget.phone,
+                              'register',
+                            );
+                        setState(() => _timerSeconds = 120);
+                        _startTimer();
+                      }
+                    : null,
+                child: Text(
+                  _timerSeconds > 0
+                      ? '${AppStrings.resendAfter.tr(context)} $_timerSeconds ${AppStrings.seconds.tr(context)}'
+                      : AppStrings.resendNow.tr(context),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _timerSeconds > 0
+                        ? const Color(0xFFBBA89B)
+                        : const Color(0xFFDFBF7A),
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.bold,
+                    decoration: _timerSeconds == 0
+                        ? TextDecoration.underline
+                        : TextDecoration.none,
+                    decorationColor: const Color(0xFFDFBF7A),
+                    fontFamily: 'Rubik',
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 32.h),
+
+              // ── Next CTA Button ──────────────────────────────────
+              SizedBox(
+                width: double.infinity,
+                height: 48.h,
+                child: ElevatedButton(
+                  onPressed: state is AuthLoading ? null : _verifyOtp,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFDFBF7A),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                   ),
-                ),
-                const SizedBox(height: 60),
-                // OTP Inputs
-                Center(
-                  child: Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: Pinput(
-                      length: 6,
-                      controller: _otpController,
-                      focusNode: _focusNode,
-                      defaultPinTheme: PinTheme(
-                        width: 46,
-                        height: 56,
-                        textStyle: context.text.headlineMedium?.copyWith(
-                          color: context.colors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.isDark
-                              ? Colors.white.withValues(alpha: 0.05)
-                              : Colors.black.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: context.divColor),
-                        ),
-                      ),
-                      focusedPinTheme: PinTheme(
-                        width: 46,
-                        height: 56,
-                        textStyle: context.text.headlineMedium?.copyWith(
-                          color: context.colors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.isDark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.black.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: context.colors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      submittedPinTheme: PinTheme(
-                        width: 46,
-                        height: 56,
-                        textStyle: context.text.headlineMedium?.copyWith(
-                          color: context.colors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: BoxDecoration(
-                          color: context.isDark
-                              ? Colors.white.withValues(alpha: 0.05)
-                              : Colors.black.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: context.divColor),
-                        ),
-                      ),
-                      showCursor: true,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Center(
-                  child: Column(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppStrings.didNotReceiveCode.tr(context),
-                            style: context.text.bodyMedium?.copyWith(
-                              color: context.textSecondary,
+                  child: state is AuthLoading
+                      ? SizedBox(
+                          width: 20.r,
+                          height: 20.r,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2.2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Color(0xFF23150C),
                             ),
                           ),
-                          TextButton(
-                            onPressed: _timerSeconds == 0
-                                ? () {
-                                    context.read<AuthCubit>().resendOtp(
-                                      widget.phone,
-                                      'register',
-                                    );
-                                    setState(() => _timerSeconds = 120);
-                                    _startTimer();
-                                  }
-                                : null,
-                            child: Text(
-                              _timerSeconds > 0
-                                  ? '${AppStrings.resendAfter.tr(context)} $_timerSeconds ${AppStrings.seconds.tr(context)}'
-                                  : AppStrings.resendNow.tr(context),
-                              style: context.text.bodyMedium?.copyWith(
-                                color: _timerSeconds > 0
-                                    ? context.textSecondary.withValues(
-                                        alpha: 0.3,
-                                      )
-                                    : context.colors.primary,
-                                fontWeight: FontWeight.bold,
-                                decoration: _timerSeconds == 0
-                                    ? TextDecoration.underline
-                                    : TextDecoration.none,
-                                decorationColor: context.colors.primary,
-                              ),
-                            ),
+                        )
+                      : Text(
+                          AppStrings.next.tr(context),
+                          style: TextStyle(
+                            color: const Color(0xFF23150C),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Rubik',
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      CustomButton(
-                        onPressed: _verifyOtp,
-                        isLoading: state is AuthLoading,
-                        text: AppStrings.next.tr(context),
-                      ),
-                    ],
-                  ),
+                        ),
                 ),
-                const SizedBox(height: 40),
-              ],
-            ),
+              ),
+              SizedBox(height: 24.h),
+            ],
           );
         },
       ),

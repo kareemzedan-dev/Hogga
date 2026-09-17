@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
@@ -12,6 +13,8 @@ import 'package:hogga/features/lawyer/proposals/domain/entities/available_servic
 import 'package:hogga/features/lawyer/proposals/presentation/cubit/lawyer_proposals_cubit.dart';
 import 'package:hogga/features/lawyer/requests/domain/entities/lawyer_case_request_details.dart';
 import 'package:hogga/features/lawyer/requests/presentation/cubit/lawyer_requests_cubit.dart';
+import 'package:hogga/features/lawyer/proposals/domain/entities/lawyer_proposal.dart';
+import 'package:hogga/features/lawyer/requests/presentation/widgets/accept_request_sheet.dart';
 import 'package:hogga/injection_container.dart';
 
 import '../widgets/submit_proposal_sheet.dart';
@@ -33,6 +36,8 @@ class LawyerOpportunityDetailsScreen extends StatefulWidget {
 
 class _LawyerOpportunityDetailsScreenState
     extends State<LawyerOpportunityDetailsScreen> {
+  bool _isRejecting = false;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -51,6 +56,7 @@ class _LawyerOpportunityDetailsScreenState
             final cubit = sl<LawyerProposalsCubit>();
             if (!widget.isDirectRequest) {
               cubit.getAvailableServiceDetails(widget.requestId);
+              cubit.getProposalsData(showLoading: false);
             }
             return cubit;
           },
@@ -62,7 +68,21 @@ class _LawyerOpportunityDetailsScreenState
             listener: (context, state) {
               if (state is LawyerRequestActionSuccess) {
                 AppSnackbar.showSuccess(context, message: state.message);
-                Navigator.pop(context);
+                if (_isRejecting) {
+                  _isRejecting = false;
+                  Navigator.pop(context, true);
+                } else {
+                  context
+                      .read<LawyerRequestsCubit>()
+                      .getRequestDetails(widget.requestId, showLoading: false);
+                }
+              } else if (state is LawyerRequestActionError) {
+                _isRejecting = false;
+                AppSnackbar.showError(context, message: state.message);
+                if (state.message.contains('لم يعد متاحاً') ||
+                    state.message.contains('ملغي')) {
+                  Navigator.pop(context, true);
+                }
               } else if (state is LawyerRequestsError) {
                 AppSnackbar.showError(context, message: state.message);
               }
@@ -72,7 +92,14 @@ class _LawyerOpportunityDetailsScreenState
             listener: (context, state) {
               if (state is LawyerProposalActionSuccess) {
                 AppSnackbar.showSuccess(context, message: state.message);
-                Navigator.pop(context);
+                context.read<LawyerProposalsCubit>().getAvailableServiceDetails(widget.requestId);
+                context.read<LawyerProposalsCubit>().getProposalsData(showLoading: false);
+              } else if (state is LawyerProposalActionError) {
+                AppSnackbar.showError(context, message: state.message);
+                if (state.message.contains('لم يعد متاحاً') ||
+                    state.message.contains('ملغي')) {
+                  context.read<LawyerProposalsCubit>().getAvailableServiceDetails(widget.requestId);
+                }
               } else if (state is LawyerProposalsError) {
                 AppSnackbar.showError(context, message: state.message);
               }
@@ -81,24 +108,9 @@ class _LawyerOpportunityDetailsScreenState
         ],
         child: Scaffold(
           backgroundColor: context.pageBg,
-          appBar: AppBar(
-            backgroundColor: context.pageBg,
-            elevation: 0,
-            title: Text(
-              AppStrings.caseDetails.tr(context),
-              style: context.text.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: context.textPrimary,
-                size: 20.sp,
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
+          appBar: MainAppbar(
+            title: AppStrings.caseDetails.tr(context),
+            onBack: () => Navigator.pop(context, true),
           ),
           body: widget.isDirectRequest
               ? _buildDirectRequestBody(context)
@@ -112,12 +124,18 @@ class _LawyerOpportunityDetailsScreenState
   Widget _buildDirectRequestBody(BuildContext context) {
     return BlocBuilder<LawyerRequestsCubit, LawyerRequestsState>(
       builder: (context, state) {
+        final cubit = context.read<LawyerRequestsCubit>();
+        final details = state is LawyerRequestDetailsLoaded
+            ? state.details
+            : cubit.currentDetails;
+
+        if (details != null) {
+          return _buildDirectRequestContent(context, details);
+        }
+
         if (state is LawyerRequestDetailsLoading ||
             state is LawyerRequestsInitial) {
           return const LawyerShimmerLoading();
-        } else if (state is LawyerRequestDetailsLoaded) {
-          final details = state.details;
-          return _buildDirectRequestContent(context, details);
         } else if (state is LawyerRequestsError) {
           return Center(
             child: Text(
@@ -176,35 +194,103 @@ class _LawyerOpportunityDetailsScreenState
             date: details.appointment.date,
             time: details.appointment.time,
           ),
-          SizedBox(height: 40.h),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => _showConfirmDialog(context, false),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: context.colors.error,
-                    side: BorderSide(color: context.colors.error),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
+          SizedBox(height: 32.h),
+          if (details.statusText.contains('مقبول') ||
+              details.statusText.toLowerCase().contains('accepted')) ...[
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF27AE60).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: const Color(0xFF27AE60).withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle_rounded,
+                    color: const Color(0xFF27AE60),
+                    size: 24.sp,
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      'تم قبول هذا الطلب بنجاح',
+                      style: context.text.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: context.textPrimary,
+                      ),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
                   ),
-                  child: Text(
-                    AppStrings.refuse.tr(context),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                ],
+              ),
+            ),
+          ] else if (details.statusText.contains('ملغي') ||
+              details.statusText.toLowerCase().contains('cancel')) ...[
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              decoration: BoxDecoration(
+                color: context.colors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: context.colors.error.withValues(alpha: 0.3),
                 ),
               ),
-              SizedBox(width: 16.w),
-              Expanded(
-                child: CustomButton(
-                  text: AppStrings.accept.tr(context),
-                  onPressed: () => _showConfirmDialog(context, true),
-                ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.cancel_outlined,
+                    color: context.colors.error,
+                    size: 24.sp,
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      'هذا الطلب لم يعد متاحاً أو تم إلغاؤه',
+                      style: context.text.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: context.colors.error,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _showRejectDialog(context),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: context.colors.error,
+                      side: BorderSide(color: context.colors.error),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                    ),
+                    child: Text(
+                      AppStrings.refuse.tr(context),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: CustomButton(
+                    text: AppStrings.accept.tr(context),
+                    onPressed: () => _showAcceptRequestSheet(
+                      context,
+                      details.id,
+                      details.serviceName,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -214,12 +300,18 @@ class _LawyerOpportunityDetailsScreenState
   Widget _buildAvailableServiceBody(BuildContext context) {
     return BlocBuilder<LawyerProposalsCubit, LawyerProposalsState>(
       builder: (context, state) {
+        final cubit = context.read<LawyerProposalsCubit>();
+        final details = state is AvailableServiceDetailsLoaded
+            ? state.details
+            : cubit.currentAvailableServiceDetails;
+
+        if (details != null) {
+          return _buildAvailableServiceContent(context, details);
+        }
+
         if (state is AvailableServiceDetailsLoading ||
             state is LawyerProposalsInitial) {
           return const LawyerShimmerLoading();
-        } else if (state is AvailableServiceDetailsLoaded) {
-          final details = state.details;
-          return _buildAvailableServiceContent(context, details);
         } else if (state is LawyerProposalsError) {
           return Center(
             child: Text(
@@ -237,6 +329,15 @@ class _LawyerOpportunityDetailsScreenState
     BuildContext context,
     AvailableServiceDetails details,
   ) {
+    final cubit = context.read<LawyerProposalsCubit>();
+    LawyerProposal? existingProposal;
+    for (final p in cubit.currentProposals) {
+      if (p.legalCase.id == details.id) {
+        existingProposal = p;
+        break;
+      }
+    }
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(20.w),
       child: Column(
@@ -281,11 +382,67 @@ class _LawyerOpportunityDetailsScreenState
           // Proposals count
           SizedBox(height: 16.h),
           _buildProposalsCount(context, details.proposalsCount),
-          SizedBox(height: 40.h),
-          CustomButton(
-            text: AppStrings.submitProposal.tr(context),
-            onPressed: () => _showSubmitProposalSheet(context, details),
-          ),
+          SizedBox(height: 32.h),
+
+          // Proposal submitted card or submit button
+          if (existingProposal != null) ...[
+            Container(
+              padding: EdgeInsets.all(14.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF27AE60).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: const Color(0xFF27AE60).withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle_rounded,
+                    color: const Color(0xFF27AE60),
+                    size: 24.sp,
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'تم تقديم عرضك بنجاح',
+                          style: context.text.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: context.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'قيمة العرض: ${existingProposal.price} ${AppStrings.currencySymbol.tr(context)}',
+                          style: context.text.bodySmall?.copyWith(
+                            color: context.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.h),
+            CustomButton(
+              text: AppStrings.editProposal.tr(context),
+              onPressed: () => _showEditProposalSheet(
+                context,
+                details.id,
+                details.title,
+                existingProposal!,
+              ),
+            ),
+          ] else ...[
+            CustomButton(
+              text: AppStrings.submitProposal.tr(context),
+              onPressed: () => _showSubmitProposalSheet(context, details),
+            ),
+          ],
         ],
       ),
     );
@@ -351,7 +508,7 @@ class _LawyerOpportunityDetailsScreenState
           title,
           style: context.text.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            fontSize: 16.sp,
+            fontSize: 12.sp,
           ),
         ),
         if (statusText != null) ...[
@@ -453,7 +610,7 @@ class _LawyerOpportunityDetailsScreenState
   }
 
   // ─── Dialogs & Sheets ──────────────────────────────────────────────────────
-  void _showConfirmDialog(BuildContext context, bool isAccept) {
+  void _showRejectDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (innerContext) => AlertDialog(
@@ -462,9 +619,7 @@ class _LawyerOpportunityDetailsScreenState
           borderRadius: BorderRadius.circular(16.r),
         ),
         title: Text(
-          isAccept
-              ? AppStrings.confirmAccept.tr(context)
-              : AppStrings.confirmRefuse.tr(context),
+          AppStrings.confirmRefuse.tr(context),
           style: context.text.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -488,18 +643,15 @@ class _LawyerOpportunityDetailsScreenState
           ElevatedButton(
             onPressed: () {
               Navigator.pop(innerContext);
-              if (isAccept) {
-                context.read<LawyerRequestsCubit>().acceptRequest(
-                  widget.requestId,
-                );
-              } else {
-                context.read<LawyerRequestsCubit>().rejectRequest(
-                  widget.requestId,
-                );
-              }
+              setState(() {
+                _isRejecting = true;
+              });
+              context.read<LawyerRequestsCubit>().rejectRequest(
+                widget.requestId,
+              );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: isAccept ? Colors.green : context.colors.error,
+              backgroundColor: context.colors.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r),
@@ -509,9 +661,7 @@ class _LawyerOpportunityDetailsScreenState
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              isAccept
-                  ? AppStrings.accept.tr(context)
-                  : AppStrings.refuse.tr(context),
+              AppStrings.refuse.tr(context),
               style: context.text.labelSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -523,21 +673,77 @@ class _LawyerOpportunityDetailsScreenState
     );
   }
 
-  void _showSubmitProposalSheet(
+  void _showAcceptRequestSheet(
     BuildContext context,
-    AvailableServiceDetails details,
-  ) {
-    showModalBottomSheet(
+    int requestId,
+    String requestTitle,
+  ) async {
+    final cubit = context.read<LawyerRequestsCubit>();
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (innerContext) => BlocProvider.value(
-        value: context.read<LawyerProposalsCubit>(),
+        value: cubit,
+        child: AcceptRequestSheet(
+          requestId: requestId,
+          requestTitle: requestTitle,
+        ),
+      ),
+    );
+    if (result == true && context.mounted) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  void _showSubmitProposalSheet(
+    BuildContext context,
+    AvailableServiceDetails details,
+  ) async {
+    final cubit = context.read<LawyerProposalsCubit>();
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (innerContext) => BlocProvider.value(
+        value: cubit,
         child: SubmitProposalSheet(
           caseId: details.id,
           caseTitle: details.title,
         ),
       ),
     );
+    if (result == true && mounted) {
+      cubit.getAvailableServiceDetails(details.id);
+      cubit.getProposalsData(showLoading: false);
+    }
+  }
+
+  void _showEditProposalSheet(
+    BuildContext context,
+    int caseId,
+    String caseTitle,
+    LawyerProposal proposal,
+  ) async {
+    final cubit = context.read<LawyerProposalsCubit>();
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (innerContext) => BlocProvider.value(
+        value: cubit,
+        child: SubmitProposalSheet(
+          caseId: caseId,
+          caseTitle: caseTitle,
+          proposalId: proposal.id,
+          initialDescription: proposal.description,
+          initialPrice: proposal.price,
+        ),
+      ),
+    );
+    if (result == true && mounted) {
+      cubit.getAvailableServiceDetails(caseId);
+      cubit.getProposalsData(showLoading: false);
+    }
   }
 }

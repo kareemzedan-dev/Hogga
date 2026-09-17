@@ -38,13 +38,20 @@ class ServiceRequestState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [isSubmitting, isVerifyingCoupon, coupon, createdCase, errorMessage];
+  List<Object?> get props => [
+    isSubmitting,
+    isVerifyingCoupon,
+    coupon,
+    createdCase,
+    errorMessage,
+  ];
 }
 
 class ServiceRequestCubit extends Cubit<ServiceRequestState> {
-  final hoggaRepository repository;
+  final HoggaRepository repository;
 
-  ServiceRequestCubit({required this.repository}) : super(const ServiceRequestState());
+  ServiceRequestCubit({required this.repository})
+    : super(const ServiceRequestState());
 
   Future<void> verifyCoupon(String code) async {
     emit(state.copyWith(isVerifyingCoupon: true, clearError: true));
@@ -72,14 +79,40 @@ class ServiceRequestCubit extends Cubit<ServiceRequestState> {
   }
 
   Future<void> submitRequest(CreateLegalCaseRequest request) async {
-    emit(state.copyWith(isSubmitting: true, clearError: true, clearCreatedCase: true));
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        clearError: true,
+        clearCreatedCase: true,
+      ),
+    );
     final result = await repository.createLegalCase(request);
     result.fold(
       (failure) => emit(
+        state.copyWith(isSubmitting: false, errorMessage: failure.message),
+      ),
+      (response) => emit(
         state.copyWith(
           isSubmitting: false,
-          errorMessage: failure.message,
+          createdCase: response,
+          errorMessage: response.status ? null : response.message,
         ),
+      ),
+    );
+  }
+
+  Future<void> submitConsultation(BookConsultationRequest request) async {
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        clearError: true,
+        clearCreatedCase: true,
+      ),
+    );
+    final result = await repository.bookConsultation(request);
+    result.fold(
+      (failure) => emit(
+        state.copyWith(isSubmitting: false, errorMessage: failure.message),
       ),
       (response) => emit(
         state.copyWith(

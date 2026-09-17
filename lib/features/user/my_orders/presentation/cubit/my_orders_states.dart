@@ -35,8 +35,14 @@ class MyOrderPaymentSuccess extends MyOrdersState {
   final String paymentUrl;
   final String caseNumber;
   final int caseId;
+  final String recordType;
 
-  MyOrderPaymentSuccess(this.paymentUrl, this.caseNumber, this.caseId);
+  MyOrderPaymentSuccess(
+    this.paymentUrl,
+    this.caseNumber,
+    this.caseId,
+    this.recordType,
+  );
 }
 
 class MyOrderPaymentError extends MyOrdersState {

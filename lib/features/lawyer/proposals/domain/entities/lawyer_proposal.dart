@@ -26,6 +26,7 @@ class LawyerProposalCase extends Equatable {
   final String caseNumber;
   final String title;
   final String categoryName;
+  final String? serviceType;
   final String? minPrice;
   final String? maxPrice;
 
@@ -34,10 +35,19 @@ class LawyerProposalCase extends Equatable {
     required this.caseNumber,
     required this.title,
     required this.categoryName,
+    this.serviceType,
     this.minPrice,
     this.maxPrice,
   });
 
   @override
-  List<Object?> get props => [id, caseNumber, title, categoryName, minPrice, maxPrice];
+  List<Object?> get props => [
+    id,
+    caseNumber,
+    title,
+    categoryName,
+    serviceType,
+    minPrice,
+    maxPrice,
+  ];
 }

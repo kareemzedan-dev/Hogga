@@ -8,6 +8,7 @@ abstract class MyOrderRepository {
   Future<Either<Failure, List<MyOrderData>>> getOrder({required String type});
   Future<Either<Failure, OrderDetailsData>> getOrderDetails({
     required int orderId,
+    String? recordType,
   });
   Future<Either<Failure, String>> payLegalCase({required int orderId});
   Future<Either<Failure, void>> rateProvider({
@@ -39,10 +40,12 @@ class MyOrderRepositoryImpl implements MyOrderRepository {
   @override
   Future<Either<Failure, OrderDetailsData>> getOrderDetails({
     required int orderId,
+    String? recordType,
   }) async {
     try {
       final myOrderDetails = await remoteDataSource.getOrderDetails(
         orderId: orderId,
+        recordType: recordType,
       );
       return Right(myOrderDetails);
     } on Failure catch (e) {

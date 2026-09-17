@@ -11,18 +11,30 @@ import '../../../../../core/localization/app_localizations.dart';
 import '../cubit/lawyer_chat_messages_cubit.dart';
 import '../../../../chat/data/models/chat_message_model.dart';
 import '../../../../chat/presentation/cubit/chat_messages_state.dart';
+import 'package:hogga/core/network/fcm_service.dart';
 import 'package:hogga/core/utils/app_strings.dart';
+import 'package:hogga/features/lawyer/cases/domain/repositories/cases_repository.dart';
+import 'package:hogga/features/lawyer/chat/presentation/cubit/lawyer_call_cubit.dart';
+import 'package:hogga/features/lawyer/chat/presentation/pages/lawyer_agora_call_screen.dart';
+import 'package:hogga/features/lawyer/consultations/domain/repositories/lawyer_consultations_repository.dart';
+import 'package:hogga/injection_container.dart' as di;
 
 class LawyerChatScreen extends StatefulWidget {
   final int chatRoomId;
   final String clientName;
+  final String? clientPhoto;
   final String? caseTitle;
+  final bool? isCall;
+  final bool isVideo;
 
   const LawyerChatScreen({
     super.key,
     required this.chatRoomId,
     required this.clientName,
+    this.clientPhoto,
     this.caseTitle,
+    this.isCall,
+    this.isVideo = false,
   });
 
   @override
@@ -32,15 +44,115 @@ class LawyerChatScreen extends StatefulWidget {
 class _LawyerChatScreenState extends State<LawyerChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late bool _canCall;
+  late bool _isVideo;
 
   @override
   void initState() {
     super.initState();
+    FcmService.instance.activeChatRoomId = widget.chatRoomId;
     _scrollController.addListener(_onScroll);
+    _canCall = widget.isCall ?? _detectCallFromTitle(widget.caseTitle);
+    _isVideo = widget.isVideo;
+
+    if (widget.isCall == null && !_canCall) {
+      _resolveCallCapability();
+    }
+  }
+
+  bool _detectCallFromTitle(String? text) {
+    if (text == null) return false;
+    final t = text.toLowerCase();
+    return t.contains('مكالمة') ||
+        t.contains('صوت') ||
+        t.contains('فيديو') ||
+        t.contains('call') ||
+        t.contains('audio') ||
+        t.contains('video') ||
+        t.contains('immediate') ||
+        t.contains('scheduled');
+  }
+
+  Future<void> _resolveCallCapability() async {
+    try {
+      if (di.sl.isRegistered<LawyerConsultationsRepository>()) {
+        final consultationsResult =
+            await di.sl<LawyerConsultationsRepository>().getConsultations();
+        consultationsResult.fold((_) {}, (consultations) {
+          for (final c in consultations) {
+            if (c.chatInfo?.id == widget.chatRoomId && c.isCallType) {
+              if (mounted) {
+                setState(() {
+                  _canCall = true;
+                  _isVideo = c.isVideoCall;
+                });
+              }
+              return;
+            }
+          }
+        });
+      }
+
+      if (_canCall) return;
+
+      if (di.sl.isRegistered<CasesRepository>()) {
+        final casesResult =
+            await di.sl<CasesRepository>().getCases(type: 'all');
+        casesResult.fold((_) {}, (cases) {
+          for (final c in cases) {
+            if (c.chatRoomId == widget.chatRoomId) {
+              final type = c.serviceType.toLowerCase();
+              final isCall = type.contains('call') ||
+                  type.contains('audio') ||
+                  type.contains('video') ||
+                  type.contains('صوت') ||
+                  type.contains('مكالمة');
+              if (isCall && mounted) {
+                setState(() {
+                  _canCall = true;
+                  _isVideo =
+                      type.contains('video') || type.contains('فيديو');
+                });
+              }
+              return;
+            }
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _startCall() {
+    final state = context.read<LawyerChatMessagesCubit>().state;
+    String name = widget.clientName.isNotEmpty
+        ? widget.clientName
+        : AppStrings.client.tr(context);
+    if (state is ChatMessagesLoaded &&
+        state.counterparty != null &&
+        state.counterparty!.name.isNotEmpty) {
+      name = state.counterparty!.name;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => di.sl<LawyerCallCubit>(),
+          child: LawyerAgoraCallScreen(
+            roomId: widget.chatRoomId,
+            clientName: name,
+            isVideo: _isVideo,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
+    if (FcmService.instance.activeChatRoomId == widget.chatRoomId) {
+      FcmService.instance.activeChatRoomId = null;
+    }
     _messageController.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
@@ -100,6 +212,47 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
     }
   }
 
+  String? _cleanPhoto(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    if (trimmed.isEmpty ||
+        trimmed.toLowerCase() == 'null' ||
+        trimmed.toLowerCase() == '**null**') {
+      return null;
+    }
+    final markdownMatch = RegExp(r'\]\((.*?)\)').firstMatch(trimmed);
+    return markdownMatch?.group(1) ?? trimmed;
+  }
+
+  Widget _buildAvatar(BuildContext context, String? photo) {
+    final cleanPhoto = _cleanPhoto(photo);
+
+    final fallback = CircleAvatar(
+      radius: 18.r,
+      backgroundColor: context.divColor,
+      child: Icon(
+        Icons.person,
+        color: context.textSecondary,
+        size: 20.sp,
+      ),
+    );
+
+    if (cleanPhoto == null) {
+      return fallback;
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18.r),
+      child: CustomNetworkImage(
+        imageUrl: cleanPhoto,
+        width: 36.w,
+        height: 36.w,
+        fit: BoxFit.cover,
+        errorWidget: fallback,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,8 +263,11 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
         shadowColor: context.divColor,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 18.sp,
+            Directionality.of(context) == TextDirection.rtl ||
+                    Localizations.localeOf(context).languageCode == 'ar'
+                ? Icons.arrow_forward_ios_rounded
+                : Icons.arrow_back_ios_new_rounded,
+            size: 20.sp,
             color: context.textPrimary,
           ),
           onPressed: () => Navigator.pop(context),
@@ -121,34 +277,24 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
             String name = widget.clientName.isNotEmpty
                 ? widget.clientName
                 : AppStrings.client.tr(context);
-            String? photo;
+            String? photo = widget.clientPhoto;
 
             if (state is ChatMessagesLoaded && state.counterparty != null) {
-              name = state.counterparty!.name;
-              photo = state.counterparty!.photo;
+              if (state.counterparty!.name.isNotEmpty) {
+                name = state.counterparty!.name;
+              }
+              if (state.counterparty!.photo != null &&
+                  state.counterparty!.photo!.isNotEmpty) {
+                photo = state.counterparty!.photo;
+              }
             }
 
             return Row(
               children: [
-                if (photo != null && photo.isNotEmpty)
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(end: 10.w),
-                    child: CustomNetworkImage(
-                      imageUrl: photo,
-                      width: 36.w,
-                      height: 36.w,
-                      borderRadius: 18.r,
-                    ),
-                  )
-                else
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(end: 10.w),
-                    child: CircleAvatar(
-                      radius: 18.r,
-                      backgroundColor: context.divColor,
-                      child: Icon(Icons.person, color: context.textSecondary),
-                    ),
-                  ),
+                Padding(
+                  padding: EdgeInsetsDirectional.only(end: 10.w),
+                  child: _buildAvatar(context, photo),
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +303,7 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
                         name,
                         style: context.text.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 13.sp,
+                          fontSize: 11.5.sp,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -167,7 +313,7 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
                           widget.caseTitle!,
                           style: context.text.labelSmall?.copyWith(
                             color: context.textSecondary,
-                            fontSize: 10.sp,
+                            fontSize: 9.sp,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -179,6 +325,35 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
             );
           },
         ),
+        actions: [
+          if (_canCall) ...[
+            IconButton(
+              onPressed: _startCall,
+              tooltip: _isVideo
+                  ? AppStrings.videoCall.tr(context)
+                  : AppStrings.voiceCall.tr(context),
+              icon: Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: BoxDecoration(
+                  color: context.accentGolden.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(
+                    color: context.accentGolden.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  _isVideo
+                      ? Icons.videocam_rounded
+                      : Icons.phone_in_talk_rounded,
+                  color: context.accentGolden,
+                  size: 20.sp,
+                ),
+              ),
+            ),
+            SizedBox(width: 4.w),
+          ],
+        ],
       ),
       body: Column(
         children: [
@@ -322,14 +497,16 @@ class _LawyerChatScreenState extends State<LawyerChatScreen> {
                             maxLines: 4,
                             style: context.text.bodyMedium?.copyWith(
                               color: context.textPrimary,
-                              fontSize: 12.sp,
+                              fontSize: 11.sp,
                               height: 1.35,
                             ),
                             decoration: InputDecoration(
-                              hintText: AppStrings.typeYourMessage.tr(context),
+                              hintText: Localizations.localeOf(context).languageCode == 'ar' 
+                                  ? 'اكتب رسالتك...' 
+                                  : AppStrings.typeYourMessage.tr(context),
                               hintStyle: TextStyle(
                                 color: context.textSecondary,
-                                fontSize: 12.sp,
+                                fontSize: 11.sp,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -436,7 +613,7 @@ class _ChatBubble extends StatelessWidget {
                       message.message!,
                       style: context.text.bodyMedium?.copyWith(
                         color: isMe ? Colors.white : context.textPrimary,
-                        fontSize: 13.sp,
+                        fontSize: 11.5.sp,
                         height: 1.45,
                       ),
                     ),

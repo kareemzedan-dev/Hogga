@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/widgets/custom_shimmer.dart';
@@ -25,7 +24,7 @@ class _OrderShimmerItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: context.isDark?AppColors.cream:AppColors.primary,
+        color: context.isDark ? AppColors.cream : AppColors.primary,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
       ),
@@ -55,7 +54,13 @@ class _OrderShimmerItem extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const CustomShimmer.rectangular(height: 20, width: 80, shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
+                const CustomShimmer.rectangular(
+                  height: 20,
+                  width: 80,
+                  shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+                ),
               ],
             ),
           ),

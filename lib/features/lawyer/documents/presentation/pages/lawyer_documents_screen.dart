@@ -50,7 +50,7 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
             backgroundColor: context.cardBg,
             title: CustomText(
               AppStrings.uploadNewDocument.tr(context),
-              fontSize: 16.sp,
+              fontSize: 12.sp,
               fontWeight: FontWeight.bold,
             ),
             content: Column(
@@ -58,11 +58,11 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
               children: [
                 TextField(
                   controller: nameController,
-                  style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
+                  style: context.text.bodyMedium?.copyWith(fontSize: 12.sp),
                   decoration: InputDecoration(
                     labelText: AppStrings.documentName.tr(context),
                     labelStyle: context.text.bodyMedium?.copyWith(
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                       color: context.textSecondary,
                     ),
                     contentPadding: EdgeInsets.symmetric(
@@ -77,11 +77,11 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
                 SizedBox(height: 12.h),
                 TextField(
                   controller: folderController,
-                  style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
+                  style: context.text.bodyMedium?.copyWith(fontSize: 12.sp),
                   decoration: InputDecoration(
                     labelText: AppStrings.folderName.tr(context),
                     labelStyle: context.text.bodyMedium?.copyWith(
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                       color: context.textSecondary,
                     ),
                     contentPadding: EdgeInsets.symmetric(
@@ -101,7 +101,7 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
                 child: CustomText(
                   AppStrings.cancel.tr(context),
                   color: context.textSecondary,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                 ),
               ),
               ElevatedButton(
@@ -126,7 +126,7 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
                 child: CustomText(
                   AppStrings.upload.tr(context),
                   color: context.colors.onSecondary,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                 ),
               ),
             ],
@@ -371,12 +371,12 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
                           backgroundColor: context.cardBg,
                           title: CustomText(
                             AppStrings.deleteDocument.tr(context),
-                            fontSize: 16.sp,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.bold,
                           ),
                           content: CustomText(
                             AppStrings.confirmDeleteDocument.tr(context),
-                            fontSize: 14.sp,
+                            fontSize: 12.sp,
                           ),
                           actions: [
                             TextButton(
@@ -384,7 +384,7 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
                               child: CustomText(
                                 AppStrings.cancel.tr(context),
                                 color: context.textSecondary,
-                                fontSize: 14.sp,
+                                fontSize: 12.sp,
                               ),
                             ),
                             TextButton(
@@ -397,7 +397,7 @@ class _LawyerDocumentsScreenState extends State<LawyerDocumentsScreen> {
                               child: CustomText(
                                 AppStrings.delete.tr(context),
                                 color: Colors.red,
-                                fontSize: 14.sp,
+                                fontSize: 12.sp,
                               ),
                             ),
                           ],

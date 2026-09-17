@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
@@ -14,61 +15,59 @@ class LawyerBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 1,
-            width: double.infinity,
+    return Container(
+      decoration: BoxDecoration(
+        color: context.pageBg,
+        border: Border(
+          top: BorderSide(
             color: context.isDark
                 ? Colors.black.withValues(alpha: 0.3)
                 : context.colors.primary.withValues(alpha: 0.08),
+            width: 1,
           ),
-          Container(
-            height: 82,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: context.pageBg,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  context,
-                  0,
-                  Icons.dashboard_rounded,
-                  AppStrings.home.tr(context),
-                ),
-                _buildNavItem(
-                  context,
-                  1,
-                  Icons.business_center_rounded,
-                  AppStrings.services.tr(context),
-                ),
-                _buildNavItem(
-                  context,
-                  2,
-                  Icons.gavel_rounded,
-                  AppStrings.myCases.tr(context),
-                ),
-                _buildNavItem(
-                  context,
-                  3,
-                  Icons.more_horiz_rounded,
-                  AppStrings.more.tr(context),
-                ),
-              ],
-            ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          height: 68.h,
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                context,
+                0,
+                Icons.dashboard_rounded,
+                AppStrings.home.tr(context),
+              ),
+              _buildNavItem(
+                context,
+                1,
+                Icons.business_center_rounded,
+                AppStrings.services.tr(context),
+              ),
+              _buildNavItem(
+                context,
+                2,
+                Icons.gavel_rounded,
+                AppStrings.myCases.tr(context),
+              ),
+              _buildNavItem(
+                context,
+                3,
+                Icons.support_agent_rounded,
+                AppStrings.consultationsTab.tr(context),
+              ),
+              _buildNavItem(
+                context,
+                4,
+                Icons.more_horiz_rounded,
+                AppStrings.more.tr(context),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -90,13 +89,13 @@ class LawyerBottomNavBar extends StatelessWidget {
         highlightColor: Colors.transparent,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+          padding: EdgeInsets.symmetric(vertical: 4.h),
           decoration: BoxDecoration(
             color: isSelected
                 ? activeColor.withValues(alpha: 0.12)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -105,9 +104,9 @@ class LawyerBottomNavBar extends StatelessWidget {
               Icon(
                 icon,
                 color: isSelected ? activeColor : inactiveColor,
-                size: 22,
+                size: 22.sp,
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
@@ -116,7 +115,7 @@ class LawyerBottomNavBar extends StatelessWidget {
                   style: context.text.labelSmall?.copyWith(
                     color: isSelected ? activeColor : inactiveColor,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    fontSize: isSelected ? 12 : 11,
+                    fontSize: isSelected ? 12.sp : 11.sp,
                   ),
                 ),
               ),

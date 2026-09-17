@@ -65,7 +65,14 @@ class _LawyerOtpVerificationScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: context.textPrimary),
+          icon: Icon(
+            Directionality.of(context) == TextDirection.rtl ||
+                    Localizations.localeOf(context).languageCode == 'ar'
+                ? Icons.chevron_right_rounded
+                : Icons.chevron_left_rounded,
+            color: context.textPrimary,
+            size: 26,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),

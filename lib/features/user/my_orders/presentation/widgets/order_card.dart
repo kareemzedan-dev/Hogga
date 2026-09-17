@@ -27,21 +27,21 @@ class OrderCard extends StatelessWidget {
     final isCancelled =
         order.status == 'canceled' || order.status == 'cancelled';
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: HoggaCard(
         onTap: onTap,
-        padding: const EdgeInsets.all(20),
-        borderRadius: 20,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        borderRadius: 16,
         child: Column(
           children: [
             // ── Header: icon + title + case number ──
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(9),
                   decoration: BoxDecoration(
                     color: _serviceColor().withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _getServiceIcon(),
@@ -49,7 +49,7 @@ class OrderCard extends StatelessWidget {
                     color: _serviceColor(),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,65 +57,69 @@ class OrderCard extends StatelessWidget {
                       Text(
                         order.productName.isNotEmpty
                             ? order.productName
-                            : AppStrings.legalConsultation.tr(context),
-                        maxLines: 2,
+                            : (order.isConsultation
+                                ? AppStrings.legalConsultation.tr(context)
+                                : (Localizations.localeOf(context).languageCode == 'ar'
+                                    ? 'خدمة / قضية'
+                                    : AppStrings.services.tr(context))),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: context.text.titleMedium?.copyWith(
                           color: context.textPrimary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              order.categoryName.isNotEmpty
-                                  ? order.categoryName
-                                  : '${AppStrings.appName.tr(context)} - ${AppStrings.licensedLawyer.tr(context)}',
-                              style: context.text.labelSmall?.copyWith(
-                                color: context.textSecondary,
-                                fontSize: 11,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.chipBg,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: context.divColor),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  order.caseNumber.isNotEmpty
-                                      ? order.caseNumber
-                                      : '#${order.id}',
-                                  style: context.text.labelSmall?.copyWith(
-                                    color: AppColors.golden,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                                Text(
-                                  AppStrings.referenceNumber.tr(context),
-                                  style: context.text.labelSmall?.copyWith(
-                                    color: context.textSecondary,
-                                    fontSize: 9,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      Text(
+                        order.categoryName.isNotEmpty
+                            ? order.categoryName
+                            : '${AppStrings.appName.tr(context)} - ${AppStrings.licensedLawyer.tr(context)}',
+                        style: context.text.labelSmall?.copyWith(
+                          color: context.textSecondary,
+                          fontSize: 9,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.chipBg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: context.divColor),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        order.caseNumber.isNotEmpty
+                            ? order.caseNumber
+                            : '#${order.id}',
+                        style: context.text.labelSmall?.copyWith(
+                          color: AppColors.golden,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 9,
+                        ),
+                      ),
+                      Text(
+                        order.isConsultation
+                            ? (Localizations.localeOf(context).languageCode == 'ar'
+                                ? 'مرجع الاستشارة'
+                                : AppStrings.referenceNumber.tr(context))
+                            : (Localizations.localeOf(context).languageCode == 'ar'
+                                ? 'رقم القضية'
+                                : AppStrings.referenceNumber.tr(context)),
+                        style: context.text.labelSmall?.copyWith(
+                          color: context.textSecondary,
+                          fontSize: 8.5,
+                        ),
                       ),
                     ],
                   ),
@@ -123,26 +127,17 @@ class OrderCard extends StatelessWidget {
               ],
             ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Divider(
-                height: 1,
-                thickness: 0.8,
-                color: context.divColor,
-              ),
-            ),
+            const SizedBox(height: 8),
 
             // ── Badges row: service type + payment status + chat ──
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 6,
+              runSpacing: 6,
               children: [
                 _buildBadge(
                   context: context,
                   icon: _getServiceIcon(),
-                  label: order.serviceTypeText.isNotEmpty
-                      ? order.serviceTypeText
-                      : order.serviceTypeKey,
+                  label: _serviceLabel(context),
                   color: _serviceColor(),
                 ),
                 _buildBadge(
@@ -150,20 +145,12 @@ class OrderCard extends StatelessWidget {
                   icon: order.isPaid
                       ? Icons.check_circle_outline
                       : Icons.schedule_outlined,
-                  label: order.paymentStatusText.isNotEmpty
-                      ? order.paymentStatusText
-                      : (order.isPaid
-                            ? AppStrings.paidStatus.tr(context)
-                            : AppStrings.pendingStatus.tr(context)),
+                  label: _paymentStatusLabel(context),
                   color: order.isPaid
                       ? const Color(0xFF27AE60)
                       : const Color(0xFFBF8C1E),
                 ),
-                if (order.hasChatRoom &&
-                    !order.serviceTypeKey.contains('video') &&
-                    !order.serviceTypeKey.contains('voice') &&
-                    !order.serviceTypeKey.contains('audio') &&
-                    !order.serviceTypeKey.contains('phone')) ...[
+                if (_shouldShowChatBadge) ...[
                   _buildBadge(
                     context: context,
                     icon: Icons.chat_bubble_outline_rounded,
@@ -174,20 +161,13 @@ class OrderCard extends StatelessWidget {
               ],
             ),
 
-            // ── Call Duration Info (audio/video only) ──
+            // ── Call Duration Info (call only) ──
             if (order.isCallType && order.callDuration != null) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               _buildCallDurationBanner(context),
             ],
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Divider(
-                height: 1,
-                thickness: 0.8,
-                color: context.divColor,
-              ),
-            ),
+            const SizedBox(height: 10),
 
             // ── Bottom: date + price + case status ──
             Row(
@@ -205,7 +185,7 @@ class OrderCard extends StatelessWidget {
                             color: AppColors.golden,
                           ),
                           const SizedBox(width: 5),
-                          Flexible(
+                          Expanded(
                             child: Text(
                               order.formattedDate.isNotEmpty
                                   ? order.formattedDate
@@ -217,7 +197,7 @@ class OrderCard extends StatelessWidget {
                                     ).format(order.createdAt),
                               style: context.text.bodySmall?.copyWith(
                                 color: context.textSecondary,
-                                fontSize: 11,
+                                fontSize: 10,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -251,7 +231,7 @@ class OrderCard extends StatelessWidget {
                             style: context.text.titleLarge?.copyWith(
                               color: context.textPrimary,
                               fontWeight: FontWeight.w700,
-                              fontSize: 17,
+                              fontSize: 15,
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -269,49 +249,24 @@ class OrderCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                AppStatusBadge(status: order.status),
+                AppStatusBadge(
+                  status: order.status,
+                  statusText: order.statusText.isNotEmpty
+                      ? order.statusText
+                      : null,
+                ),
               ],
             ),
 
-            if ((order.hasChatRoom && !isCancelled) ||
-                (order.paymentStatus == 'pending' && !isCancelled)) ...[
-              const SizedBox(height: 18),
-            ],
-
             if (order.hasChatRoom && !isCancelled)
               Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(top: 10),
                 child: SizedBox(
                   width: double.infinity,
-                  height: 46,
+                  height: 42,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      final key = order.serviceTypeKey.toLowerCase();
-                      if (key.contains('video')) {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.videoCall,
-                          arguments: {
-                            'chatRoomId': order.chatRoomId,
-                            'lawyerName': '',
-                            'lawyerPhoto': null,
-                            'serviceType': order.serviceTypeKey,
-                          },
-                        );
-                      } else if (key.contains('audio') ||
-                          key.contains('phone') ||
-                          key.contains('voice')) {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.voiceCall,
-                          arguments: {
-                            'chatRoomId': order.chatRoomId,
-                            'lawyerName': '',
-                            'lawyerPhoto': null,
-                            'serviceType': order.serviceTypeKey,
-                          },
-                        );
-                      } else {
+                      if (_shouldOpenChat) {
                         Navigator.pushNamed(
                           context,
                           AppRoutes.chat,
@@ -320,73 +275,81 @@ class OrderCard extends StatelessWidget {
                             'lawyerName': '',
                             'caseTitle': order.productName,
                             'serviceType': order.serviceTypeKey,
+                            'recordType': order.recordType,
+                            'isConsultation': order.isConsultation,
+                          },
+                        );
+                      } else {
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.call,
+                          arguments: {
+                            'chatRoomId': order.chatRoomId,
+                            'lawyerName': '',
+                            'lawyerPhoto': null,
+                            'serviceType': order.serviceTypeKey,
                           },
                         );
                       }
                     },
                     icon: Icon(
-                      order.serviceTypeKey.toLowerCase().contains('video')
-                          ? Icons.videocam_rounded
-                          : (order.serviceTypeKey.toLowerCase().contains(
-                                      'audio',
-                                    ) ||
-                                    order.serviceTypeKey.toLowerCase().contains(
-                                      'phone',
-                                    ) ||
-                                    order.serviceTypeKey.toLowerCase().contains(
-                                      'voice',
-                                    )
-                                ? Icons.phone_in_talk_rounded
-                                : Icons.chat_bubble_outline_rounded),
+                      _shouldOpenChat
+                          ? Icons.chat_bubble_outline_rounded
+                          : Icons.phone_in_talk_rounded,
                       size: 18,
                       color: _serviceColor(),
                     ),
                     label: Text(
-                      order.serviceTypeKey.toLowerCase().contains('video')
-                          ? AppStrings.makeVideoCall.tr(context)
-                          : (order.serviceTypeKey.toLowerCase().contains(
-                                      'audio',
-                                    ) ||
-                                    order.serviceTypeKey.toLowerCase().contains(
-                                      'phone',
-                                    ) ||
-                                    order.serviceTypeKey.toLowerCase().contains(
-                                      'voice',
-                                    )
-                                ? AppStrings.makeVoiceCall.tr(context)
-                                : AppStrings.enterChat.tr(context)),
+                      _shouldOpenChat
+                          ? AppStrings.enterChat.tr(context)
+                          : AppStrings.makeVoiceCall.tr(context),
                       style: context.text.labelLarge?.copyWith(
                         color: _serviceColor(),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12.5,
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: _serviceColor()),
+                      side: BorderSide(color: _serviceColor(), width: 1.5),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
                 ),
               ),
 
-            if (order.paymentStatus == 'pending' && !isCancelled)
+            if (_canRetryPayment && !isCancelled)
               Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(top: 10),
                 child: SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 42,
                   child: ElevatedButton.icon(
                     onPressed: () {
+                      if (order.hasPaymentUrl) {
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.paymentWebView,
+                          arguments: {
+                            'paymentUrl': order.paymentUrl,
+                            'caseNumber': order.caseNumber,
+                            'caseId': order.id,
+                            'recordType': order.recordType,
+                          },
+                        );
+                        return;
+                      }
+
                       context.read<MyOrdersCubit>().payLegalCase(
                         orderId: order.id,
                         caseNumber: order.caseNumber,
+                        recordType: order.recordType,
                       );
                     },
                     icon: const Icon(
                       Icons.payment_rounded,
-                      size: 20,
+                      size: 18,
                       color: Colors.white,
                     ),
                     label: Text(
@@ -394,7 +357,7 @@ class OrderCard extends StatelessWidget {
                       style: context.text.labelLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
-                        fontSize: 14,
+                        fontSize: 12.5,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -405,7 +368,7 @@ class OrderCard extends StatelessWidget {
                         0xFF27AE60,
                       ).withValues(alpha: 0.4),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
@@ -416,6 +379,14 @@ class OrderCard extends StatelessWidget {
       ),
     );
   }
+
+  bool get _shouldOpenChat => !order.isCallType;
+
+  bool get _shouldShowChatBadge => order.hasChatRoom && _shouldOpenChat;
+
+  bool get _canRetryPayment =>
+      order.paymentStatus.toLowerCase() == 'pending' &&
+      (order.isConsultation || order.hasPaymentUrl);
 
   Widget _buildBadge({
     required BuildContext context,
@@ -454,30 +425,101 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  IconData _getServiceIcon() {
+  String _paymentStatusLabel(BuildContext context) {
+    final key = order.paymentStatus.toLowerCase();
+    if (key == 'paid') return AppStrings.paidStatus.tr(context);
+    if (key == 'pending') return AppStrings.pendingStatus.tr(context);
+    return order.paymentStatusText.isNotEmpty
+        ? order.paymentStatusText
+        : order.paymentStatus;
+  }
+
+  bool get _isCall {
+    if (!order.isConsultation) return false;
     final key = order.serviceTypeKey.toLowerCase();
-    if (key.contains('video')) {
-      return Icons.videocam_outlined;
-    } else if (key.contains('audio') ||
-        key.contains('phone') ||
-        key.contains('voice')) {
-      return Icons.phone_outlined;
-    } else if (key.contains('chat')) {
-      return Icons.chat_outlined;
-    } else {
-      return Icons.article_outlined;
+    final text = order.serviceTypeText.toLowerCase();
+    final prod = order.productName.toLowerCase();
+    return order.isCallType ||
+        (key.isNotEmpty &&
+            (key.contains('video') ||
+                key.contains('audio') ||
+                key.contains('voice') ||
+                key.contains('call'))) ||
+        text.contains('فيديو') ||
+        text.contains('صوت') ||
+        text.contains('مكالمة') ||
+        prod.contains('فيديو') ||
+        prod.contains('صوت') ||
+        prod.contains('مكالمة');
+  }
+
+  bool get _isWritten {
+    if (!order.isConsultation) return false;
+    final key = order.serviceTypeKey.toLowerCase();
+    final text = order.serviceTypeText.toLowerCase();
+    final prod = order.productName.toLowerCase();
+    return (key.isNotEmpty &&
+            (key.contains('article') || key.contains('written'))) ||
+        text.contains('مكتوب') ||
+        prod.contains('مكتوب');
+  }
+
+  String _serviceLabel(BuildContext context) {
+    if (!order.isConsultation) {
+      if (order.recordTypeText.isNotEmpty &&
+          !order.recordTypeText.contains('.')) {
+        return order.recordTypeText;
+      }
+      return Localizations.localeOf(context).languageCode == 'ar'
+          ? 'خدمة / قضية'
+          : AppStrings.services.tr(context);
     }
+
+    if (_isCall) {
+      return order.serviceTypeText.isNotEmpty
+          ? order.serviceTypeText
+          : (Localizations.localeOf(context).languageCode == 'ar'
+              ? 'مكالمة'
+              : 'Call');
+    }
+    if (_isWritten) {
+      return order.serviceTypeText.isNotEmpty
+          ? order.serviceTypeText
+          : (Localizations.localeOf(context).languageCode == 'ar'
+              ? 'استشارة مكتوبة'
+              : 'Written Consultation');
+    }
+    final key = order.serviceTypeKey.toLowerCase();
+    if (key.contains('chat')) return AppStrings.chat.tr(context);
+    if (order.serviceTypeText.isNotEmpty &&
+        !order.serviceTypeText.contains('.')) {
+      return order.serviceTypeText;
+    }
+    if (order.recordTypeText.isNotEmpty &&
+        !order.recordTypeText.contains('.')) {
+      return order.recordTypeText;
+    }
+    return AppStrings.consultation.tr(context);
+  }
+
+  IconData _getServiceIcon() {
+    if (!order.isConsultation) {
+      return Icons.balance_rounded;
+    }
+    if (_isCall) return Icons.phone_in_talk_rounded;
+    if (_isWritten) return Icons.article_outlined;
+    final key = order.serviceTypeKey.toLowerCase();
+    if (key.contains('chat')) return Icons.chat_outlined;
+    return Icons.assignment_outlined;
   }
 
   Color _serviceColor() {
-    final key = order.serviceTypeKey.toLowerCase();
-    if (key.contains('video')) {
-      return const Color(0xFF9B59B6);
-    } else if (key.contains('audio') ||
-        key.contains('phone') ||
-        key.contains('voice')) {
+    if (!order.isConsultation) {
+      return AppColors.golden;
+    }
+    if (_isCall) {
       return const Color(0xFF27AE60);
-    } else if (key.contains('chat')) {
+    } else if (order.serviceTypeKey.toLowerCase().contains('chat')) {
       return const Color(0xFF2D9CDB);
     } else {
       return AppColors.golden;
@@ -493,11 +535,11 @@ class OrderCard extends StatelessWidget {
     final color = _serviceColor();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.07),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,7 +554,7 @@ class OrderCard extends StatelessWidget {
                   style: context.text.labelSmall?.copyWith(
                     color: color,
                     fontWeight: FontWeight.w600,
-                    fontSize: 10,
+                    fontSize: 9.5,
                   ),
                 ),
               ),
@@ -521,17 +563,17 @@ class OrderCard extends StatelessWidget {
                 style: context.text.labelSmall?.copyWith(
                   color: context.textPrimary,
                   fontWeight: FontWeight.bold,
-                  fontSize: 10,
+                  fontSize: 9.5,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 4),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: 1.0 - progress,
-              minHeight: 4,
+              minHeight: 3.5,
               backgroundColor: color.withValues(alpha: 0.15),
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),

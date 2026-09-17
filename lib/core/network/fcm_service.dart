@@ -116,15 +116,9 @@ Future<bool> _declineCallById(int callId) async {
     }
 
     if (AppPreferences().isProvider) {
-      await di.sl<LawyerChatRepository>().updateCallStatus(
-        callId,
-        'declined',
-      );
+      await di.sl<LawyerChatRepository>().updateCallStatus(callId, 'declined');
     } else {
-      await di.sl<ChatRepository>().updateCallStatus(
-        callId,
-        'declined',
-      );
+      await di.sl<ChatRepository>().updateCallStatus(callId, 'declined');
     }
     await _removePendingDecline(callId);
     log('Incoming call declined: $callId');
@@ -190,7 +184,7 @@ class FcmService {
   FcmService._();
 
   static final FcmService instance = FcmService._();
-  static const String incomingCallChannelId = 'incoming_call_channel_v5';
+  static const String incomingCallChannelId = 'incoming_call_channel_v6';
 
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
@@ -204,6 +198,64 @@ class FcmService {
 
   Stream<Map<String, dynamic>> get foregroundMessages =>
       _foregroundDataController.stream;
+
+  /// Currently open chat room ID (null when not in a chat room).
+  /// Used to suppress annoying heads-up notifications while the user is actively viewing the conversation.
+  int? activeChatRoomId;
+
+  int? extractChatRoomId(Map<String, dynamic> data) {
+    int? parseVal(dynamic val) {
+      if (val == null) return null;
+      if (val is int && val > 0) return val;
+      final parsed = int.tryParse(val.toString());
+      if (parsed != null && parsed > 0) return parsed;
+      return null;
+    }
+
+    final direct = parseVal(data['chat_room_id']) ??
+        parseVal(data['chatRoomId']) ??
+        parseVal(data['room_id']) ??
+        parseVal(data['roomId']) ??
+        parseVal(data['chat_id']) ??
+        parseVal(data['chatId']);
+    if (direct != null) return direct;
+
+    final channelName =
+        data['channel_name']?.toString() ?? data['channel']?.toString();
+    if (channelName != null && channelName.isNotEmpty) {
+      final match = RegExp(
+        r'(?:chat_room_|chat\.|private-chat\.)(\d+)',
+      ).firstMatch(channelName);
+      final fromChannel = int.tryParse(match?.group(1) ?? '');
+      if (fromChannel != null && fromChannel > 0) return fromChannel;
+    }
+
+    for (final key in ['data', 'payload']) {
+      final nested = data[key];
+      if (nested is Map<String, dynamic>) {
+        final nestedId = extractChatRoomId(nested);
+        if (nestedId != null) return nestedId;
+      } else if (nested is String && nested.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(nested);
+          if (decoded is Map<String, dynamic>) {
+            final nestedId = extractChatRoomId(decoded);
+            if (nestedId != null) return nestedId;
+          }
+        } catch (_) {}
+      }
+    }
+
+    return null;
+  }
+
+  bool isMessageForActiveChatRoom(Map<String, dynamic> data) {
+    final currentActive = activeChatRoomId;
+    if (currentActive == null || currentActive <= 0) return false;
+    final roomId = extractChatRoomId(data);
+    if (roomId == null || roomId <= 0) return false;
+    return roomId == currentActive;
+  }
 
   // NOTE: Channel ID is versioned - bump version when changing importance/sound
   // to force Android to recreate it because Android caches channel settings.
@@ -270,9 +322,9 @@ class FcmService {
     await _configureLocalNotifications();
     await _retryPendingCallDeclines();
     await _fcm.setForegroundNotificationPresentationOptions(
-      alert: true,
+      alert: false,
       badge: true,
-      sound: true,
+      sound: false,
     );
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -285,8 +337,12 @@ class FcmService {
       _foregroundDataController.add(data);
 
       if (_isCallType(data['type']?.toString())) {
-        unawaited(showLocalNotification(message));
         unawaited(CallCoordinator.instance.handleRemotePayload(data));
+        return;
+      }
+
+      if (isMessageForActiveChatRoom(data)) {
+        log('Foreground chat notification suppressed: user is viewing chat room $activeChatRoomId');
         return;
       }
 
@@ -403,6 +459,10 @@ class FcmService {
   }
 
   Future<void> showLocalNotification(RemoteMessage message) async {
+    if (isMessageForActiveChatRoom(message.data)) {
+      log('showLocalNotification suppressed for active chat room $activeChatRoomId');
+      return;
+    }
     final notification = message.notification;
     final title = _resolveNotificationTitle(
       message.data,
@@ -426,6 +486,10 @@ class FcmService {
   }
 
   Future<void> _showFromDataPayload(Map<String, dynamic> data) {
+    if (isMessageForActiveChatRoom(data)) {
+      log('_showFromDataPayload suppressed for active chat room $activeChatRoomId');
+      return Future.value();
+    }
     final title = _resolveNotificationTitle(
       data,
       data['title']?.toString() ?? data['body']?.toString() ?? '',
@@ -446,6 +510,10 @@ class FcmService {
     required String body,
     required String smallIcon,
   }) async {
+    if (isMessageForActiveChatRoom(data)) {
+      log('_showLocalNotificationFromData suppressed for active chat room $activeChatRoomId');
+      return;
+    }
     if (title.isEmpty && body.isEmpty) {
       return;
     }
@@ -549,27 +617,44 @@ class FcmService {
       return;
     }
 
-    if (type == 'chat_message') {
-      final roomId = data['chat_room_id']?.toString();
-      if (roomId != null) {
-        final isLawyer = AppPreferences().role == 'lawyer';
-        navigator.pushNamed(
-          isLawyer ? AppRoutes.lawyerChat : AppRoutes.chat,
-          arguments: {
-            'chatRoomId': int.tryParse(roomId) ?? 0,
-            'lawyerName': '',
-            'caseTitle': '',
-          },
-        );
-        return;
-      }
+    final roomId = data['chat_room_id']?.toString() ??
+        data['room_id']?.toString() ??
+        data['chat_id']?.toString();
+    final isChatMessage = type == 'chat_message' ||
+        type == 'new_message' ||
+        type == 'message' ||
+        type == 'chat' ||
+        data['action_type'] == 'chat_message' ||
+        data['action_type'] == 'new_message' ||
+        (roomId != null && !_isCallType(type));
+
+    if (isChatMessage && roomId != null && (int.tryParse(roomId) ?? 0) > 0) {
+      final isLawyer = AppPreferences().isLawyer ||
+          data['receiver_type'] == 'lawyer' ||
+          data['receiver_type'] == 'provider' ||
+          data['role'] == 'lawyer' ||
+          data['role'] == 'provider';
+
+      navigator.pushNamed(
+        isLawyer ? AppRoutes.lawyerChat : AppRoutes.chat,
+        arguments: {
+          'chatRoomId': int.tryParse(roomId) ?? 0,
+          'clientName': data['sender_name']?.toString() ??
+              data['user_name']?.toString() ??
+              data['client_name']?.toString() ??
+              '',
+          'lawyerName': data['sender_name']?.toString() ?? '',
+          'caseTitle': data['case_title']?.toString() ?? '',
+        },
+      );
+      return;
     }
 
     if (type == 'order_status' ||
         type == 'legal_case_update' ||
         type == 'payment' ||
         type?.contains('call') == true) {
-      final isLawyer = AppPreferences().role == 'lawyer';
+      final isLawyer = AppPreferences().isLawyer;
       if (isLawyer) {
         navigator.pushNamed(AppRoutes.lawyerMain, arguments: 2);
       } else {

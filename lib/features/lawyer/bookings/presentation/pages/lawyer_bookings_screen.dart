@@ -6,6 +6,7 @@ import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
 import 'package:hogga/core/widgets/hogga_card.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/bookings/presentation/cubit/lawyer_bookings_cubit.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_empty_state.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_section_header.dart';
@@ -47,15 +48,9 @@ class _LawyerBookingsScreenState extends State<LawyerBookingsScreen> {
       create: (context) => sl<LawyerBookingsCubit>()..fetchBookings(),
       child: Scaffold(
         backgroundColor: context.pageBg,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Text(
-            AppStrings.bookings.tr(context),
-            style: context.theme.appBarTheme.titleTextStyle,
-          ),
-          centerTitle: true,
+        appBar: MainAppbar(
+          title: AppStrings.bookings.tr(context),
+          backBtn: false,
         ),
         body: BlocConsumer<LawyerBookingsCubit, LawyerBookingsState>(
           listener: (context, state) {

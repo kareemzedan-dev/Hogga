@@ -8,7 +8,10 @@ import '../../../../../core/utils/app_strings.dart';
 
 abstract class MyOrdersRemoteDataSource {
   Future<List<MyOrderData>> getOrder({required String type});
-  Future<OrderDetailsData> getOrderDetails({required int orderId});
+  Future<OrderDetailsData> getOrderDetails({
+    required int orderId,
+    String? recordType,
+  });
   Future<String> payLegalCase({required int orderId});
   Future<void> rateProvider({
     required int providerId,
@@ -27,11 +30,11 @@ class MyOrdersRemoteDataSourceImpl implements MyOrdersRemoteDataSource {
     try {
       final response = await apiClient.get(
         'services/legal-cases',
-        queryParameters: {'type': type},
+        queryParameters: {'type': 'all', 'status': 'all'},
       );
 
       final orderResponse = MyOrderResponse.fromJson(response.data);
-      return orderResponse.data;
+      return _filterOrdersByTab(orderResponse.data, type);
     } on DioException catch (e) {
       throw ServerFailure(e.message ?? 'Failed to load myOrders');
     } catch (e) {
@@ -40,17 +43,61 @@ class MyOrdersRemoteDataSourceImpl implements MyOrdersRemoteDataSource {
   }
 
   @override
-  Future<OrderDetailsData> getOrderDetails({required int orderId}) async {
-    try {
-      final response = await apiClient.get('services/legal-cases/$orderId');
+  Future<OrderDetailsData> getOrderDetails({
+    required int orderId,
+    String? recordType,
+  }) async {
+    DioException? lastDioError;
 
-      final orderDetailsResponse = OrderDetailsResponse.fromJson(response.data);
-      return orderDetailsResponse.data;
-    } on DioException catch (e) {
-      throw ServerFailure(e.message ?? 'Failed to load order details');
-    } catch (e) {
-      throw ServerFailure(e.toString());
+    for (final candidate in _detailsEndpointCandidates(orderId, recordType)) {
+      try {
+        final response = await apiClient.get(candidate.path);
+        final orderDetailsResponse = OrderDetailsResponse.fromJson(
+          response.data,
+        );
+        var orderData = orderDetailsResponse.data;
+        if (!orderData.isConsultation) {
+          try {
+            final proposalsResponse = await apiClient.get(
+              AppEndPoints.legalCaseProposalsEndPoint(orderId),
+            );
+            dynamic listData = proposalsResponse.data;
+            if (listData is Map && listData['data'] is List) {
+              listData = listData['data'];
+            }
+            if (listData is List) {
+              final proposals = listData
+                  .whereType<Map>()
+                  .map((e) =>
+                      CaseProposal.fromJson(Map<String, dynamic>.from(e)))
+                  .toList();
+              if (proposals.isNotEmpty || orderData.proposals.isEmpty) {
+                orderData = orderData.copyWith(
+                  proposals:
+                      proposals.isNotEmpty ? proposals : orderData.proposals,
+                );
+              }
+            }
+          } catch (_) {}
+        }
+        return orderData;
+      } on DioException catch (e) {
+        lastDioError = e;
+        if (!_shouldTryNextDetailsEndpoint(e)) {
+          throw ServerFailure(
+            _extractMessage(e.response?.data) ??
+                e.message ??
+                'Failed to load order details',
+          );
+        }
+      }
     }
+
+    throw ServerFailure(
+      _extractMessage(lastDioError?.response?.data) ??
+          lastDioError?.message ??
+          'Failed to load order details',
+    );
   }
 
   @override
@@ -86,7 +133,7 @@ class MyOrdersRemoteDataSourceImpl implements MyOrdersRemoteDataSource {
     try {
       final response = await apiClient.post(
         AppEndPoints.rateProviderEndPoint(providerId),
-        data: {'rating': rating.clamp(0, 5), 'comment': comment},
+        data: {'rating': rating.clamp(1, 5), 'comment': comment},
       );
       if (response.data is Map && response.data['status'] == false) {
         throw ServerFailure(
@@ -99,6 +146,54 @@ class MyOrdersRemoteDataSourceImpl implements MyOrdersRemoteDataSource {
       if (e is Failure) rethrow;
       throw ServerFailure(e.toString());
     }
+  }
+
+  List<_DetailsEndpointCandidate> _detailsEndpointCandidates(
+    int orderId,
+    String? recordType,
+  ) {
+    final normalizedType = _normalizeRecordType(recordType);
+    final candidates = <_DetailsEndpointCandidate>[];
+
+    if (normalizedType == 'consultation') {
+      candidates.add(_DetailsEndpointCandidate('consultations/$orderId'));
+      candidates.add(
+        _DetailsEndpointCandidate('services/legal-cases/$orderId'),
+      );
+      return candidates;
+    }
+
+    if (normalizedType == 'service') {
+      candidates.add(
+        _DetailsEndpointCandidate('services/legal-cases/$orderId'),
+      );
+      candidates.add(_DetailsEndpointCandidate('consultations/$orderId'));
+      return candidates;
+    }
+
+    candidates.add(_DetailsEndpointCandidate('services/legal-cases/$orderId'));
+    candidates.add(_DetailsEndpointCandidate('consultations/$orderId'));
+
+    return candidates;
+  }
+
+  String? _normalizeRecordType(String? recordType) {
+    final normalized = recordType?.trim().toLowerCase();
+    if (normalized == 'consultation') return 'consultation';
+    if (normalized == 'service' || normalized == 'legal_case') return 'service';
+    return null;
+  }
+
+  bool _shouldTryNextDetailsEndpoint(DioException error) {
+    final code = error.response?.statusCode;
+    return code == null || code == 404 || code == 405;
+  }
+
+  String? _extractMessage(dynamic responseData) {
+    if (responseData is Map && responseData['message'] != null) {
+      return responseData['message'].toString();
+    }
+    return null;
   }
 
   String? _readPaymentUrl(dynamic responseData) {
@@ -143,4 +238,38 @@ class MyOrdersRemoteDataSourceImpl implements MyOrdersRemoteDataSource {
 
     return null;
   }
+
+  List<MyOrderData> _filterOrdersByTab(List<MyOrderData> orders, String type) {
+    switch (type.trim().toLowerCase()) {
+      case 'ongoing':
+      case 'active':
+        return orders
+            .where((order) => !_isTerminalStatus(order.status))
+            .toList();
+      case 'finished':
+      case 'completed':
+        return orders
+            .where((order) => _isTerminalStatus(order.status))
+            .toList();
+      case 'all':
+      default:
+        return orders;
+    }
+  }
+
+  bool _isTerminalStatus(String status) {
+    final normalized = status.trim().toLowerCase();
+    return normalized == 'finished' ||
+        normalized == 'completed' ||
+        normalized == 'cancelled' ||
+        normalized == 'canceled' ||
+        normalized == 'rejected' ||
+        normalized == 'declined';
+  }
+}
+
+class _DetailsEndpointCandidate {
+  final String path;
+
+  const _DetailsEndpointCandidate(this.path);
 }

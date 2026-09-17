@@ -1,16 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
-import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
 import 'package:hogga/core/widgets/hogga_card.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_empty_state.dart';
-import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_section_header.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
-import 'package:hogga/features/lawyer/wallet/data/models/lawyer_wallet_transaction_model.dart';
 import 'package:hogga/features/lawyer/wallet/presentation/cubit/lawyer_wallet_cubit.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 
@@ -35,21 +32,9 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: widget.isBottomNav
-            ? null
-            : IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 20.sp),
-                onPressed: () => Navigator.pop(context),
-              ),
-        backgroundColor: context.pageBg,
-        elevation: 0,
-        title: Text(
-          AppStrings.lawyerWallet.tr(context),
-          style: context.theme.appBarTheme.titleTextStyle,
-        ),
-        centerTitle: true,
+      appBar: MainAppbar(
+        title: AppStrings.lawyerWallet.tr(context),
+        backBtn: !widget.isBottomNav,
       ),
       body: BlocConsumer<LawyerWalletCubit, LawyerWalletState>(
         buildWhen: (previous, current) =>
@@ -400,7 +385,7 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
                 ),
               ),
               Text(
-                '${isIncome ? "+" : "-"}${(double.tryParse(tx.amount.toString()) ?? 0.0).toStringAsFixed(3)} ${AppStrings.currencySymbol.tr(context)}',
+                '${isIncome ? "+" : "-"}${(double.tryParse(tx.amount.toString())?.abs() ?? 0.0).toStringAsFixed(3)} ${AppStrings.currencySymbol.tr(context)}',
                 style: context.text.labelMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: isIncome ? context.success : context.colors.error,
@@ -520,10 +505,10 @@ class _LawyerWalletScreenState extends State<LawyerWalletScreen> {
     return TextField(
       controller: controller,
       keyboardType: type,
-      style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
+      style: context.text.bodyMedium?.copyWith(fontSize: 12.sp),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: context.text.bodyMedium?.copyWith(color: context.textSecondary, fontSize: 13.sp),
+        labelStyle: context.text.bodyMedium?.copyWith(color: context.textSecondary, fontSize: 11.sp),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),

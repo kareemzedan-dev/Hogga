@@ -9,6 +9,8 @@ import 'package:pusher_client/pusher_client.dart';
 class WebSocketService {
   static const String _pusherKey = 'vfgfv6bvtvd5xmi0c6za';
   static const String _pusherHost = 'dashboard.hogga-oman.com';
+  static String get _broadcastAuthEndpoint =>
+      '${AppEndPoints.baseUrl}broadcasting/auth';
 
   static Echo? echo;
   static PusherClient? _pusher;
@@ -41,7 +43,7 @@ class WebSocketService {
     _authToken = token;
     _connectionState = '';
     _autoReconnect = true;
-    final authEndpoint = '${AppEndPoints.baseUrl}broadcasting/auth';
+    final authEndpoint = _broadcastAuthEndpoint;
     log('Pusher auth endpoint: $authEndpoint');
 
     final options = PusherOptions(

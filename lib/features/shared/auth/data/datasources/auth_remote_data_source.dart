@@ -12,7 +12,11 @@ import '../models/app_config.dart';
 import '../../../../../core/utils/app_strings.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<LoginResult> login(String identifier, String password, {bool isLawyer = false});
+  Future<LoginResult> login(
+    String identifier,
+    String password, {
+    bool isLawyer = false,
+  });
   Future<RegisterResult> register({
     required String name,
     required String email,
@@ -24,8 +28,16 @@ abstract class AuthRemoteDataSource {
     String? referralCode,
   });
   Future<void> logout();
-  Future<void> resetPassword({required String phone, required String otpCode, required String password});
-  Future<LoginResult> verifyOtp(String phone, String otp, {bool isLawyer = false});
+  Future<void> resetPassword({
+    required String phone,
+    required String otpCode,
+    required String password,
+  });
+  Future<LoginResult> verifyOtp(
+    String phone,
+    String otp, {
+    bool isLawyer = false,
+  });
   Future<void> resendOtp(String phone, type, {bool isLawyer = false});
   Future<List<ProviderTypeModel>> getLawyerProviderTypes();
   Future<List<LegalSpecializationModel>> getLawyerSpecializations();
@@ -56,35 +68,38 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.apiClient});
 
   @override
-  Future<LoginResult> login(String identifier, String password, {bool isLawyer = false}) async {
+  Future<LoginResult> login(
+    String identifier,
+    String password, {
+    bool isLawyer = false,
+  }) async {
     try {
       final response = await apiClient.post(
-        isLawyer ? AppEndPoints.lawyerLoginEndPoint : AppEndPoints.loginEndPoint,
-        data: {
-          'phone': identifier,
-          'password': password,
-        },
+        isLawyer
+            ? AppEndPoints.lawyerLoginEndPoint
+            : AppEndPoints.loginEndPoint,
+        data: {'phone': identifier, 'password': password},
       );
 
       final responseData = response.data;
-      
-      if (responseData['success'] == true) {
+
+      if (_isSuccess(responseData)) {
         final data = responseData['data'];
         if (data != null && data['token'] != null) {
           await AppPreferences().saveToken(data['token']);
-          
+
           final userMap = Map<String, dynamic>.from(data['user']);
           userMap['token'] = data['token'];
           userMap['is_provider'] = data['is_provider'] == true;
-          userMap['provider_type_name'] = userMap['provider_type_name'] ?? data['provider_type_name'];
+          userMap['provider_type_name'] =
+              userMap['provider_type_name'] ?? data['provider_type_name'];
           userMap['specializations'] = userMap['specializations'] ?? const [];
-          if (data['is_provider'] == true && (userMap['role'] == null || userMap['role'].toString().isEmpty)) {
+          if (data['is_provider'] == true &&
+              (userMap['role'] == null || userMap['role'].toString().isEmpty)) {
             userMap['role'] = 'provider';
           }
 
-          return LoginSuccess(
-            UserModel.fromJson(userMap),
-          );
+          return LoginSuccess(UserModel.fromJson(userMap));
         } else if (data != null && data['email'] != null) {
           return LoginNeedVerification(data['email']);
         } else {
@@ -93,7 +108,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       } else {
         throw AuthFailure(responseData['message'] ?? AppStrings.loginFailed);
       }
-
     } on DioException catch (e) {
       if (e.response?.statusCode == 422) {
         final msg = _extractErrorMessage(e, AppStrings.errorUnrecognized);
@@ -106,11 +120,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       throw ServerFailure(e.message ?? AppStrings.errorServer);
-
     } catch (e) {
       throw ServerFailure(e.toString());
     }
   }
+
   @override
   Future<RegisterResult> register({
     required String name,
@@ -121,8 +135,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required bool termsAccepted,
     required String registerAs,
     String? referralCode,
-  }) async
-  {
+  }) async {
     try {
       final payload = <String, dynamic>{
         'name': name,
@@ -145,7 +158,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final responseData = response.data;
 
-      if (responseData['success'] == true) {
+      if (_isSuccess(responseData)) {
         final message = responseData['message']?.toString() ?? '';
 
         if (message.contains('تفعيل') || message.contains('verify')) {
@@ -161,23 +174,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           if (data['token'] != null) {
             userMap['token'] = data['token'];
           }
-          return RegisterSuccess(
-            UserModel.fromJson(userMap),
-          );
+          return RegisterSuccess(UserModel.fromJson(userMap));
         }
 
-        throw AuthFailure(responseData['message'] ?? AppStrings.errorRegistrationFailed);
+        throw AuthFailure(
+          responseData['message'] ?? AppStrings.errorRegistrationFailed,
+        );
       } else {
-        throw AuthFailure(responseData['message'] ?? AppStrings.errorRegistrationFailed);
+        throw AuthFailure(
+          responseData['message'] ?? AppStrings.errorRegistrationFailed,
+        );
       }
-
     } on DioException catch (e) {
       if (e.response?.statusCode == 422 || e.response?.statusCode == 400) {
-        throw AuthFailure(_extractErrorMessage(e, AppStrings.errorRegistrationFailed));
+        throw AuthFailure(
+          _extractErrorMessage(e, AppStrings.errorRegistrationFailed),
+        );
       }
-      throw ServerFailure(
-        e.message ?? AppStrings.errorRegistrationFailed,
-      );
+      throw ServerFailure(e.message ?? AppStrings.errorRegistrationFailed);
     } catch (e) {
       if (e is Failure) rethrow;
       throw ServerFailure(AppStrings.errorServer);
@@ -196,19 +210,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> resetPassword({required String phone, required String otpCode, required String password}) async {
+  Future<void> resetPassword({
+    required String phone,
+    required String otpCode,
+    required String password,
+  }) async {
     try {
       await apiClient.post(
         AppEndPoints.resetPasswordEndPoint,
-        data: {
-          'phone': phone,
-          'otp_code': otpCode,
-          'password': password,
-        },
+        data: {'phone': phone, 'otp_code': otpCode, 'password': password},
       );
     } on DioException catch (e) {
       if (e.response?.statusCode == 422 || e.response?.statusCode == 403) {
-        throw AuthFailure(_extractErrorMessage(e, AppStrings.errorResetPasswordFailed));
+        throw AuthFailure(
+          _extractErrorMessage(e, AppStrings.errorResetPasswordFailed),
+        );
       }
       throw ServerFailure(e.message ?? AppStrings.errorResetPasswordFailed);
     } catch (e) {
@@ -217,16 +233,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<LoginResult> verifyOtp(String phone, String otp, {bool isLawyer = false}) async {
+  Future<LoginResult> verifyOtp(
+    String phone,
+    String otp, {
+    bool isLawyer = false,
+  }) async {
     try {
       final respond = await apiClient.post(
-        isLawyer ? AppEndPoints.lawyerVerifyOtpEndPoint : AppEndPoints.verifyOtpEndPoint,
-        data: {
-          'phone': phone,
-          'otp_code': otp,
-        },
+        isLawyer
+            ? AppEndPoints.lawyerVerifyOtpEndPoint
+            : AppEndPoints.verifyOtpEndPoint,
+        data: {'phone': phone, 'otp': otp, 'otp_code': otp},
       );
-      if (respond.data['success'] == true) {
+      if (_isSuccess(respond.data)) {
         final responseData = respond.data;
         final data = responseData['data'];
 
@@ -235,21 +254,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           final userMap = Map<String, dynamic>.from(data['user']);
           userMap['token'] = data['token'];
           userMap['is_provider'] = data['is_provider'] == true;
-          if (data['is_provider'] == true && (userMap['role'] == null || userMap['role'].toString().isEmpty)) {
+          if (data['is_provider'] == true &&
+              (userMap['role'] == null || userMap['role'].toString().isEmpty)) {
             userMap['role'] = 'provider';
           }
-          return LoginSuccess(
-            UserModel.fromJson(userMap),
-          );
+          return LoginSuccess(UserModel.fromJson(userMap));
         } else {
           return OtpVerified();
         }
       } else {
-        throw AuthFailure(respond.data['message'] ?? AppStrings.errorVerificationFailed);
+        throw AuthFailure(
+          respond.data['message'] ?? AppStrings.errorVerificationFailed,
+        );
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 422) {
-        throw AuthFailure(_extractErrorMessage(e, AppStrings.errorVerificationFailed));
+        throw AuthFailure(
+          _extractErrorMessage(e, AppStrings.errorVerificationFailed),
+        );
       }
       throw ServerFailure(e.message ?? AppStrings.errorVerificationFailed);
     } catch (e) {
@@ -261,21 +283,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> resendOtp(String phone, type, {bool isLawyer = false}) async {
     try {
       final response = await apiClient.post(
-        isLawyer ? AppEndPoints.lawyerSendOtpEndPoint : AppEndPoints.resendOtpEndPoint,
-        data: {
-          'phone': phone,
-          'type': type,
-        },
+        isLawyer
+            ? AppEndPoints.lawyerSendOtpEndPoint
+            : AppEndPoints.resendOtpEndPoint,
+        data: {'phone': phone, 'type': type},
       );
-      if (response.data['success'] != true) {
-        throw AuthFailure(response.data['message'] ?? AppStrings.errorResendOtpFailed);
+      if (!_isSuccess(response.data)) {
+        throw AuthFailure(
+          response.data['message'] ?? AppStrings.errorResendOtpFailed,
+        );
       }
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404 && e.response?.data['message'] == 'User not found') {
+      if (e.response?.statusCode == 404 &&
+          e.response?.data['message'] == 'User not found') {
         throw const AuthFailure('email_not_found');
       }
       if (e.response?.statusCode == 422) {
-        throw AuthFailure(_extractErrorMessage(e, AppStrings.errorResendOtpFailed));
+        throw AuthFailure(
+          _extractErrorMessage(e, AppStrings.errorResendOtpFailed),
+        );
       }
       throw ServerFailure(e.message ?? AppStrings.errorResendOtpFailed);
     } catch (e) {
@@ -286,10 +312,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> updateToken(String fcmToken) async {
     try {
-      await apiClient.put(
-        AppEndPoints.updateToken,
-        data: {'fcm_token': fcmToken},
-      );
+      final prefs = AppPreferences();
+      final endpoint =
+          prefs.isProvider || prefs.role == 'lawyer' || prefs.role == 'provider'
+          ? AppEndPoints.lawyerUpdateTokenEndPoint
+          : AppEndPoints.updateToken;
+      await apiClient.put(endpoint, data: {'fcm_token': fcmToken});
     } on DioException catch (e) {
       throw ServerFailure(e.message ?? 'Failed to update FCM token');
     } catch (e) {
@@ -300,10 +328,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<List<ProviderTypeModel>> getLawyerProviderTypes() async {
     try {
-      final response = await apiClient.get(AppEndPoints.lawyerProviderTypesEndPoint);
+      final response = await apiClient.get(
+        AppEndPoints.lawyerProviderTypesEndPoint,
+      );
       final responseData = response.data as Map<String, dynamic>;
-      if (responseData['success'] != true) {
-        throw AuthFailure(responseData['message']?.toString() ?? AppStrings.errorServer);
+      if (!_isSuccess(responseData)) {
+        throw AuthFailure(
+          responseData['message']?.toString() ?? AppStrings.errorServer,
+        );
       }
 
       return (responseData['data'] as List<dynamic>? ?? const [])
@@ -320,10 +352,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<List<LegalSpecializationModel>> getLawyerSpecializations() async {
     try {
-      final response = await apiClient.get(AppEndPoints.lawyerSpecializationsEndPoint);
+      final response = await apiClient.get(
+        AppEndPoints.lawyerSpecializationsEndPoint,
+      );
       final responseData = response.data as Map<String, dynamic>;
-      if (responseData['status'] != true && responseData['success'] != true) {
-        throw AuthFailure(responseData['message']?.toString() ?? AppStrings.errorServer);
+      if (!_isSuccess(responseData)) {
+        throw AuthFailure(
+          responseData['message']?.toString() ?? AppStrings.errorServer,
+        );
       }
 
       return (responseData['data'] as List<dynamic>? ?? const [])
@@ -367,15 +403,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       for (var i = 0; i < specializationIds.length; i++) {
         formData.fields.add(
-          MapEntry('legal_specializations[$i]', specializationIds[i].toString()),
+          MapEntry(
+            'legal_specializations[$i]',
+            specializationIds[i].toString(),
+          ),
         );
       }
 
       formData.files.add(
-        MapEntry(
-          'image',
-          await MultipartFile.fromFile(imagePath),
-        ),
+        MapEntry('image', await MultipartFile.fromFile(imagePath)),
       );
 
       final response = await apiClient.post(
@@ -384,8 +420,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       final responseData = response.data as Map<String, dynamic>;
-      if (responseData['success'] != true) {
-        throw AuthFailure(responseData['message']?.toString() ?? AppStrings.errorRegistrationFailed);
+      if (!_isSuccess(responseData)) {
+        throw AuthFailure(
+          responseData['message']?.toString() ??
+              AppStrings.errorRegistrationFailed,
+        );
       }
 
       final draft = LawyerRegistrationDraft.fromJson(responseData);
@@ -395,7 +434,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return draft;
     } on DioException catch (e) {
       if (e.response?.statusCode == 422 || e.response?.statusCode == 403) {
-        throw AuthFailure(_extractErrorMessage(e, AppStrings.errorRegistrationFailed));
+        throw AuthFailure(
+          _extractErrorMessage(e, AppStrings.errorRegistrationFailed),
+        );
       }
       throw ServerFailure(e.message ?? AppStrings.errorRegistrationFailed);
     } catch (e) {
@@ -444,8 +485,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       final responseData = response.data as Map<String, dynamic>;
-      if (responseData['success'] != true && responseData['status'] != true) {
-        throw AuthFailure(responseData['message']?.toString() ?? AppStrings.errorServer);
+      if (!_isSuccess(responseData)) {
+        throw AuthFailure(
+          responseData['message']?.toString() ?? AppStrings.errorServer,
+        );
       }
 
       await AppPreferences().saveIsProvider(true);
@@ -495,4 +538,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     return e.message ?? defaultMessage;
   }
 
+  bool _isSuccess(dynamic data) {
+    return data is Map && (data['success'] == true || data['status'] == true);
+  }
 }

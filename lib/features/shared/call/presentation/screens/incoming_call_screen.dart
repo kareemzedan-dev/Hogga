@@ -139,9 +139,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                     border: Border.all(color: AppColors.golden, width: 2),
                   ),
                   child: Icon(
-                    widget.payload.isVideo
-                        ? Icons.videocam_rounded
-                        : Icons.call_rounded,
+                    Icons.call_rounded,
                     color: Colors.white,
                     size: 52.sp,
                   ),
@@ -157,9 +155,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                 ),
                 SizedBox(height: 10.h),
                 Text(
-                  widget.payload.isVideo
-                      ? AppStrings.videoCall.tr(context)
-                      : AppStrings.voiceCall.tr(context),
+                  AppStrings.voiceCall.tr(context),
                   style: context.text.titleMedium?.copyWith(
                     color: AppColors.golden,
                   ),
@@ -186,9 +182,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                     SizedBox(width: 14.w),
                     Expanded(
                       child: _CallActionButton(
-                        icon: widget.payload.isVideo
-                            ? Icons.videocam_rounded
-                            : Icons.call_rounded,
+                        icon: Icons.call_rounded,
                         label: 'رد',
                         color: const Color(0xFF1DB954),
                         isLoading: _isAccepting,

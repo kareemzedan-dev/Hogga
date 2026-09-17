@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
@@ -33,12 +34,20 @@ class OnboardingStepScaffold extends StatelessWidget {
         children: [
           Text(
             title,
-            style: context.text.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            style: context.text.titleLarge?.copyWith(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.bold,
+              color: context.textPrimary,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             subtitle,
-            style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
+            style: context.text.bodyMedium?.copyWith(
+              color: context.textSecondary,
+              fontSize: 11.sp,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 24),
           Container(

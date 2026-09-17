@@ -1,3 +1,4 @@
+import '../../../../../../core/errors/failures.dart';
 import '../../../../../../core/network/api_client.dart';
 import '../../../../../../core/constants/end_points.dart';
 import 'package:hogga/features/lawyer/proposals/data/models/lawyer_proposal_model.dart';
@@ -11,15 +12,17 @@ abstract class ProposalsRemoteDataSource {
   Future<List<LawyerAvailableService>> getAvailableServices();
   Future<AvailableServiceDetails> getAvailableServiceDetails(int id);
   Future<List<LawyerProposal>> getProposals();
-  Future<bool> submitProposal({
+  Future<String> submitProposal({
     required int serviceId,
+    required double offerPrice,
     required String description,
   });
-  Future<bool> updateProposal({
+  Future<String> updateProposal({
     required int proposalId,
+    required double offerPrice,
     required String description,
   });
-  Future<bool> deleteProposal(int proposalId);
+  Future<String> deleteProposal(int proposalId);
 }
 
 class ProposalsRemoteDataSourceImpl implements ProposalsRemoteDataSource {
@@ -56,35 +59,67 @@ class ProposalsRemoteDataSourceImpl implements ProposalsRemoteDataSource {
   }
 
   @override
-  Future<bool> submitProposal({
+  Future<String> submitProposal({
     required int serviceId,
+    required double offerPrice,
     required String description,
   }) async {
     final response = await apiClient.post(
       AppEndPoints.lawyerSubmitProposalEndPoint,
-      data: {'legal_case_id': serviceId, 'description': description},
+      data: {
+        'legal_case_id': serviceId,
+        'price': offerPrice,
+        'offer_price': offerPrice,
+        'description': description,
+      },
     );
-    return response.data['status'] == true;
+    final isSuccess =
+        response.data['status'] == true || response.data['success'] == true;
+    if (!isSuccess) {
+      throw ServerFailure(
+        response.data['message']?.toString() ?? 'فشل تقديم العرض',
+      );
+    }
+    return response.data['message']?.toString() ?? 'تم تقديم العرض بنجاح';
   }
 
   @override
-  Future<bool> updateProposal({
+  Future<String> updateProposal({
     required int proposalId,
+    required double offerPrice,
     required String description,
   }) async {
     final response = await apiClient.post(
-      AppEndPoints.lawyerUpdateProposalEndPoint,
-      data: {'proposal_id': proposalId, 'description': description},
+      AppEndPoints.lawyerUpdateProposalEndPoint(proposalId),
+      data: {
+        'price': offerPrice,
+        'offer_price': offerPrice,
+        'description': description,
+      },
     );
-    return response.data['status'] == true;
+    final isSuccess =
+        response.data['status'] == true || response.data['success'] == true;
+    if (!isSuccess) {
+      throw ServerFailure(
+        response.data['message']?.toString() ?? 'فشل تعديل العرض',
+      );
+    }
+    return response.data['message']?.toString() ?? 'تم تعديل العرض بنجاح';
   }
 
   @override
-  Future<bool> deleteProposal(int proposalId) async {
-    final response = await apiClient.post(
-      AppEndPoints.lawyerDeleteProposalEndPoint,
-      data: {'proposal_id': proposalId},
+  Future<String> deleteProposal(int proposalId) async {
+    final response = await apiClient.delete(
+      AppEndPoints.lawyerDeleteProposalEndPoint(proposalId),
     );
-    return response.data['status'] == true;
+    final isSuccess =
+        response.data['status'] == true || response.data['success'] == true;
+    if (isSuccess) {
+      return response.data['message']?.toString() ?? 'تم حذف العرض بنجاح.';
+    } else {
+      throw ServerFailure(
+        response.data['message']?.toString() ?? 'فشل حذف العرض',
+      );
+    }
   }
 }

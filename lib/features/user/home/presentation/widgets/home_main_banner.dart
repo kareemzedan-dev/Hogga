@@ -20,6 +20,7 @@ class _HomeMainBannerState extends State<HomeMainBanner> {
   Timer? _timer;
   int _currentIndex = 0;
   int _lastBannerCount = 0;
+  bool _isInteracting = false;
 
   @override
   void initState() {
@@ -53,6 +54,17 @@ class _HomeMainBannerState extends State<HomeMainBanner> {
     });
   }
 
+  void _pauseAutoScroll() {
+    _isInteracting = true;
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void _resumeAutoScroll(int count) {
+    _isInteracting = false;
+    _startAutoScroll(count);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeCubit, HomeState>(
@@ -67,20 +79,25 @@ class _HomeMainBannerState extends State<HomeMainBanner> {
         final banners = state.banners;
         if (banners.isEmpty) return const SizedBox.shrink();
 
-        if (_timer == null && banners.length > 1) {
+        if (_timer == null && !_isInteracting && banners.length > 1) {
           _startAutoScroll(banners.length);
         }
 
         return Column(
           children: [
-            SizedBox(
-              height: 160.h,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: banners.length,
-                onPageChanged: (i) => setState(() => _currentIndex = i),
-                itemBuilder: (context, index) =>
-                    _BannerCard(banner: banners[index]),
+            Listener(
+              onPointerDown: (_) => _pauseAutoScroll(),
+              onPointerUp: (_) => _resumeAutoScroll(banners.length),
+              onPointerCancel: (_) => _resumeAutoScroll(banners.length),
+              child: SizedBox(
+                height: 160.h,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: banners.length,
+                  onPageChanged: (i) => setState(() => _currentIndex = i),
+                  itemBuilder: (context, index) =>
+                      _BannerCard(banner: banners[index]),
+                ),
               ),
             ),
             const SizedBox(height: 8),

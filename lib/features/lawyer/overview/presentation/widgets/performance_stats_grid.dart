@@ -100,7 +100,7 @@ class PerformanceStatsGrid extends StatelessWidget {
             style: context.text.titleSmall?.copyWith(
               fontWeight: FontWeight.w600,
               color: context.textPrimary,
-              fontSize: 15.sp,
+              fontSize: 11.sp,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

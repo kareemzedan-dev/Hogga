@@ -16,10 +16,7 @@ class LawyerOverviewLoaded extends LawyerOverviewState {
   final LawyerHomeModel homeData;
   final String? actionError;
 
-  LawyerOverviewLoaded({
-    required this.homeData,
-    this.actionError,
-  });
+  LawyerOverviewLoaded({required this.homeData, this.actionError});
 
   LawyerOverviewLoaded copyWith({
     LawyerHomeModel? homeData,
@@ -80,14 +77,26 @@ class LawyerOverviewCubit extends Cubit<LawyerOverviewState> {
             status: subscription.status,
             planName: subscription.packageSnapshot.name,
             isVisibleToClients: subscription.isVisibleToClients,
+            isSubscribed: subscription.isActive,
+            isPackageLinkActive:
+                currentState
+                    .homeData
+                    .subscriptionSummary
+                    ?.isPackageLinkActive ??
+                false,
+            packageLink: currentState.homeData.subscriptionSummary?.packageLink,
+            endDate: subscription.endDate.toIso8601String(),
+            remainingDays: subscription.endDate
+                .difference(DateTime.now())
+                .inDays,
             remainingConsultations: subscription.progress.remaining,
             completionPercentage: subscription.progress.completionPercentage,
           );
-          
+
           final updatedHomeData = currentState.homeData.copyWith(
             subscriptionSummary: updatedSummary,
           );
-          
+
           emit(currentState.copyWith(homeData: updatedHomeData));
         }
       },
@@ -107,10 +116,12 @@ class LawyerOverviewCubit extends Cubit<LawyerOverviewState> {
     result.fold(
       (failure) {
         // Revert optimistic update on failure
-        emit(currentState.copyWith(
-          homeData: currentState.homeData,
-          actionError: failure.message,
-        ));
+        emit(
+          currentState.copyWith(
+            homeData: currentState.homeData,
+            actionError: failure.message,
+          ),
+        );
       },
       (success) {
         // Optimistic update is confirmed, no need to rebuild the entire page.
@@ -124,24 +135,36 @@ class LawyerOverviewCubit extends Cubit<LawyerOverviewState> {
 
     LawyerSettings updatedSettings = currentState.homeData.settings;
     if (key == 'accept_text_consultations') {
-      updatedSettings = updatedSettings.copyWith(acceptTextConsultations: value);
+      updatedSettings = updatedSettings.copyWith(
+        acceptTextConsultations: value,
+      );
     } else if (key == 'accept_instant_consultations') {
-      updatedSettings = updatedSettings.copyWith(acceptInstantConsultations: value);
+      updatedSettings = updatedSettings.copyWith(
+        acceptInstantConsultations: value,
+      );
+    } else if (key == 'accept_scheduled_consultations') {
+      updatedSettings = updatedSettings.copyWith(
+        acceptScheduledConsultations: value,
+      );
     } else if (key == 'accept_services') {
       updatedSettings = updatedSettings.copyWith(acceptServices: value);
     }
 
-    final optimisticHomeData = currentState.homeData.copyWith(settings: updatedSettings);
+    final optimisticHomeData = currentState.homeData.copyWith(
+      settings: updatedSettings,
+    );
     emit(currentState.copyWith(homeData: optimisticHomeData));
 
     final result = await repository.updateSettings({key: value});
     result.fold(
       (failure) {
         // Revert optimistic update on failure
-        emit(currentState.copyWith(
-          homeData: currentState.homeData,
-          actionError: failure.message,
-        ));
+        emit(
+          currentState.copyWith(
+            homeData: currentState.homeData,
+            actionError: failure.message,
+          ),
+        );
       },
       (success) {
         // Optimistic update is confirmed, no need to rebuild the entire page.

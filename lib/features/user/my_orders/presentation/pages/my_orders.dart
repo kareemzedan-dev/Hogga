@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
@@ -60,6 +62,7 @@ class _MyOrdersViewState extends State<MyOrdersView>
       body: SafeArea(
         child: Column(
           children: [
+            SizedBox(height: 12.h),
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: context.horizontalPadding,
@@ -111,6 +114,7 @@ class _MyOrdersViewState extends State<MyOrdersView>
                         'paymentUrl': state.paymentUrl,
                         'caseNumber': state.caseNumber,
                         'caseId': state.caseId,
+                        'recordType': state.recordType,
                       },
                     );
                   }
@@ -173,7 +177,9 @@ class _MyOrdersViewState extends State<MyOrdersView>
                         itemBuilder: (context, index) {
                           final order = filteredOrders[index];
                           return OrderCard(
-                            key: ValueKey('order_${order.id}'),
+                            key: ValueKey(
+                              'order_${order.recordType}_${order.id}',
+                            ),
                             order: order,
                             isPrevious: _activeTab == 1,
                             onTap: () async {
@@ -191,7 +197,10 @@ class _MyOrdersViewState extends State<MyOrdersView>
                                             di.sl<LegalCaseActionsCubit>(),
                                       ),
                                     ],
-                                    child: OrderDetailsView(orderId: order.id),
+                                    child: OrderDetailsView(
+                                      orderId: order.id,
+                                      recordType: order.recordType,
+                                    ),
                                   ),
                                 ),
                               );

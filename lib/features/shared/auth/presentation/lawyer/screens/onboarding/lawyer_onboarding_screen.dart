@@ -424,7 +424,13 @@ class _LawyerOnboardingViewState extends State<_LawyerOnboardingView> {
             children: [
               IconButton(
                 onPressed: _currentStep == 0 ? () => Navigator.pop(context) : () => _pageController.previousPage(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut),
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary),
+                icon: Icon(
+                  Directionality.of(context) == TextDirection.rtl ||
+                          Localizations.localeOf(context).languageCode == 'ar'
+                      ? Icons.chevron_right_rounded
+                      : Icons.chevron_left_rounded,
+                  color: context.textPrimary,
+                ),
               ),
               const Spacer(),
               Text(AppStrings.joinhoggaTeam.tr(context), style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.w800)),

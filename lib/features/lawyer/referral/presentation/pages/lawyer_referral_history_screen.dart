@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/hogga_card.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_empty_state.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import '../../domain/entities/referral_history_item.dart';
@@ -44,28 +46,8 @@ class _LawyerReferralHistoryScreenState extends State<LawyerReferralHistoryScree
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        backgroundColor: context.pageBg,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: context.textPrimary,
-            size: 20.sp,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          AppStrings.referralHistory.tr(context),
-          style: context.theme.appBarTheme.titleTextStyle,
-        ),
-        centerTitle: true,
-        shape: Border(
-          bottom: BorderSide(
-            color: context.divColor.withValues(alpha: 0.5),
-            width: 1,
-          ),
-        ),
+      appBar: MainAppbar(
+        title: AppStrings.referralHistory.tr(context),
       ),
       body: BlocBuilder<ReferralHistoryCubit, ReferralHistoryState>(
         builder: (context, state) {

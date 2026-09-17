@@ -6,6 +6,10 @@ import 'package:hogga/features/lawyer/requests/data/models/lawyer_case_request_d
 abstract class RequestsRepository {
   Future<Either<Failure, List<LawyerCaseRequestModel>>> getCaseRequests();
   Future<Either<Failure, LawyerCaseRequestDetailsModel>> getCaseRequestDetails(int requestId);
-  Future<Either<Failure, String>> acceptRequest(int requestId);
+  Future<Either<Failure, String>> acceptRequest({
+    required int requestId,
+    required double price,
+    String? description,
+  });
   Future<Either<Failure, String>> rejectRequest(int requestId);
 }

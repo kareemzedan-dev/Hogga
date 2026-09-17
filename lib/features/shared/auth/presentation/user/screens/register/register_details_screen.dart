@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/config/routes/app_routes.dart';
@@ -83,19 +85,22 @@ class _RegisterDetailsScreenState extends State<RegisterDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Text(
                 AppStrings.nameStepTitle.tr(context),
                 style: context.text.headlineSmall?.copyWith(
                   color: context.colors.primary,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 AppStrings.nameStepSubtitle.tr(context),
                 style: context.text.bodyMedium?.copyWith(
                   color: context.textSecondary,
+                  fontSize: 11.sp,
+                  height: 1.4,
                 ),
               ),
               const SizedBox(height: 40),

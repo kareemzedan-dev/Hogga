@@ -1,15 +1,16 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/app_theme.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
-  final Widget? stackWidget;
   final Widget? mainWidget;
   final bool backBtn;
   final double? appBarHeight;
   final Color? backgroundColor;
   final PreferredSizeWidget? bottom;
   final VoidCallback? onBack;
+  final List<Widget>? actions;
 
   const MainAppbar({
     super.key,
@@ -19,30 +20,36 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
     this.backBtn = true,
     this.mainWidget,
     this.bottom,
-    this.stackWidget,
     this.onBack,
+    this.actions,
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(appBarHeight ?? 80);
+  Size get preferredSize => Size.fromHeight(
+    (appBarHeight ?? kToolbarHeight) + (bottom?.preferredSize.height ?? 0),
+  );
 
   @override
   Widget build(BuildContext context) {
-    // Use provided background or fall back to theme's AppBar bg
+    final isRtl = Directionality.of(context) == TextDirection.rtl ||
+        Localizations.localeOf(context).languageCode == 'ar';
     final bgColor =
         backgroundColor ??
         Theme.of(context).appBarTheme.backgroundColor ??
-        Theme.of(context).colorScheme.primary;
+        Theme.of(context).scaffoldBackgroundColor;
     final isDarkBg =
         ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark;
-    final buttonBg = context.cardBg;
-    final buttonFg = context.textSecondary;
 
     return AppBar(
       backgroundColor: bgColor,
       surfaceTintColor: Colors.transparent,
       scrolledUnderElevation: 0,
-      elevation: 1,
+      elevation: 0,
+      shape: Border(
+        bottom: BorderSide(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
+        ),
+      ),
       centerTitle: true,
       automaticallyImplyLeading: false,
       systemOverlayStyle: SystemUiOverlayStyle(
@@ -51,29 +58,17 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
         statusBarBrightness: isDarkBg ? Brightness.dark : Brightness.light,
       ),
       bottom: bottom,
-      leading: Padding(
-        padding: const EdgeInsets.all(11),
-        child: GestureDetector(
-          onTap: onBack ?? () => Navigator.pop(context),
-          child: backBtn
-              ? Container(
-                  decoration: BoxDecoration(
-                    color: buttonBg,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: context.divColor, width: 1),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 4.0),
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      color: buttonFg,
-                      size: 15,
-                    ),
-                  ),
-                )
-              : const SizedBox(),
-        ),
-      ),
+      actions: actions,
+      leading: backBtn
+          ? IconButton(
+              onPressed: onBack ?? () => Navigator.maybePop(context),
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: context.textPrimary,
+                size: 20.sp,
+              ),
+            )
+          : null,
       title:
           mainWidget ??
           Text(
@@ -81,6 +76,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
             style: context.text.titleMedium?.copyWith(
               color: context.textPrimary,
               fontWeight: FontWeight.bold,
+              fontSize: 15.sp,
             ),
           ),
     );

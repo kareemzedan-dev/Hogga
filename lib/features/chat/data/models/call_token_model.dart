@@ -27,7 +27,10 @@ class CallTokenModel {
       channelName: json['channel_name']?.toString() ?? '',
       uid: json['uid'] ?? 0,
       appId: json['app_id']?.toString() ?? '',
-      serviceType: json['service_type']?.toString() ?? 'audio',
+      serviceType:
+          json['service_type']?.toString() ??
+          json['type']?.toString() ??
+          'audio',
       expiresAt: json['expires_at']?.toString() ?? '',
     );
   }

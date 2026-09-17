@@ -11,6 +11,8 @@ import '../../../../core/localization/app_localizations.dart';
 import '../cubit/chat_messages_cubit.dart';
 import '../cubit/chat_messages_state.dart';
 import '../../data/models/chat_message_model.dart';
+import 'package:hogga/config/routes/app_routes.dart';
+import 'package:hogga/core/network/fcm_service.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class ChatScreen extends StatefulWidget {
   final String lawyerName;
   final String? lawyerPhoto;
   final String? caseTitle;
+  final bool? isCall;
 
   const ChatScreen({
     super.key,
@@ -25,6 +28,7 @@ class ChatScreen extends StatefulWidget {
     required this.lawyerName,
     this.lawyerPhoto,
     this.caseTitle,
+    this.isCall,
   });
 
   @override
@@ -34,15 +38,55 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late bool _canCall;
 
   @override
   void initState() {
     super.initState();
+    FcmService.instance.activeChatRoomId = widget.chatRoomId;
     _scrollController.addListener(_onScroll);
+    _canCall = widget.isCall ?? _detectCallFromTitle(widget.caseTitle);
+  }
+
+  bool _detectCallFromTitle(String? text) {
+    if (text == null) return false;
+    final t = text.toLowerCase();
+    return t.contains('مكالمة') ||
+        t.contains('صوت') ||
+        t.contains('فيديو') ||
+        t.contains('call') ||
+        t.contains('audio') ||
+        t.contains('video') ||
+        t.contains('immediate') ||
+        t.contains('scheduled');
+  }
+
+  void _startCall() {
+    final state = context.read<ChatMessagesCubit>().state;
+    String name = widget.lawyerName;
+    if (state is ChatMessagesLoaded &&
+        state.counterparty != null &&
+        state.counterparty!.name.isNotEmpty) {
+      name = state.counterparty!.name;
+    }
+
+    Navigator.pushNamed(
+      context,
+      AppRoutes.voiceCall,
+      arguments: {
+        'roomId': widget.chatRoomId,
+        'lawyerName': name,
+        'isVideo': false,
+        'channelName': widget.chatRoomId.toString(),
+      },
+    );
   }
 
   @override
   void dispose() {
+    if (FcmService.instance.activeChatRoomId == widget.chatRoomId) {
+      FcmService.instance.activeChatRoomId = null;
+    }
     _messageController.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
@@ -102,6 +146,47 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  String? _cleanPhoto(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    if (trimmed.isEmpty ||
+        trimmed.toLowerCase() == 'null' ||
+        trimmed.toLowerCase() == '**null**') {
+      return null;
+    }
+    final markdownMatch = RegExp(r'\]\((.*?)\)').firstMatch(trimmed);
+    return markdownMatch?.group(1) ?? trimmed;
+  }
+
+  Widget _buildAvatar(BuildContext context, String? photo) {
+    final cleanPhoto = _cleanPhoto(photo);
+
+    final fallback = CircleAvatar(
+      radius: 18.r,
+      backgroundColor: context.divColor,
+      child: Icon(
+        Icons.person,
+        color: context.textSecondary,
+        size: 20.sp,
+      ),
+    );
+
+    if (cleanPhoto == null) {
+      return fallback;
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18.r),
+      child: CustomNetworkImage(
+        imageUrl: cleanPhoto,
+        width: 36.w,
+        height: 36.w,
+        fit: BoxFit.cover,
+        errorWidget: fallback,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,8 +197,11 @@ class _ChatScreenState extends State<ChatScreen> {
         shadowColor: context.divColor,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 18.sp,
+            Directionality.of(context) == TextDirection.rtl ||
+                    Localizations.localeOf(context).languageCode == 'ar'
+                ? Icons.arrow_forward_ios_rounded
+                : Icons.arrow_back_ios_new_rounded,
+            size: 20.sp,
             color: context.textPrimary,
           ),
           onPressed: () => Navigator.pop(context),
@@ -124,31 +212,21 @@ class _ChatScreenState extends State<ChatScreen> {
             String? photo = widget.lawyerPhoto;
 
             if (state is ChatMessagesLoaded && state.counterparty != null) {
-              name = state.counterparty!.name;
-              photo = state.counterparty!.photo;
+              if (state.counterparty!.name.isNotEmpty) {
+                name = state.counterparty!.name;
+              }
+              if (state.counterparty!.photo != null &&
+                  state.counterparty!.photo!.isNotEmpty) {
+                photo = state.counterparty!.photo;
+              }
             }
 
             return Row(
               children: [
-                if (photo != null && photo.isNotEmpty)
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(end: 10.w),
-                    child: CustomNetworkImage(
-                      imageUrl: photo,
-                      width: 36.w,
-                      height: 36.w,
-                      borderRadius: 18.r,
-                    ),
-                  )
-                else
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(end: 10.w),
-                    child: CircleAvatar(
-                      radius: 18.r,
-                      backgroundColor: context.divColor,
-                      child: Icon(Icons.person, color: context.textSecondary),
-                    ),
-                  ),
+                Padding(
+                  padding: EdgeInsetsDirectional.only(end: 10.w),
+                  child: _buildAvatar(context, photo),
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +235,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         name,
                         style: context.text.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 13.sp,
+                          fontSize: 11.5.sp,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -167,7 +245,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           widget.caseTitle!,
                           style: context.text.labelSmall?.copyWith(
                             color: context.textSecondary,
-                            fontSize: 10.sp,
+                            fontSize: 9.sp,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -179,6 +257,31 @@ class _ChatScreenState extends State<ChatScreen> {
             );
           },
         ),
+        actions: [
+          if (_canCall) ...[
+            IconButton(
+              onPressed: _startCall,
+              tooltip: AppStrings.makeVoiceCall.tr(context),
+              icon: Container(
+                padding: EdgeInsets.all(8.w),
+                decoration: BoxDecoration(
+                  color: context.accentGolden.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(
+                    color: context.accentGolden.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  Icons.phone_in_talk_rounded,
+                  color: context.accentGolden,
+                  size: 20.sp,
+                ),
+              ),
+            ),
+            SizedBox(width: 4.w),
+          ],
+        ],
       ),
       body: Column(
         children: [
@@ -323,14 +426,16 @@ class _ChatScreenState extends State<ChatScreen> {
                             maxLines: 4,
                             style: context.text.bodyMedium?.copyWith(
                               color: context.textPrimary,
-                              fontSize: 12.sp,
+                              fontSize: 11.sp,
                               height: 1.35,
                             ),
                             decoration: InputDecoration(
-                              hintText: AppStrings.typeYourMessage.tr(context),
+                              hintText: Localizations.localeOf(context).languageCode == 'ar' 
+                                  ? 'اكتب رسالتك...' 
+                                  : AppStrings.typeYourMessage.tr(context),
                               hintStyle: TextStyle(
                                 color: context.textSecondary,
-                                fontSize: 12.sp,
+                                fontSize: 11.sp,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -440,7 +545,7 @@ class _ChatBubble extends StatelessWidget {
                       message.message!,
                       style: context.text.bodyMedium?.copyWith(
                         color: isMe ? Colors.white : context.textPrimary,
-                        fontSize: 13.sp,
+                        fontSize: 11.5.sp,
                         height: 1.45,
                       ),
                     ),

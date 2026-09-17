@@ -6,6 +6,7 @@ import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_empty_state.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
@@ -55,22 +56,8 @@ class _LawyerReferralScreenState extends State<LawyerReferralScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        backgroundColor: context.pageBg,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: context.textPrimary,
-            size: 20.sp,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          AppStrings.referralProgram.tr(context),
-          style: context.theme.appBarTheme.titleTextStyle,
-        ),
-        centerTitle: true,
+      appBar: MainAppbar(
+        title: AppStrings.referralProgram.tr(context),
       ),
       body: BlocBuilder<ReferralCubit, ReferralState>(
         builder: (context, state) {

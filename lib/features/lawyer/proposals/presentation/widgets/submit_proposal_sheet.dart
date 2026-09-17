@@ -17,6 +17,7 @@ class SubmitProposalSheet extends StatefulWidget {
   final String caseTitle;
   final int? proposalId;
   final String? initialDescription;
+  final String? initialPrice;
 
   const SubmitProposalSheet({
     super.key,
@@ -24,6 +25,7 @@ class SubmitProposalSheet extends StatefulWidget {
     required this.caseTitle,
     this.proposalId,
     this.initialDescription,
+    this.initialPrice,
   });
 
   @override
@@ -33,6 +35,7 @@ class SubmitProposalSheet extends StatefulWidget {
 class _SubmitProposalSheetState extends State<SubmitProposalSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _descController;
+  late final TextEditingController _priceController;
   final List<File> _selectedFiles = [];
 
   String get _draftKey => 'draft_proposal_${widget.caseId}';
@@ -41,10 +44,12 @@ class _SubmitProposalSheetState extends State<SubmitProposalSheet> {
   void initState() {
     super.initState();
     _descController = TextEditingController(text: widget.initialDescription);
+    _priceController = TextEditingController(text: widget.initialPrice);
 
     if (widget.proposalId == null) {
       _loadDraft();
       _descController.addListener(_saveDraft);
+      _priceController.addListener(_saveDraft);
     }
   }
 
@@ -56,13 +61,19 @@ class _SubmitProposalSheetState extends State<SubmitProposalSheet> {
         if (widget.initialDescription == null) {
           _descController.text = data['description'] ?? '';
         }
+        if (widget.initialPrice == null) {
+          _priceController.text = data['price']?.toString() ?? '';
+        }
       } catch (_) {}
     }
   }
 
   void _saveDraft() {
     if (widget.proposalId != null) return; // Don't save drafts for edits
-    final data = {'description': _descController.text};
+    final data = {
+      'description': _descController.text,
+      'price': _priceController.text,
+    };
     AppPreferences().saveDraft(_draftKey, jsonEncode(data));
   }
 
@@ -70,8 +81,10 @@ class _SubmitProposalSheetState extends State<SubmitProposalSheet> {
   void dispose() {
     if (widget.proposalId == null) {
       _descController.removeListener(_saveDraft);
+      _priceController.removeListener(_saveDraft);
     }
     _descController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -98,14 +111,17 @@ class _SubmitProposalSheetState extends State<SubmitProposalSheet> {
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
+      final offerPrice = double.parse(_priceController.text.trim());
       if (widget.proposalId != null) {
         context.read<LawyerProposalsCubit>().updateProposal(
           proposalId: widget.proposalId!,
+          offerPrice: offerPrice,
           description: _descController.text,
         );
       } else {
         context.read<LawyerProposalsCubit>().submitProposal(
           serviceId: widget.caseId,
+          offerPrice: offerPrice,
           description: _descController.text,
         );
       }
@@ -120,8 +136,15 @@ class _SubmitProposalSheetState extends State<SubmitProposalSheet> {
           if (widget.proposalId == null) {
             AppPreferences().clearDraft(_draftKey);
           }
-          AppSnackbar.showSuccess(context, message: state.message);
-          Navigator.pop(context);
+          Navigator.pop(context, true);
+        } else if (state is LawyerProposalActionError) {
+          if (state.message.contains('لم يعد متاحاً') ||
+              state.message.contains('ملغي') ||
+              state.message.contains('not available')) {
+            Navigator.pop(context, false);
+          } else {
+            AppSnackbar.showError(context, message: state.message);
+          }
         } else if (state is LawyerProposalsError) {
           AppSnackbar.showError(context, message: state.message);
         }
@@ -161,6 +184,23 @@ class _SubmitProposalSheetState extends State<SubmitProposalSheet> {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 24.h),
+                  CustomTextField(
+                    hintText: AppStrings.proposalPrice.tr(context),
+                    controller: _priceController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    prefixIcon: const Icon(Icons.payments_outlined),
+                    validator: (value) {
+                      final price = double.tryParse(value?.trim() ?? '');
+                      if (price == null || price <= 0) {
+                        return AppStrings.requiredField.tr(context);
+                      }
+                      return null;
+                    },
+                  ),
+
+                  SizedBox(height: 16.h),
                   CustomTextField(
                     hintText: AppStrings.proposalDescription.tr(context),
                     controller: _descController,

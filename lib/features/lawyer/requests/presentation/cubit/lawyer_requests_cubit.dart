@@ -26,54 +26,102 @@ class LawyerRequestsError extends LawyerRequestsState {
   LawyerRequestsError({required this.message});
 }
 
+class LawyerRequestActionLoading extends LawyerRequestsState {}
+
 class LawyerRequestActionSuccess extends LawyerRequestsState {
   final String message;
   LawyerRequestActionSuccess({required this.message});
 }
 
+class LawyerRequestActionError extends LawyerRequestsState {
+  final String message;
+  LawyerRequestActionError({required this.message});
+}
+
 class LawyerRequestsCubit extends Cubit<LawyerRequestsState> {
   final RequestsRepository repository;
+  LawyerCaseRequestDetailsModel? currentDetails;
+  List<LawyerCaseRequestModel> currentRequests = const [];
 
   LawyerRequestsCubit({required this.repository}) : super(LawyerRequestsInitial());
 
-  Future<void> getRequests() async {
-    emit(LawyerRequestsLoading());
+  Future<void> getRequests({bool showLoading = true}) async {
+    if (showLoading) {
+      emit(LawyerRequestsLoading());
+    }
     final result = await repository.getCaseRequests();
     result.fold(
-      (failure) => emit(LawyerRequestsError(message: failure.message)),
-      (requests) => emit(LawyerRequestsLoaded(requests: requests)),
+      (failure) {
+        if (showLoading || currentRequests.isEmpty) {
+          emit(LawyerRequestsError(message: failure.message));
+        }
+      },
+      (requests) {
+        currentRequests = requests;
+        emit(LawyerRequestsLoaded(requests: requests));
+      },
     );
   }
 
-  Future<void> getRequestDetails(int requestId) async {
-    emit(LawyerRequestDetailsLoading());
+  Future<void> getRequestDetails(int requestId, {bool showLoading = true}) async {
+    if (showLoading) {
+      emit(LawyerRequestDetailsLoading());
+    }
     final result = await repository.getCaseRequestDetails(requestId);
     result.fold(
-      (failure) => emit(LawyerRequestsError(message: failure.message)),
-      (details) => emit(LawyerRequestDetailsLoaded(details: details)),
+      (failure) {
+        if (showLoading || currentDetails == null) {
+          emit(LawyerRequestsError(message: failure.message));
+        }
+      },
+      (details) {
+        currentDetails = details;
+        emit(LawyerRequestDetailsLoaded(details: details));
+      },
     );
   }
 
-  Future<void> acceptRequest(int requestId) async {
-    emit(LawyerRequestsLoading());
-    final result = await repository.acceptRequest(requestId);
+  Future<void> acceptRequest({
+    required int requestId,
+    required double price,
+    String? description,
+  }) async {
+    emit(LawyerRequestActionLoading());
+    final result = await repository.acceptRequest(
+      requestId: requestId,
+      price: price,
+      description: description,
+    );
     result.fold(
-      (failure) => emit(LawyerRequestsError(message: failure.message)),
+      (failure) {
+        emit(LawyerRequestActionError(message: failure.message));
+      },
       (message) {
+        // Optimistically remove request from list
+        currentRequests =
+            currentRequests.where((r) => r.id != requestId).toList();
         emit(LawyerRequestActionSuccess(message: message));
-        getRequests();
+        if (currentDetails?.id == requestId) {
+          getRequestDetails(requestId, showLoading: false);
+        }
+        getRequests(showLoading: false);
       },
     );
   }
 
   Future<void> rejectRequest(int requestId) async {
-    emit(LawyerRequestsLoading());
+    emit(LawyerRequestActionLoading());
     final result = await repository.rejectRequest(requestId);
     result.fold(
-      (failure) => emit(LawyerRequestsError(message: failure.message)),
+      (failure) {
+        emit(LawyerRequestActionError(message: failure.message));
+      },
       (message) {
+        // Optimistically remove request from list
+        currentRequests =
+            currentRequests.where((r) => r.id != requestId).toList();
         emit(LawyerRequestActionSuccess(message: message));
-        getRequests();
+        getRequests(showLoading: false);
       },
     );
   }

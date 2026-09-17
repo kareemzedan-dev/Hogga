@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
@@ -8,6 +7,7 @@ import 'package:hogga/core/utils/app_assets.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snakbar.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 import 'package:hogga/features/lawyer/cases/domain/entities/lawyer_case_details.dart';
 import 'package:hogga/features/lawyer/cases/presentation/cubit/lawyer_cases_cubit.dart';
@@ -26,13 +26,15 @@ class LawyerCaseDetailsScreen extends StatefulWidget {
   const LawyerCaseDetailsScreen({super.key});
 
   @override
-  State<LawyerCaseDetailsScreen> createState() => _LawyerCaseDetailsScreenState();
+  State<LawyerCaseDetailsScreen> createState() =>
+      _LawyerCaseDetailsScreenState();
 }
 
 class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     return BlocProvider(
       create: (context) {
@@ -47,7 +49,9 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
           if (state is LawyerCaseActionSuccess) {
             AppSnackbar.showSuccess(context, message: state.message);
             if (args != null && args['id'] != null) {
-              context.read<LawyerCasesCubit>().getCaseDetails(args['id'] as int);
+              context.read<LawyerCasesCubit>().getCaseDetails(
+                args['id'] as int,
+              );
             }
           } else if (state is LawyerCasesError) {
             AppSnackbar.showError(context, message: state.message);
@@ -59,7 +63,8 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
               ? state.caseDetails
               : cubit.currentCaseDetails;
 
-          if (state is LawyerCaseDetailsLoading || state is LawyerCasesInitial) {
+          if (state is LawyerCaseDetailsLoading ||
+              state is LawyerCasesInitial) {
             return Scaffold(
               backgroundColor: context.pageBg,
               body: const LawyerShimmerLoading(),
@@ -80,26 +85,7 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
 
           return Scaffold(
             backgroundColor: context.pageBg,
-            appBar: AppBar(
-              title: Text(
-                detailsData.title,
-                style: context.text.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              centerTitle: true,
-              backgroundColor: context.cardBg,
-              elevation: 0.5,
-              shadowColor: context.divColor,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18.sp, color: context.textPrimary),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
+            appBar: MainAppbar(title: detailsData.title),
             body: RefreshIndicator(
               color: AppColors.golden,
               onRefresh: () async {
@@ -118,7 +104,8 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                     SizedBox(height: 20.h),
 
                     // ── Action button if accepted ─────────────────────────────
-                    if (detailsData.statusKey == 'accepted' && detailsData.hasChatRoom) ...[
+                    if (detailsData.statusKey == 'accepted' &&
+                        detailsData.hasChatRoom) ...[
                       _buildActionButton(context, detailsData, state),
                       SizedBox(height: 20.h),
                     ],
@@ -139,7 +126,8 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                     CustomButton(
                       text: AppStrings.addCaseUpdate.tr(context),
                       isLoading: state is LawyerCaseActionLoading,
-                      onPressed: () => _showAddSessionSheet(context, cubit, detailsData.id),
+                      onPressed: () =>
+                          _showAddSessionSheet(context, cubit, detailsData.id),
                     ),
                   ],
                 ),
@@ -154,12 +142,22 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
   // ── Gradient Header (same style as OrderDetailsHeader) ──────────────────────
   Widget _buildGradientHeader(BuildContext context, LawyerCaseDetails details) {
     final serviceColor = _serviceColor(details.serviceType);
+    final serviceLabel = details.serviceTypeText.isNotEmpty
+        ? details.serviceTypeText
+        : details.serviceType;
+    final showServiceType = _shouldShowServiceType(
+      details.serviceType,
+      details.serviceTypeText,
+    );
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.82)],
+          colors: [
+            AppColors.primary,
+            AppColors.primary.withValues(alpha: 0.82),
+          ],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
@@ -178,7 +176,9 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
-                  details.caseNumber.isNotEmpty ? details.caseNumber : '#${details.id}',
+                  details.caseNumber.isNotEmpty
+                      ? details.caseNumber
+                      : '#${details.id}',
                   style: context.text.labelSmall?.copyWith(
                     color: AppColors.golden,
                     fontWeight: FontWeight.w700,
@@ -221,41 +221,49 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
             details.title,
             style: context.text.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: 15.sp,
+              fontSize: 11.sp,
             ),
           ),
-          SizedBox(height: 10.h),
-          // Service type chip
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                decoration: BoxDecoration(
-                  color: serviceColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(color: serviceColor.withValues(alpha: 0.5)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(_serviceIcon(details.serviceType),
-                        size: 12.sp, color: serviceColor),
-                    SizedBox(width: 5.w),
-                    Text(
-                      details.serviceTypeText.isNotEmpty
-                          ? details.serviceTypeText
-                          : details.serviceType,
-                      style: context.text.labelSmall?.copyWith(
-                        color: serviceColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11.sp,
-                      ),
+          if (showServiceType) ...[
+            SizedBox(height: 10.h),
+            // Service type chip
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 5.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: serviceColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: serviceColor.withValues(alpha: 0.5),
                     ),
-                  ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _serviceIcon(details.serviceType),
+                        size: 12.sp,
+                        color: serviceColor,
+                      ),
+                      SizedBox(width: 5.w),
+                      Text(
+                        serviceLabel,
+                        style: context.text.labelSmall?.copyWith(
+                          color: serviceColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11.sp,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -263,41 +271,44 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
 
   // ── Action Button ────────────────────────────────────────────────────────────
   Widget _buildActionButton(
-      BuildContext context, LawyerCaseDetails details, LawyerCasesState state)
-  {
+    BuildContext context,
+    LawyerCaseDetails details,
+    LawyerCasesState state,
+  ) {
     final serviceType = details.serviceType;
     final serviceColor = _serviceColor(serviceType);
-    final isCallType =
-        serviceType == 'video' || serviceType == 'audio' || serviceType == 'phone';
+    final isCallType = _isCallType(serviceType);
 
-    final icon = serviceType == 'video'
+    final icon = _isVideoType(serviceType)
         ? Icons.videocam_rounded
-        : (isCallType ? Icons.phone_in_talk_rounded : Icons.chat_bubble_outline_rounded);
-    final label = serviceType == 'video'
+        : (isCallType
+              ? Icons.phone_in_talk_rounded
+              : Icons.chat_bubble_outline_rounded);
+    final label = _isVideoType(serviceType)
         ? AppStrings.videoCall.tr(context)
         : (isCallType
-            ? AppStrings.voiceCall.tr(context)
-            : AppStrings.startConversation.tr(context));
+              ? AppStrings.voiceCall.tr(context)
+              : AppStrings.enterChat.tr(context));
 
     return SizedBox(
       width: double.infinity,
-      height: 52.h,
-      child: ElevatedButton.icon(
+      height: 44.h,
+      child: OutlinedButton.icon(
         onPressed: () => _openService(context, details),
-        icon: Icon(icon, color: Colors.white, size: 20.sp),
+        icon: Icon(icon, color: serviceColor, size: 18.sp),
         label: Text(
           label,
           style: context.text.labelLarge?.copyWith(
-            color: Colors.white,
+            color: serviceColor,
             fontWeight: FontWeight.w700,
-            fontSize: 14.sp,
+            fontSize: 12.5.sp,
           ),
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: serviceColor,
-          elevation: 2,
-          shadowColor: serviceColor.withValues(alpha: 0.4),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: serviceColor, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
         ),
       ),
     );
@@ -318,13 +329,17 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
           // Section title
           Row(
             children: [
-              Icon(Icons.person_pin_rounded, size: 18.sp, color: AppColors.golden),
+              Icon(
+                Icons.person_pin_rounded,
+                size: 18.sp,
+                color: AppColors.golden,
+              ),
               SizedBox(width: 8.w),
               Text(
                 AppStrings.clientDetails.tr(context),
                 style: context.text.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                 ),
               ),
             ],
@@ -340,11 +355,20 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                 radius: 26.r,
                 backgroundColor: AppColors.primary.withValues(alpha: 0.12),
                 backgroundImage:
-                    details.client.photo != null && details.client.photo!.isNotEmpty
-                        ? CachedNetworkImageProvider(details.client.photo!) as ImageProvider
-                        : const AssetImage(AppAssets.userPlaceholder) as ImageProvider,
-                child: details.client.photo == null || details.client.photo!.isEmpty
-                    ? Icon(Icons.person_rounded, color: AppColors.primary, size: 26.sp)
+                    details.client.photo != null &&
+                        details.client.photo!.isNotEmpty
+                    ? CachedNetworkImageProvider(details.client.photo!)
+                          as ImageProvider
+                    : const AssetImage(AppAssets.userPlaceholder)
+                          as ImageProvider,
+                child:
+                    details.client.photo == null ||
+                        details.client.photo!.isEmpty
+                    ? Icon(
+                        Icons.person_rounded,
+                        color: AppColors.primary,
+                        size: 26.sp,
+                      )
                     : null,
               ),
               SizedBox(width: 14.w),
@@ -358,10 +382,11 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                           : AppStrings.client.tr(context),
                       style: context.text.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
-                    if (details.client.phone != null && details.client.phone!.isNotEmpty) ...[
+                    if (details.client.phone != null &&
+                        details.client.phone!.isNotEmpty) ...[
                       SizedBox(height: 3.h),
                       Row(
                         children: [
@@ -405,7 +430,10 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
   }
 
   // ── Sessions Section ─────────────────────────────────────────────────────────
-  Widget _buildSessionsSection(BuildContext context, LawyerCaseDetails details) {
+  Widget _buildSessionsSection(
+    BuildContext context,
+    LawyerCaseDetails details,
+  ) {
     final upcoming = details.sessions.upcoming;
     final previous = details.sessions.previous;
     final hasAny = upcoming.isNotEmpty || previous.isNotEmpty;
@@ -422,13 +450,17 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.event_note_rounded, size: 18.sp, color: AppColors.golden),
+              Icon(
+                Icons.event_note_rounded,
+                size: 18.sp,
+                color: AppColors.golden,
+              ),
               SizedBox(width: 8.w),
               Text(
                 AppStrings.sessionsHistory.tr(context),
                 style: context.text.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                 ),
               ),
             ],
@@ -443,14 +475,17 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                 padding: EdgeInsets.symmetric(vertical: 16.h),
                 child: Column(
                   children: [
-                    Icon(Icons.event_available_outlined,
-                        size: 40.sp,
-                        color: context.textSecondary.withValues(alpha: 0.35)),
+                    Icon(
+                      Icons.event_available_outlined,
+                      size: 40.sp,
+                      color: context.textSecondary.withValues(alpha: 0.35),
+                    ),
                     SizedBox(height: 8.h),
                     Text(
                       AppStrings.noDataFound.tr(context),
-                      style: context.text.labelSmall
-                          ?.copyWith(color: context.textSecondary),
+                      style: context.text.labelSmall?.copyWith(
+                        color: context.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -462,10 +497,18 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
               children: [
                 if (upcoming.isNotEmpty) ...[
                   _buildSessionGroupLabel(
-                      context, AppStrings.upcomingSessions.tr(context), AppColors.golden),
+                    context,
+                    AppStrings.upcomingSessions.tr(context),
+                    AppColors.golden,
+                  ),
                   SizedBox(height: 12.h),
-                  ...upcoming.asMap().entries.map((e) =>
-                      _buildSessionItem(context, e.value, e.key == upcoming.length - 1)),
+                  ...upcoming.asMap().entries.map(
+                    (e) => _buildSessionItem(
+                      context,
+                      e.value,
+                      e.key == upcoming.length - 1,
+                    ),
+                  ),
                   if (previous.isNotEmpty) ...[
                     SizedBox(height: 8.h),
                     Divider(color: context.divColor),
@@ -474,10 +517,18 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                 ],
                 if (previous.isNotEmpty) ...[
                   _buildSessionGroupLabel(
-                      context, AppStrings.previousSessions.tr(context), context.textSecondary),
+                    context,
+                    AppStrings.previousSessions.tr(context),
+                    context.textSecondary,
+                  ),
                   SizedBox(height: 12.h),
-                  ...previous.asMap().entries.map((e) =>
-                      _buildSessionItem(context, e.value, e.key == previous.length - 1)),
+                  ...previous.asMap().entries.map(
+                    (e) => _buildSessionItem(
+                      context,
+                      e.value,
+                      e.key == previous.length - 1,
+                    ),
+                  ),
                 ],
               ],
             ),
@@ -486,7 +537,11 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
     );
   }
 
-  Widget _buildSessionGroupLabel(BuildContext context, String label, Color color) {
+  Widget _buildSessionGroupLabel(
+    BuildContext context,
+    String label,
+    Color color,
+  ) {
     return Row(
       children: [
         Container(
@@ -511,7 +566,10 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
   }
 
   Widget _buildSessionItem(
-      BuildContext context, LawyerCaseSession session, bool isLast) {
+    BuildContext context,
+    LawyerCaseSession session,
+    bool isLast,
+  ) {
     final isUpcoming = session.isUpcoming;
     final dotColor = isUpcoming ? AppColors.golden : context.textSecondary;
 
@@ -525,7 +583,10 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                 margin: EdgeInsets.only(top: 4.h),
                 width: 11.w,
                 height: 11.w,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: dotColor,
+                  shape: BoxShape.circle,
+                ),
               ),
               if (!isLast)
                 Expanded(
@@ -548,15 +609,20 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                     session.title,
                     style: context.text.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: isUpcoming ? AppColors.golden : context.textPrimary,
-                      fontSize: 13.sp,
+                      color: isUpcoming
+                          ? AppColors.golden
+                          : context.textPrimary,
+                      fontSize: 11.sp,
                     ),
                   ),
                   SizedBox(height: 2.h),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today_outlined,
-                          size: 11.sp, color: context.textSecondary),
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 11.sp,
+                        color: context.textSecondary,
+                      ),
                       SizedBox(width: 4.w),
                       Text(
                         session.date,
@@ -589,7 +655,10 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
 
   // ── Documents Section ────────────────────────────────────────────────────────
   Widget _buildDocumentsSection(
-      BuildContext context, LawyerCaseDetails details, LawyerCasesState state) {
+    BuildContext context,
+    LawyerCaseDetails details,
+    LawyerCasesState state,
+  ) {
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
@@ -602,14 +671,18 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.attach_file_rounded, size: 18.sp, color: AppColors.golden),
+              Icon(
+                Icons.attach_file_rounded,
+                size: 18.sp,
+                color: AppColors.golden,
+              ),
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
                   AppStrings.attachedDocuments.tr(context),
                   style: context.text.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                   ),
                 ),
               ),
@@ -618,9 +691,15 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                 onTap: state is LawyerCaseActionLoading
                     ? null
                     : () => _showUploadDocumentSheet(
-                        context, context.read<LawyerCasesCubit>(), details.id),
+                        context,
+                        context.read<LawyerCasesCubit>(),
+                        details.id,
+                      ),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12.r),
@@ -628,7 +707,11 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, size: 14.sp, color: AppColors.primary),
+                      Icon(
+                        Icons.add_rounded,
+                        size: 14.sp,
+                        color: AppColors.primary,
+                      ),
                       SizedBox(width: 4.w),
                       Text(
                         AppStrings.addAction.tr(context),
@@ -654,14 +737,17 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                 padding: EdgeInsets.symmetric(vertical: 16.h),
                 child: Column(
                   children: [
-                    Icon(Icons.folder_open_outlined,
-                        size: 40.sp,
-                        color: context.textSecondary.withValues(alpha: 0.35)),
+                    Icon(
+                      Icons.folder_open_outlined,
+                      size: 40.sp,
+                      color: context.textSecondary.withValues(alpha: 0.35),
+                    ),
                     SizedBox(height: 8.h),
                     Text(
                       AppStrings.noDataFound.tr(context),
-                      style: context.text.labelSmall
-                          ?.copyWith(color: context.textSecondary),
+                      style: context.text.labelSmall?.copyWith(
+                        color: context.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -683,7 +769,8 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
 
   Widget _buildDocumentItem(BuildContext context, LawyerCaseDocument doc) {
     final isPdf = doc.type.toLowerCase().contains('pdf');
-    final isImage = doc.type.toLowerCase().contains('image') ||
+    final isImage =
+        doc.type.toLowerCase().contains('image') ||
         doc.type.toLowerCase().contains('png') ||
         doc.type.toLowerCase().contains('jpg');
     final isAddedByLawyer = doc.addedBy == 'provider';
@@ -708,7 +795,9 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
             child: Icon(
               isPdf
                   ? Icons.picture_as_pdf_rounded
-                  : (isImage ? Icons.image_rounded : Icons.insert_drive_file_rounded),
+                  : (isImage
+                        ? Icons.image_rounded
+                        : Icons.insert_drive_file_rounded),
               color: docColor,
               size: 22.sp,
             ),
@@ -760,8 +849,11 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
                 color: AppColors.golden.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10.r),
               ),
-              child:
-                  Icon(Icons.download_for_offline_outlined, color: AppColors.golden, size: 22.sp),
+              child: Icon(
+                Icons.download_for_offline_outlined,
+                color: AppColors.golden,
+                size: 22.sp,
+              ),
             ),
           ),
         ],
@@ -772,7 +864,7 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
   // ── Service Navigation ────────────────────────────────────────────────────────
   void _openService(BuildContext context, LawyerCaseDetails details) {
     final serviceType = details.serviceType;
-    if (serviceType == 'video' || serviceType == 'audio' || serviceType == 'phone') {
+    if (_isCallType(serviceType)) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -781,7 +873,7 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
             child: LawyerAgoraCallScreen(
               roomId: details.chatRoomId!,
               clientName: details.client.name,
-              isVideo: serviceType == 'video',
+              isVideo: _isVideoType(serviceType),
             ),
           ),
         ),
@@ -794,7 +886,8 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
             providers: [
               BlocProvider(
                 create: (_) =>
-                    sl<LawyerChatMessagesCubit>(param1: details.chatRoomId!)..loadMessages(),
+                    sl<LawyerChatMessagesCubit>(param1: details.chatRoomId!)
+                      ..loadMessages(),
               ),
               BlocProvider(create: (_) => sl<LawyerCallCubit>()),
             ],
@@ -802,6 +895,8 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
               chatRoomId: details.chatRoomId!,
               clientName: details.client.name,
               caseTitle: details.title,
+              isCall: _isCallType(serviceType),
+              isVideo: _isVideoType(serviceType),
             ),
           ),
         ),
@@ -809,7 +904,11 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
     }
   }
 
-  void _showAddSessionSheet(BuildContext context, LawyerCasesCubit cubit, int caseId) {
+  void _showAddSessionSheet(
+    BuildContext context,
+    LawyerCasesCubit cubit,
+    int caseId,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -817,13 +916,22 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
       builder: (_) => AddSessionSheet(
         caseId: caseId,
         onConfirm: (title, date, details) {
-          cubit.addCaseSession(caseId: caseId, title: title, date: date, details: details);
+          cubit.addCaseSession(
+            caseId: caseId,
+            title: title,
+            date: date,
+            details: details,
+          );
         },
       ),
     );
   }
 
-  void _showUploadDocumentSheet(BuildContext context, LawyerCasesCubit cubit, int caseId) {
+  void _showUploadDocumentSheet(
+    BuildContext context,
+    LawyerCasesCubit cubit,
+    int caseId,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -831,7 +939,11 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
       builder: (_) => UploadDocumentSheet(
         caseId: caseId,
         onConfirm: (title, document) {
-          cubit.uploadCaseDocument(caseId: caseId, title: title, document: document);
+          cubit.uploadCaseDocument(
+            caseId: caseId,
+            title: title,
+            document: document,
+          );
         },
       ),
     );
@@ -839,45 +951,44 @@ class _LawyerCaseDetailsScreenState extends State<LawyerCaseDetailsScreen> {
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
   IconData _serviceIcon(String type) {
-    switch (type) {
-      case 'video':
-        return Icons.videocam_outlined;
-      case 'audio':
-      case 'phone':
-        return Icons.phone_outlined;
-      case 'chat':
-        return Icons.chat_outlined;
-      default:
-        return Icons.article_outlined;
+    final normalized = type.toLowerCase();
+    if (_isVideoType(normalized)) {
+      return Icons.videocam_outlined;
     }
+    if (_isCallType(normalized)) {
+      return Icons.phone_outlined;
+    }
+    if (normalized.contains('chat') || normalized == 'normal') {
+      return Icons.chat_outlined;
+    }
+    return Icons.article_outlined;
   }
 
   Color _serviceColor(String type) {
-    switch (type) {
-      case 'video':
-        return const Color(0xFF9B59B6);
-      case 'audio':
-      case 'phone':
-        return const Color(0xFF27AE60);
-      case 'chat':
-        return const Color(0xFF2D9CDB);
-      default:
-        return AppColors.golden;
+    final normalized = type.toLowerCase();
+    if (_isVideoType(normalized)) {
+      return const Color(0xFF9B59B6);
     }
+    if (_isCallType(normalized)) {
+      return const Color(0xFF27AE60);
+    }
+    return AppColors.golden;
   }
 
-  Color _statusColor(String statusKey) {
-    switch (statusKey) {
-      case 'accepted':
-        return const Color(0xFF27AE60);
-      case 'pending':
-        return const Color(0xFFBF8C1E);
-      case 'completed':
-        return AppColors.primary;
-      case 'cancelled':
-        return Colors.red;
-      default:
-        return AppColors.golden;
-    }
+  bool _shouldShowServiceType(String type, String typeText) {
+    final normalizedType = type.trim().toLowerCase();
+    final normalizedText = typeText.trim().toLowerCase();
+    final label = normalizedText.isNotEmpty ? normalizedText : normalizedType;
+    return label.isNotEmpty && label != 'normal';
+  }
+
+  bool _isVideoType(String type) => type.toLowerCase().contains('video');
+
+  bool _isCallType(String type) {
+    final normalized = type.toLowerCase();
+    return _isVideoType(normalized) ||
+        normalized.contains('audio') ||
+        normalized.contains('phone') ||
+        normalized.contains('call');
   }
 }

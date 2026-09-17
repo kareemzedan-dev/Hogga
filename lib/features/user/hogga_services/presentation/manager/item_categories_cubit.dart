@@ -19,13 +19,19 @@ class ItemCategoriesError extends ItemCategoriesState {
 }
 
 class ItemCategoriesCubit extends Cubit<ItemCategoriesState> {
-  final hoggaRepository repository;
+  final HoggaRepository repository;
 
   ItemCategoriesCubit(this.repository) : super(ItemCategoriesInitial());
 
-  Future<void> getItemCategories(int childCategoryId) async {
+  Future<void> getItemCategories({
+    required int childCategoryId,
+    int? subCategoryId,
+  }) async {
     emit(ItemCategoriesLoading());
-    final result = await repository.getItemCategories(childCategoryId);
+    final result = await repository.getItemCategories(
+      childCategoryId: childCategoryId,
+      subCategoryId: subCategoryId,
+    );
     result.fold(
       (failure) => emit(ItemCategoriesError(failure.message)),
       (model) => emit(ItemCategoriesSuccess(model.data)),

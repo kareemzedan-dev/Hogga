@@ -43,6 +43,10 @@ class AppStrings {
   static const String invalidLawyerLicense = 'invalidLawyerLicense';
   static const String registerAsUser = 'registerAsUser';
   static const String registerAsLawyer = 'registerAsLawyer';
+  static const String welcomeTitle = 'welcomeTitle';
+  static const String welcomeSubtitle = 'welcomeSubtitle';
+  static const String userCardSubtitle = 'userCardSubtitle';
+  static const String lawyerCardSubtitle = 'lawyerCardSubtitle';
   static const String alreadyHaveAccount = 'alreadyHaveAccount';
   static const String agreeToTermsError = 'agreeToTermsError';
   static const String individual = 'individual';
@@ -77,8 +81,6 @@ class AppStrings {
 
   //new
   static const String backToLogin = 'backToLogin';
-  static const String welcomeTitle = 'welcomeTitle';
-  static const String welcomeSubtitle = 'welcomeSubtitle';
   static const String orderNow = 'orderNow';
 
   // Signup Steps
@@ -314,6 +316,10 @@ class AppStrings {
   static const String renew = 'renew';
   static const String visibleToClients = 'visibleToClients';
   static const String manage = 'manage';
+  static const String defaultFreePackage = 'defaultFreePackage';
+  static const String remainingDays = 'remainingDays';
+  static const String noExpiryDate = 'noExpiryDate';
+  static const String packages = 'packages';
 
   // Dashboard & Management
   static const String working = 'working';
@@ -521,6 +527,9 @@ class AppStrings {
   static const String sortBy = 'sortBy';
   static const String lawyerType = 'lawyerType';
   static const String availableLawyers = 'availableLawyers';
+  static const String selectOneLawyerOnly = 'selectOneLawyerOnly';
+  static const String selectLawyerToShowPrices = 'selectLawyerToShowPrices';
+  static const String verifiedLawyer = 'verifiedLawyer';
   static const String addAll = 'addAll';
   static const String addLawyer = 'addLawyer';
   static const String availableNow = 'availableNow';
@@ -543,6 +552,12 @@ class AppStrings {
   static const String paymentDisclaimer = 'paymentDisclaimer';
   static const String totalAmount = 'totalAmount';
   static const String completeOrder = 'completeOrder';
+  static const String confirmCompleteOrder = 'confirmCompleteOrder';
+  static const String completeService = 'completeService';
+  static const String confirmCompleteService = 'confirmCompleteService';
+  static const String completeConsultation = 'completeConsultation';
+  static const String confirmCompleteConsultation =
+      'confirmCompleteConsultation';
 
   // static const String currencySymbol = 'currencySymbol'; // Redundant
 
@@ -552,6 +567,17 @@ class AppStrings {
   static const String orderNumber = 'orderNumber';
   static const String trackOrder = 'trackOrder';
   static const String backToHome = 'backToHome';
+  static const String startCallSubtitle = 'startCallSubtitle';
+  static const String enterChatRoom = 'enterChatRoom';
+  static const String enterChatSubtitle = 'enterChatSubtitle';
+  static const String viewServiceDetails = 'viewServiceDetails';
+  static const String viewServiceDetailsSubtitle = 'viewServiceDetailsSubtitle';
+  static const String consultationConfirmedSuccessfully =
+      'consultationConfirmedSuccessfully';
+  static const String consultationReadyDesc = 'consultationReadyDesc';
+  static const String quickActions = 'quickActions';
+  static const String loadingCommunicationDetails =
+      'loadingCommunicationDetails';
 
   // Lawyer Browser & Cards
   static const String years = 'years';
@@ -866,6 +892,14 @@ class AppStrings {
   static const String views = 'views';
   static const String createdAt = 'createdAt';
   static const String acceptTextConsultations = 'acceptTextConsultations';
+  static const String acceptScheduledConsultations =
+      'acceptScheduledConsultations';
+  static const String manageConsultationPrices = 'manageConsultationPrices';
+  static const String consultationType = 'consultationType';
+  static const String addPriceOption = 'addPriceOption';
+  static const String savePrices = 'savePrices';
+  static const String durationMinutes = 'durationMinutes';
+  static const String priceAmount = 'priceAmount';
 
   static const String english = 'english';
   static const String saudiArabia = 'saudiArabia';
@@ -960,6 +994,7 @@ class AppStrings {
   // Lawyer Features: Opportunities & Services
   static const String publicOpportunities = 'publicOpportunities';
   static const String myServices = 'myServices';
+  static const String mySpecializations = 'mySpecializations';
   static const String addService = 'addService';
   static const String editService = 'editService';
   static const String serviceType = 'serviceType';
@@ -987,6 +1022,8 @@ class AppStrings {
   static const String priceRange = 'priceRange';
   static const String deleteProposal = 'deleteProposal';
   static const String confirmDeleteProposal = 'confirmDeleteProposal';
+  static const String cancelProposal = 'cancelProposal';
+  static const String confirmCancelProposal = 'confirmCancelProposal';
   static const String editProposal = 'editProposal';
   static const String optionalDocuments = 'optionalDocuments';
   static const String addFile = 'addFile';
@@ -1048,6 +1085,8 @@ class AppStrings {
   static const String confirmAcceptProposal = 'confirmAcceptProposal';
   static const String confirmCancelCase = 'confirmCancelCase';
   static const String cancelCase = 'cancelCase';
+  static const String waitingForProposals = 'waitingForProposals';
+  static const String waitingForProposalsSubtitle = 'waitingForProposalsSubtitle';
   static const String note = 'note';
   static const String bookingDisclaimer = 'bookingDisclaimer';
   static const String ok = 'ok';
@@ -1253,4 +1292,6 @@ class AppStrings {
   static const String registrationDate = 'registrationDate';
   static const String rewardAmount = 'rewardAmount';
   static const String details = 'details';
+  static const String acceptRequestTitle = 'acceptRequestTitle';
+  static const String requestAcceptedSuccessfully = 'requestAcceptedSuccessfully';
 }

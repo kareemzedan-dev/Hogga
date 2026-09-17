@@ -23,6 +23,17 @@ class CaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final serviceLabel = lawyerCase.serviceTypeText.isNotEmpty
+        ? lawyerCase.serviceTypeText
+        : lawyerCase.serviceType;
+    final showServiceType = _shouldShowServiceType(
+      lawyerCase.serviceType,
+      lawyerCase.serviceTypeText,
+    );
+    final showChatBadge =
+        lawyerCase.hasChatRoom &&
+        !_isCallType(lawyerCase.serviceType.toLowerCase());
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.h),
       child: HoggaCard(
@@ -41,16 +52,21 @@ class CaseCard extends StatelessWidget {
           children: [
             // ── Header: icon + title + case number ──
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Container(
-                //   padding: EdgeInsets.all(10.w),
-                //   decoration: BoxDecoration(
-                //     color: _serviceColor().withValues(alpha: 0.12),
-                //     shape: BoxShape.circle,
-                //   ),
-                //   child: Icon(_getServiceIcon(), size: 20.sp, color: _serviceColor()),
-                // ),
-                // SizedBox(width: 14.w),
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: _serviceColor().withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14.r),
+                  ),
+                  child: Icon(
+                    _getServiceIcon(),
+                    size: 22.sp,
+                    color: _serviceColor(),
+                  ),
+                ),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,68 +78,29 @@ class CaseCard extends StatelessWidget {
                         style: context.text.titleMedium?.copyWith(
                           color: context.textPrimary,
                           fontWeight: FontWeight.w600,
-                          fontSize: 13.sp,
+                          fontSize: 12.sp,
                         ),
                       ),
                       SizedBox(height: 4.h),
                       Row(
                         children: [
-                          Flexible(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.person_outline_rounded,
-                                  size: 12.sp,
-                                  color: context.textSecondary,
-                                ),
-                                SizedBox(width: 4.w),
-                                Flexible(
-                                  child: Text(
-                                    lawyerCase.clientName.isNotEmpty
-                                        ? lawyerCase.clientName
-                                        : AppStrings.client.tr(context),
-                                    style: context.text.labelSmall?.copyWith(
-                                      color: context.textSecondary,
-                                      fontSize: 11.sp,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          Icon(
+                            Icons.person_outline_rounded,
+                            size: 12.sp,
+                            color: context.textSecondary,
                           ),
-
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6.w,
-                              vertical: 4.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.chipBg,
-                              borderRadius: BorderRadius.circular(8.r),
-                              border: Border.all(color: context.divColor),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  lawyerCase.realCaseNumber.isNotEmpty
-                                      ? lawyerCase.realCaseNumber
-                                      : '#${lawyerCase.id}',
-                                  style: context.text.labelSmall?.copyWith(
-                                    color: AppColors.golden,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 10.sp,
-                                  ),
-                                ),
-                                Text(
-                                  AppStrings.referenceNumber.tr(context),
-                                  style: context.text.labelSmall?.copyWith(
-                                    color: context.textSecondary,
-                                    fontSize: 9.sp,
-                                  ),
-                                ),
-                              ],
+                          SizedBox(width: 4.w),
+                          Flexible(
+                            child: Text(
+                              lawyerCase.clientName.isNotEmpty
+                                  ? lawyerCase.clientName
+                                  : AppStrings.client.tr(context),
+                              style: context.text.labelSmall?.copyWith(
+                                color: context.textSecondary,
+                                fontSize: 11.sp,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -131,44 +108,67 @@ class CaseCard extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
-            ),
-
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              child: Divider(
-                height: 1,
-                thickness: 0.8,
-                color: context.divColor,
-              ),
-            ),
-
-            // ── Badges row: service type + case status ──
-            Row(
-              children: [
-                _buildBadge(
-                  context: context,
-                  icon: _getServiceIcon(),
-                  label: lawyerCase.serviceTypeText.isNotEmpty
-                      ? lawyerCase.serviceTypeText
-                      : lawyerCase.serviceType,
-                  color: _serviceColor(),
-                ),
                 SizedBox(width: 8.w),
-                LawyerStatusBadge(
-                  text: lawyerCase.statusText.toLocalizedStatus(context),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: context.chipBg,
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(color: context.divColor),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        lawyerCase.realCaseNumber.isNotEmpty
+                            ? lawyerCase.realCaseNumber
+                            : '#${lawyerCase.id}',
+                        style: context.text.labelSmall?.copyWith(
+                          color: AppColors.golden,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 10.sp,
+                        ),
+                      ),
+                      Text(
+                        AppStrings.referenceNumber.tr(context),
+                        style: context.text.labelSmall?.copyWith(
+                          color: context.textSecondary,
+                          fontSize: 9.sp,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              child: Divider(
-                height: 1,
-                thickness: 0.8,
-                color: context.divColor,
+            if (showServiceType || showChatBadge) ...[
+              SizedBox(height: 12.h),
+
+              // ── Badges row: service type + chat ──
+              Wrap(
+                spacing: 8.w,
+                runSpacing: 8.h,
+                children: [
+                  if (showServiceType)
+                    _buildBadge(
+                      context: context,
+                      icon: _getServiceIcon(),
+                      label: serviceLabel,
+                      color: _serviceColor(),
+                    ),
+                  if (showChatBadge) ...[
+                    _buildBadge(
+                      context: context,
+                      icon: Icons.chat_bubble_outline_rounded,
+                      label: AppStrings.chat.tr(context),
+                      color: AppColors.golden,
+                    ),
+                  ],
+                ],
               ),
-            ),
+            ],
+
+            SizedBox(height: 14.h),
 
             // ── Bottom: date + court + status ──
             Row(
@@ -227,48 +227,45 @@ class CaseCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                SizedBox(width: 8.w),
+                LawyerStatusBadge(
+                  text: lawyerCase.statusText.toLocalizedStatus(context),
+                ),
               ],
             ),
-
 
             // ── Action button: one communication method per service type ──
             if (lawyerCase.statusKey == 'accepted' &&
                 lawyerCase.hasChatRoom &&
                 _hasCommunicationAction())
-              Column(
-                children: [
-                  SizedBox(height: 18.h),
-
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 10.h),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 46.h,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _openService(context),
-                        icon: Icon(
-                          _getActionIcon(),
-                          size: 18.sp,
-                          color: _serviceColor(),
-                        ),
-                        label: Text(
-                          _getActionLabel(context),
-                          style: context.text.labelLarge?.copyWith(
-                            color: _serviceColor(),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13.sp,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: _serviceColor()),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                        ),
+              Padding(
+                padding: EdgeInsets.only(top: 10.h),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 42.h,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openService(context),
+                    icon: Icon(
+                      _getActionIcon(),
+                      size: 18.sp,
+                      color: _serviceColor(),
+                    ),
+                    label: Text(
+                      _getActionLabel(context),
+                      style: context.text.labelLarge?.copyWith(
+                        color: _serviceColor(),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12.5.sp,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: _serviceColor(), width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
           ],
         ),
@@ -278,9 +275,7 @@ class CaseCard extends StatelessWidget {
 
   void _openService(BuildContext context) {
     final serviceType = lawyerCase.serviceType.toLowerCase();
-    if (serviceType == 'video' ||
-        serviceType == 'audio' ||
-        serviceType == 'phone') {
+    if (_isCallType(serviceType)) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -289,65 +284,62 @@ class CaseCard extends StatelessWidget {
             child: LawyerAgoraCallScreen(
               roomId: lawyerCase.chatRoomId!,
               clientName: lawyerCase.clientName,
-              isVideo: serviceType == 'video',
+              isVideo: _isVideoType(serviceType),
             ),
           ),
         ),
       );
-    } else if (serviceType == 'chat') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (_) => di.sl<LawyerChatMessagesCubit>(
-                  param1: lawyerCase.chatRoomId!,
-                )..loadMessages(),
-              ),
-              BlocProvider(create: (_) => di.sl<LawyerCallCubit>()),
-            ],
-            child: LawyerChatScreen(
-              chatRoomId: lawyerCase.chatRoomId!,
-              clientName: lawyerCase.clientName,
-              caseTitle: lawyerCase.title,
-            ),
-          ),
-        ),
-      );
+      return;
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) =>
+                  di.sl<LawyerChatMessagesCubit>(param1: lawyerCase.chatRoomId!)
+                    ..loadMessages(),
+            ),
+            BlocProvider(create: (_) => di.sl<LawyerCallCubit>()),
+          ],
+          child: LawyerChatScreen(
+            chatRoomId: lawyerCase.chatRoomId!,
+            clientName: lawyerCase.clientName,
+            caseTitle: lawyerCase.title,
+            isCall: _isCallType(serviceType),
+            isVideo: _isVideoType(serviceType),
+          ),
+        ),
+      ),
+    );
   }
 
   bool _hasCommunicationAction() {
-    final serviceType = lawyerCase.serviceType.toLowerCase();
-    return serviceType == 'chat' ||
-        serviceType == 'video' ||
-        serviceType == 'audio' ||
-        serviceType == 'phone';
+    return lawyerCase.hasChatRoom;
   }
 
   IconData _getActionIcon() {
-    switch (lawyerCase.serviceType.toLowerCase()) {
-      case 'video':
-        return Icons.videocam_rounded;
-      case 'audio':
-      case 'phone':
-        return Icons.phone_in_talk_rounded;
-      default:
-        return Icons.chat_bubble_outline_rounded;
+    final serviceType = lawyerCase.serviceType.toLowerCase();
+    if (_isVideoType(serviceType)) {
+      return Icons.videocam_rounded;
     }
+    if (_isCallType(serviceType)) {
+      return Icons.phone_in_talk_rounded;
+    }
+    return Icons.chat_bubble_outline_rounded;
   }
 
   String _getActionLabel(BuildContext context) {
-    switch (lawyerCase.serviceType.toLowerCase()) {
-      case 'video':
-        return AppStrings.videoCall.tr(context);
-      case 'audio':
-      case 'phone':
-        return AppStrings.voiceCall.tr(context);
-      default:
-        return AppStrings.startConversation.tr(context);
+    final serviceType = lawyerCase.serviceType.toLowerCase();
+    if (_isVideoType(serviceType)) {
+      return AppStrings.videoCall.tr(context);
     }
+    if (_isCallType(serviceType)) {
+      return AppStrings.voiceCall.tr(context);
+    }
+    return AppStrings.enterChat.tr(context);
   }
 
   Widget _buildBadge({
@@ -381,32 +373,45 @@ class CaseCard extends StatelessWidget {
   }
 
   IconData _getServiceIcon() {
-    switch (lawyerCase.serviceType.toLowerCase()) {
-      case 'video':
-        return Icons.videocam_outlined;
-      case 'audio':
-      case 'phone':
-        return Icons.phone_outlined;
-      case 'chat':
-        return Icons.chat_outlined;
-      case 'article':
-      default:
-        return Icons.article_outlined;
+    final serviceType = lawyerCase.serviceType.toLowerCase();
+    if (_isVideoType(serviceType)) {
+      return Icons.videocam_rounded;
     }
+    if (_isCallType(serviceType)) {
+      return Icons.phone_in_talk_rounded;
+    }
+    if (serviceType.contains('chat') || serviceType == 'normal') {
+      return Icons.chat_outlined;
+    }
+    return Icons.article_outlined;
   }
 
   Color _serviceColor() {
-    switch (lawyerCase.serviceType.toLowerCase()) {
-      case 'video':
-        return const Color(0xFF9B59B6);
-      case 'audio':
-      case 'phone':
-        return const Color(0xFF27AE60);
-      case 'chat':
-        return const Color(0xFF2D9CDB);
-      case 'article':
-      default:
-        return AppColors.golden;
+    final serviceType = lawyerCase.serviceType.toLowerCase();
+    if (_isVideoType(serviceType)) {
+      return const Color(0xFF6C205F);
     }
+    if (_isCallType(serviceType)) {
+      return const Color(0xFF27AE60);
+    }
+    return AppColors.golden;
+  }
+
+  bool _shouldShowServiceType(String type, String typeText) {
+    final normalizedType = type.trim().toLowerCase();
+    final normalizedText = typeText.trim().toLowerCase();
+    final label = normalizedText.isNotEmpty ? normalizedText : normalizedType;
+    return label.isNotEmpty && label != 'normal';
+  }
+
+  bool _isVideoType(String serviceType) {
+    return serviceType.contains('video');
+  }
+
+  bool _isCallType(String serviceType) {
+    return _isVideoType(serviceType) ||
+        serviceType.contains('audio') ||
+        serviceType.contains('phone') ||
+        serviceType.contains('call');
   }
 }

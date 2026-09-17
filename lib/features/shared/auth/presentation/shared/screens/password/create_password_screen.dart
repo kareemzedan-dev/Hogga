@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:hogga/core/theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/config/routes/app_routes.dart';
-import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_text_field.dart';
-import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
+import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/utils/validators.dart';
-import 'package:hogga/core/widgets/custom_back_button.dart';
+import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_layout.dart';
+import 'package:hogga/features/shared/auth/presentation/shared/widgets/auth_text_field.dart';
 
 class CreatePasswordScreen extends StatefulWidget {
   final String phone;
@@ -23,113 +23,99 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
   bool _isConfirmVisible = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  void dispose() {
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
 
-      backgroundColor: context.pageBg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: CustomBackButton(),
-        ),
-      ),
-      body: Form(
+  void _onNext() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.registerDetails,
+        arguments: {
+          'phone': widget.phone,
+          'password': _passwordController.text,
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEn = AppLocalizations.of(context)?.locale.languageCode == 'en';
+    return AuthLayout(
+      title: AppStrings.passwordStepTitle.tr(context),
+      subtitle: isEn
+          ? 'Create a secure password for your account'
+          : 'أنشئ كلمة مرور قوية لتأمين حسابك',
+      child: Form(
         key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Text(
-                AppStrings.passwordStepTitle.tr(context),
-                style: context.text.headlineSmall?.copyWith(
-                  color: context.colors.primary,
-                  fontWeight: FontWeight.bold,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 16.h),
+            AuthTextField(
+              controller: _passwordController,
+              hint: AppStrings.password.tr(context),
+              prefixIcon: Icon(Icons.lock_outline_rounded, color: const Color(0xFFDEC396), size: 20.sp),
+              obscureText: !_isPasswordVisible,
+              validator: (v) => AppValidators.validatePassword(context, v),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+                  color: const Color(0xFFDEC396),
+                  size: 20.sp,
+                ),
+                onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            AuthTextField(
+              controller: _confirmController,
+              hint: AppStrings.confirmPassword.tr(context),
+              prefixIcon: Icon(Icons.lock_outline_rounded, color: const Color(0xFFDEC396), size: 20.sp),
+              obscureText: !_isConfirmVisible,
+              validator: (v) => AppValidators.validateConfirmPassword(context, v, _passwordController.text),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _isConfirmVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+                  color: const Color(0xFFDEC396),
+                  size: 20.sp,
+                ),
+                onPressed: () => setState(() => _isConfirmVisible = !_isConfirmVisible),
+              ),
+            ),
+            SizedBox(height: 32.h),
+            SizedBox(
+              width: double.infinity,
+              height: 48.h,
+              child: ElevatedButton(
+                onPressed: _onNext,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFDFBF7A),
+                  foregroundColor: const Color(0xFF1B0F08),
+                  elevation: 4,
+                  shadowColor: const Color(0xFFDFBF7A).withValues(alpha: 0.35),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                ),
+                child: Text(
+                  AppStrings.next.tr(context),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1B0F08),
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
-              // Password Fields
-              AuthTextField(
-                controller: _passwordController,
-                hint: AppStrings.password.tr(context),
-                prefixIcon: Icon(Icons.lock_outline, color: context.colors.primary, size: 20),
-                obscureText: !_isPasswordVisible,
-                validator: (v) => AppValidators.validatePassword(context, v),
-                suffixIcon: IconButton(
-                  icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: context.colors.primary, size: 20),
-                  onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                ),
-              ),
-              const SizedBox(height: 16),
-              AuthTextField(
-                controller: _confirmController,
-                hint: AppStrings.confirmPassword.tr(context),
-                prefixIcon: Icon(Icons.lock_outline, color: context.colors.primary, size: 20),
-                obscureText: !_isConfirmVisible,
-                validator: (v) => AppValidators.validateConfirmPassword(context, v, _passwordController.text),
-                suffixIcon: IconButton(
-                  icon: Icon(_isConfirmVisible ? Icons.visibility : Icons.visibility_off, color: context.colors.primary, size: 20),
-                  onPressed: () => setState(() => _isConfirmVisible = !_isConfirmVisible),
-                ),
-              ),
-              const SizedBox(height: 40),
-              Center(
-                child: Column(
-                  children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: RichText(
-                        text:  TextSpan(
-                          children: [
-                            TextSpan(
-                              text: AppStrings.areYouLawyer.tr(context),
-                              style: context.text.bodyMedium?.copyWith(color: context.textSecondary),
-                            ),
-                            TextSpan(
-                              text: AppStrings.registerAsLawyer.tr(context),
-                              style: context.text.bodyMedium?.copyWith(
-                                color: context.colors.primary,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
-                                decorationColor: context.colors.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.pushNamed(
-                              context, 
-                              AppRoutes.registerDetails,
-                              arguments: {
-                                'phone': widget.phone,
-                                'password': _passwordController.text,
-                              },
-                            );
-                          }
-                        },
-                        child:  Text(AppStrings.next.tr(context)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-            ],
-          ),
+            ),
+            SizedBox(height: 24.h),
+          ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

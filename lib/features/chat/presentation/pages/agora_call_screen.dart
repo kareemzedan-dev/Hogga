@@ -40,7 +40,7 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
   int? _remoteUid;
   bool _muted = false;
   bool _speaker = false;
-  bool _videoEnabled = true;
+  bool _videoEnabled = false;
   Timer? _callTimer;
   Timer? _ringingTimer;
   Timer? _connectionRecoveryTimer;
@@ -150,9 +150,6 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
   Future<void> _initAgora(CallTokenModel callToken) async {
     // Request permissions
     await [Permission.microphone].request();
-    if (callToken.isVideo) {
-      await [Permission.camera].request();
-    }
 
     // Create RtcEngine instance
     _engine = createAgoraRtcEngine();
@@ -220,13 +217,10 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
       ),
     );
 
-    // Setup video or audio
-    if (callToken.isVideo) {
-      await _engine!.enableVideo();
-      await _engine!.startPreview();
-    } else {
-      await _engine!.enableAudio();
-    }
+    // Calls start as audio. Video is available as an in-call toggle.
+    await _engine!.enableAudio();
+    await _engine!.enableVideo();
+    await _engine!.muteLocalVideoStream(true);
 
     // Join channel
     await _engine!.joinChannel(
@@ -252,7 +246,7 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
     _callTimer?.cancel();
     _ringingTimer?.cancel();
     _connectionRecoveryTimer?.cancel();
-    context.read<CallCubit>().endCall(callId);
+    context.read<CallCubit>().endCall(callId, duration: _callDuration);
   }
 
   String _callStatusText(BuildContext context) {
@@ -297,11 +291,19 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
     _engine?.setEnableSpeakerphone(_speaker);
   }
 
-  void _onToggleVideo() {
-    setState(() {
-      _videoEnabled = !_videoEnabled;
-    });
-    _engine?.muteLocalVideoStream(!_videoEnabled);
+  Future<void> _onToggleVideo() async {
+    final shouldEnableVideo = !_videoEnabled;
+    if (shouldEnableVideo) {
+      final cameraPermission = await Permission.camera.request();
+      if (!cameraPermission.isGranted || !mounted) return;
+    }
+    setState(() => _videoEnabled = shouldEnableVideo);
+    if (shouldEnableVideo) {
+      _engine?.startPreview();
+    } else {
+      _engine?.stopPreview();
+    }
+    _engine?.muteLocalVideoStream(!shouldEnableVideo);
   }
 
   void _onSwitchCamera() {
@@ -345,7 +347,7 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
 
         if (callToken == null) return const SizedBox();
 
-        final isVideo = callToken.isVideo;
+        final isVideo = _videoEnabled;
 
         return Scaffold(
           backgroundColor: isVideo ? Colors.black : context.pageBg,
@@ -507,12 +509,11 @@ class _AgoraCallScreenState extends State<AgoraCallScreen> {
                       AppStrings.mute.tr(context),
                       onPressed: _onToggleMute,
                     ),
-                    if (isVideo)
-                      _buildCallAction(
-                        _videoEnabled ? Icons.videocam : Icons.videocam_off,
-                        AppStrings.video.tr(context),
-                        onPressed: _onToggleVideo,
-                      ),
+                    _buildCallAction(
+                      _videoEnabled ? Icons.videocam : Icons.videocam_off,
+                      AppStrings.video.tr(context),
+                      onPressed: _onToggleVideo,
+                    ),
                     _buildCallAction(
                       Icons.call_end,
                       AppStrings.end.tr(context),

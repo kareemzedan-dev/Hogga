@@ -14,9 +14,6 @@ import 'features/shared/auth/presentation/lawyer/cubit/lawyer_registration_cubit
 
 // Favorites
 
-
-
-
 // Removed Bookings
 
 // Home
@@ -48,11 +45,6 @@ import 'features/user/hogga_services/presentation/manager/service_request_cubit.
 import 'features/user/notifications/data/repositories/notifications_repository.dart';
 import 'features/user/notifications/presentation/cubit/notifications_cubit.dart';
 
-
-
-
-
-
 // Lawyer Features
 // Referral
 import 'features/lawyer/referral/data/datasources/referral_remote_data_source.dart';
@@ -72,6 +64,18 @@ import 'features/lawyer/cases/data/datasources/cases_remote_data_source.dart';
 import 'features/lawyer/cases/data/repositories/cases_repository_impl.dart';
 import 'features/lawyer/cases/domain/repositories/cases_repository.dart';
 import 'features/lawyer/cases/presentation/cubit/lawyer_cases_cubit.dart';
+
+// Consultations
+import 'features/lawyer/consultations/data/datasources/lawyer_consultations_remote_data_source.dart';
+import 'features/lawyer/consultations/data/repositories/lawyer_consultations_repository_impl.dart';
+import 'features/lawyer/consultations/domain/repositories/lawyer_consultations_repository.dart';
+import 'features/lawyer/consultations/presentation/cubit/lawyer_consultations_cubit.dart';
+
+// Specializations
+import 'features/lawyer/specializations/data/datasources/lawyer_specializations_remote_data_source.dart';
+import 'features/lawyer/specializations/data/repositories/lawyer_specializations_repository_impl.dart';
+import 'features/lawyer/specializations/domain/repositories/lawyer_specializations_repository.dart';
+import 'features/lawyer/specializations/presentation/cubit/lawyer_specializations_cubit.dart';
 
 // Clients
 import 'features/lawyer/clients/data/datasources/clients_remote_data_source.dart';
@@ -145,10 +149,14 @@ import 'features/lawyer/subscription/data/repositories/subscription_repository.d
 import 'features/lawyer/subscription/presentation/cubit/subscription_cubit.dart';
 
 // User Wallet
-import 'features/user/wallet/data/datasources/wallet_remote_data_source.dart' as user_wallet_ds;
-import 'features/user/wallet/data/repositories/wallet_repository.dart' as user_wallet_repo;
-import 'features/user/wallet/presentation/cubits/wallet_cubit.dart' as user_wallet_cubit;
-import 'features/user/wallet/presentation/cubits/payment_details_cubit.dart' as payment_details_cubit;
+import 'features/user/wallet/data/datasources/wallet_remote_data_source.dart'
+    as user_wallet_ds;
+import 'features/user/wallet/data/repositories/wallet_repository.dart'
+    as user_wallet_repo;
+import 'features/user/wallet/presentation/cubits/wallet_cubit.dart'
+    as user_wallet_cubit;
+import 'features/user/wallet/presentation/cubits/payment_details_cubit.dart'
+    as payment_details_cubit;
 
 // Chat
 import 'features/chat/data/datasources/chat_remote_data_source.dart';
@@ -168,11 +176,10 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   // External
-  sl.registerLazySingleton(() => Dio()); 
-  sl.registerLazySingleton(() => ApiClient(
-    dio: sl(),
-    onUnauthorized: () => sl<AuthCubit>().logout(),
-  ));
+  sl.registerLazySingleton(() => Dio());
+  sl.registerLazySingleton(
+    () => ApiClient(dio: sl(), onUnauthorized: () => sl<AuthCubit>().logout()),
+  );
 
   // Core
   sl.registerFactory(() => ThemeCubit());
@@ -181,29 +188,40 @@ Future<void> init() async {
   // Auth
   sl.registerLazySingleton(() => AuthCubit(authRepository: sl()));
   sl.registerFactory(() => LawyerRegistrationCubit(authRepository: sl()));
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(apiClient: sl())); // Inject ApiClient
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(apiClient: sl()),
+  ); // Inject ApiClient
 
   // Home
   sl.registerFactory(() => HomeCubit(repository: sl()));
-  sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(apiClient: sl()));
-
+  sl.registerLazySingleton<HomeRepository>(
+    () => HomeRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // myBookings
   sl.registerFactory(() => MyOrdersCubit(repository: sl()));
   sl.registerFactory(() => LegalCaseActionsCubit(repository: sl()));
-  sl.registerLazySingleton<MyOrderRepository>(() => MyOrderRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<MyOrdersRemoteDataSource>(() => MyOrdersRemoteDataSourceImpl(apiClient: sl()));
-
-
-
-
+  sl.registerLazySingleton<MyOrderRepository>(
+    () => MyOrderRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<MyOrdersRemoteDataSource>(
+    () => MyOrdersRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Profile
   sl.registerFactory(() => ProfileCubit(repository: sl(), authCubit: sl()));
-  sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<ProfileRemoteDataSource>(() => ProfileRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // More
   sl.registerFactory(() => ContactUsCubit(sl()));
@@ -212,67 +230,147 @@ Future<void> init() async {
   sl.registerFactory(() => ItemCategoriesCubit(sl()));
   sl.registerFactory(() => ServiceRequestCubit(repository: sl()));
 
-
-  sl.registerLazySingleton<MoreRepository>(() => MoreRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<MoreRemoteDataSource>(() => MoreRemoteDataSourceImpl(apiClient: sl()));
-  sl.registerLazySingleton<hoggaRepository>(() => hoggaRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<hoggaRemoteDataSource>(() => hoggaRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<MoreRepository>(
+    () => MoreRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<MoreRemoteDataSource>(
+    () => MoreRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerLazySingleton<HoggaRepository>(
+    () => HoggaRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<HoggaRemoteDataSource>(
+    () => HoggaRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Notifications
   sl.registerFactory(() => NotificationsCubit(repository: sl()));
-  sl.registerLazySingleton<NotificationsRepository>(() => NotificationsRepositoryImpl(apiClient: sl()));
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(apiClient: sl()),
+  );
 
   // User Wallet
-  sl.registerFactory(() => user_wallet_cubit.WalletCubit(repository: sl(instanceName: 'UserWalletRepo')));
-  sl.registerFactory(() => payment_details_cubit.PaymentDetailsCubit(repository: sl(instanceName: 'UserWalletRepo')));
-  sl.registerLazySingleton<user_wallet_repo.WalletRepository>(() => user_wallet_repo.WalletRepository(remoteDataSource: sl(instanceName: 'UserWalletDS')), instanceName: 'UserWalletRepo');
-  sl.registerLazySingleton<user_wallet_ds.WalletRemoteDataSource>(() => user_wallet_ds.WalletRemoteDataSource(apiClient: sl()), instanceName: 'UserWalletDS');
+  sl.registerFactory(
+    () => user_wallet_cubit.WalletCubit(
+      repository: sl(instanceName: 'UserWalletRepo'),
+    ),
+  );
+  sl.registerFactory(
+    () => payment_details_cubit.PaymentDetailsCubit(
+      repository: sl(instanceName: 'UserWalletRepo'),
+    ),
+  );
+  sl.registerLazySingleton<user_wallet_repo.WalletRepository>(
+    () => user_wallet_repo.WalletRepository(
+      remoteDataSource: sl(instanceName: 'UserWalletDS'),
+    ),
+    instanceName: 'UserWalletRepo',
+  );
+  sl.registerLazySingleton<user_wallet_ds.WalletRemoteDataSource>(
+    () => user_wallet_ds.WalletRemoteDataSource(apiClient: sl()),
+    instanceName: 'UserWalletDS',
+  );
 
   // Chat
   sl.registerFactory(() => ChatListCubit(repository: sl()));
   sl.registerFactory(() => CallCubit(repository: sl()));
-  sl.registerFactoryParam<ChatMessagesCubit, int, void>((roomId, _) => ChatMessagesCubit(repository: sl(), roomId: roomId));
-  sl.registerLazySingleton<ChatRepository>(() => ChatRepository(remoteDataSource: sl()));
-  sl.registerLazySingleton<ChatRemoteDataSource>(() => ChatRemoteDataSource(apiClient: sl()));
+  sl.registerFactoryParam<ChatMessagesCubit, int, void>(
+    (roomId, _) => ChatMessagesCubit(repository: sl(), roomId: roomId),
+  );
+  sl.registerLazySingleton<ChatRepository>(
+    () => ChatRepository(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSource(apiClient: sl()),
+  );
 
   // Lawyer Chat
   sl.registerFactory(() => LawyerChatListCubit(repository: sl()));
   sl.registerFactory(() => LawyerCallCubit(repository: sl()));
-  sl.registerFactoryParam<LawyerChatMessagesCubit, int, void>((roomId, _) => LawyerChatMessagesCubit(repository: sl(), roomId: roomId));
-  sl.registerLazySingleton<LawyerChatRepository>(() => LawyerChatRepository(remoteDataSource: sl()));
-  sl.registerLazySingleton<LawyerChatRemoteDataSource>(() => LawyerChatRemoteDataSource(apiClient: sl()));
-
+  sl.registerFactoryParam<LawyerChatMessagesCubit, int, void>(
+    (roomId, _) => LawyerChatMessagesCubit(repository: sl(), roomId: roomId),
+  );
+  sl.registerLazySingleton<LawyerChatRepository>(
+    () => LawyerChatRepository(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<LawyerChatRemoteDataSource>(
+    () => LawyerChatRemoteDataSource(apiClient: sl()),
+  );
 
   // Lawyer Referral
   sl.registerFactory(() => ReferralCubit(repository: sl()));
   sl.registerFactory(() => ReferralHistoryCubit(repository: sl()));
-  sl.registerLazySingleton<ReferralRepository>(() => ReferralRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<ReferralRemoteDataSource>(() => ReferralRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<ReferralRepository>(
+    () => ReferralRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ReferralRemoteDataSource>(
+    () => ReferralRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Wallet
   sl.registerFactory(() => LawyerWalletCubit(repository: sl()));
-  sl.registerLazySingleton<WalletRepository>(() => WalletRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<WalletRemoteDataSource>(() => WalletRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<WalletRepository>(
+    () => WalletRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<WalletRemoteDataSource>(
+    () => WalletRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Cases
   sl.registerFactory(() => LawyerCasesCubit(repository: sl()));
-  sl.registerLazySingleton<CasesRepository>(() => CasesRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<CasesRemoteDataSource>(() => CasesRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<CasesRepository>(
+    () => CasesRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<CasesRemoteDataSource>(
+    () => CasesRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  // Lawyer Consultations
+  sl.registerFactory(() => LawyerConsultationsCubit(repository: sl()));
+  sl.registerLazySingleton<LawyerConsultationsRepository>(
+    () => LawyerConsultationsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<LawyerConsultationsRemoteDataSource>(
+    () => LawyerConsultationsRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  // Lawyer Specializations
+  sl.registerFactory(() => LawyerSpecializationsCubit(repository: sl()));
+  sl.registerLazySingleton<LawyerSpecializationsRepository>(
+    () => LawyerSpecializationsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<LawyerSpecializationsRemoteDataSource>(
+    () => LawyerSpecializationsRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Clients
   sl.registerFactory(() => LawyerClientsCubit(repository: sl()));
-  sl.registerLazySingleton<ClientsRepository>(() => ClientsRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<ClientsRemoteDataSource>(() => ClientsRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<ClientsRepository>(
+    () => ClientsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ClientsRemoteDataSource>(
+    () => ClientsRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Overview
-  sl.registerFactory(() => LawyerOverviewCubit(repository: sl(), subscriptionRepository: sl()));
-  sl.registerLazySingleton<OverviewRepository>(() => OverviewRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<OverviewRemoteDataSource>(() => OverviewRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerFactory(
+    () => LawyerOverviewCubit(repository: sl(), subscriptionRepository: sl()),
+  );
+  sl.registerLazySingleton<OverviewRepository>(
+    () => OverviewRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<OverviewRemoteDataSource>(
+    () => OverviewRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Bookings
   sl.registerFactory(() => LawyerBookingsCubit(repository: sl()));
-  sl.registerLazySingleton<BookingsRepository>(() => BookingsRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<BookingsRemoteDataSource>(() => BookingsRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<BookingsRepository>(
+    () => BookingsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<BookingsRemoteDataSource>(
+    () => BookingsRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Services
   sl.registerFactory(() => LawyerServicesCubit(repository: sl()));
@@ -282,42 +380,73 @@ Future<void> init() async {
   sl.registerFactory(() => DeleteServiceCubit(repository: sl()));
   sl.registerFactory(() => ChangeServiceStatusCubit(repository: sl()));
   sl.registerFactory(() => LawyerCategoryItemsCubit(repository: sl()));
-  sl.registerLazySingleton<ServicesRepository>(() => ServicesRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<ServicesRemoteDataSource>(() => ServicesRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<ServicesRepository>(
+    () => ServicesRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ServicesRemoteDataSource>(
+    () => ServicesRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Proposals
   sl.registerFactory(() => LawyerProposalsCubit(repository: sl()));
-  sl.registerLazySingleton<ProposalsRepository>(() => ProposalsRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<ProposalsRemoteDataSource>(() => ProposalsRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<ProposalsRepository>(
+    () => ProposalsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ProposalsRemoteDataSource>(
+    () => ProposalsRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Requests
   sl.registerFactory(() => LawyerRequestsCubit(repository: sl()));
-  sl.registerLazySingleton<RequestsRepository>(() => RequestsRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<RequestsRemoteDataSource>(() => RequestsRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<RequestsRepository>(
+    () => RequestsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<RequestsRemoteDataSource>(
+    () => RequestsRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Library
   sl.registerFactory(() => LawyerLibraryCubit(repository: sl()));
-  sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<LibraryRemoteDataSource>(() => LibraryRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<LibraryRepository>(
+    () => LibraryRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<LibraryRemoteDataSource>(
+    () => LibraryRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Tasks
   sl.registerFactory(() => LawyerTasksCubit(repository: sl()));
-  sl.registerLazySingleton<TasksRepository>(() => TasksRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<TasksRemoteDataSource>(() => TasksRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<TasksRepository>(
+    () => TasksRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<TasksRemoteDataSource>(
+    () => TasksRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Reports
   sl.registerFactory(() => LawyerReportsCubit(repository: sl()));
-  sl.registerLazySingleton<ReportsRepository>(() => ReportsRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<ReportsRemoteDataSource>(() => ReportsRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<ReportsRepository>(
+    () => ReportsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ReportsRemoteDataSource>(
+    () => ReportsRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Documents
   sl.registerFactory(() => LawyerDocumentsCubit(repository: sl()));
-  sl.registerLazySingleton<DocumentsRepository>(() => DocumentsRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<DocumentsRemoteDataSource>(() => DocumentsRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<DocumentsRepository>(
+    () => DocumentsRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<DocumentsRemoteDataSource>(
+    () => DocumentsRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Lawyer Subscription
   sl.registerFactory(() => SubscriptionCubit(repository: sl()));
-  sl.registerLazySingleton<SubscriptionRepository>(() => SubscriptionRepository(remoteDataSource: sl()));
-  sl.registerLazySingleton<SubscriptionRemoteDataSource>(() => SubscriptionRemoteDataSourceImpl(apiClient: sl()));
+  sl.registerLazySingleton<SubscriptionRepository>(
+    () => SubscriptionRepository(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<SubscriptionRemoteDataSource>(
+    () => SubscriptionRemoteDataSourceImpl(apiClient: sl()),
+  );
 }
-

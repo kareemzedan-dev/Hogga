@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/widgets/custom_network_image.dart';
 

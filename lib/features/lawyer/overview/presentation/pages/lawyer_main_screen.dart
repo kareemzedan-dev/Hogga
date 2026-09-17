@@ -5,6 +5,7 @@ import 'package:hogga/features/lawyer/overview/presentation/pages/lawyer_overvie
 import 'package:hogga/features/lawyer/cases/presentation/pages/lawyer_cases_screen.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_bottom_nav_bar.dart';
 import 'package:hogga/features/lawyer/overview/presentation/pages/lawyer_more_screen.dart';
+import 'package:hogga/features/lawyer/consultations/presentation/pages/lawyer_consultations_screen.dart';
 import 'package:hogga/features/lawyer/proposals/presentation/pages/lawyer_opportunities_screen.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
@@ -47,6 +48,7 @@ class _LawyerMainScreenState extends State<LawyerMainScreen> {
       LawyerOverviewScreen(onNavigate: _onItemTapped),
       const LawyerOpportunitiesScreen(isBottomNav: true),
       const LawyerCasesScreen(isBottomNav: true),
+      const LawyerConsultationsScreen(isBottomNav: true),
       const LawyerMoreScreen(),
     ]);
     // Check notification permission + heads-up after screen renders
@@ -125,7 +127,9 @@ class _LawyerMainScreenState extends State<LawyerMainScreen> {
                   listener: (context, state) {
                     if (state is LawyerRequestActionSuccess) {
                       // Rule: When a lead is accepted/processed, refresh both leads and cases
-                      context.read<LawyerRequestsCubit>().getRequests();
+                      context
+                          .read<LawyerRequestsCubit>()
+                          .getRequests(showLoading: false);
                       context.read<LawyerCasesCubit>().getCases();
                     }
                   },

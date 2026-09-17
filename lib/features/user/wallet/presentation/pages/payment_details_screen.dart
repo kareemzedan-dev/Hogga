@@ -85,7 +85,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                             AppStrings.paidAmount.tr(context),
                             style: context.text.labelSmall?.copyWith(
                               color: context.textSecondary,
-                              fontSize: 11.sp,
+                              fontSize: 10.sp,
                             ),
                           ),
                           SizedBox(height: 8.h),
@@ -94,7 +94,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                             style: context.text.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: context.colors.primary,
-                              fontSize: 18.sp,
+                              fontSize: 12.sp,
                             ),
                           ),
                           SizedBox(height: 12.h),
@@ -157,7 +157,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                         style: context.text.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: context.textPrimary,
-                          fontSize: 13.sp,
+                          fontSize: 11.sp,
                         ),
                       ),
                       SizedBox(height: 12.h),
@@ -170,7 +170,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                               item.caseDetails!.title,
                               style: context.text.bodySmall?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12.sp,
+                                fontSize: 10.5.sp,
                               ),
                             ),
                             SizedBox(height: 8.h),
@@ -178,7 +178,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                               "${AppStrings.caseNumberLabel.tr(context)}: ${item.caseDetails!.caseNumber}",
                               style: context.text.labelSmall?.copyWith(
                                 color: context.textSecondary,
-                                fontSize: 10.sp,
+                                fontSize: 9.sp,
                               ),
                             ),
                           ],
@@ -193,7 +193,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                         style: context.text.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: context.textPrimary,
-                          fontSize: 13.sp,
+                          fontSize: 11.sp,
                         ),
                       ),
                       SizedBox(height: 12.h),
@@ -214,7 +214,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                                         product.name,
                                         style: context.text.bodySmall?.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 12.sp,
+                                          fontSize: 10.5.sp,
                                         ),
                                       ),
                                       SizedBox(height: 4.h),
@@ -223,7 +223,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                                         style: context.text.labelSmall
                                             ?.copyWith(
                                               color: context.textSecondary,
-                                              fontSize: 10.sp,
+                                              fontSize: 9.sp,
                                             ),
                                       ),
                                     ],
@@ -234,7 +234,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                                   style: context.text.bodySmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: context.colors.primary,
-                                    fontSize: 12.sp,
+                                    fontSize: 10.5.sp,
                                   ),
                                 ),
                               ],
@@ -263,7 +263,7 @@ class PaymentDetailsScreen extends StatelessWidget {
           title,
           style: context.text.labelSmall?.copyWith(
             color: context.textSecondary,
-            fontSize: 11.sp,
+            fontSize: 10.sp,
           ),
         ),
         SizedBox(width: 16.w),
@@ -274,7 +274,7 @@ class PaymentDetailsScreen extends StatelessWidget {
             style: context.text.bodySmall?.copyWith(
               fontWeight: FontWeight.w600,
               color: context.textPrimary,
-              fontSize: 11.sp,
+              fontSize: 10.sp,
             ),
           ),
         ),

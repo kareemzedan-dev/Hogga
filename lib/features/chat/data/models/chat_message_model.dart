@@ -103,11 +103,28 @@ class CounterpartyModel {
 
   factory CounterpartyModel.fromJson(Map<String, dynamic> json) {
     return CounterpartyModel(
-      id: json['id'] ?? 0,
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '') ?? 0,
       type: json['type']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
-      photo: json['photo']?.toString(),
+      photo: _cleanPhotoUrl(
+        json['photo'] ??
+            json['avatar'] ??
+            json['image'] ??
+            json['profile_image'],
+      ),
     );
+  }
+
+  static String? _cleanPhotoUrl(dynamic value) {
+    if (value == null) return null;
+    final trimmed = value.toString().trim();
+    if (trimmed.isEmpty ||
+        trimmed.toLowerCase() == 'null' ||
+        trimmed.toLowerCase() == '**null**') {
+      return null;
+    }
+    final markdownMatch = RegExp(r'\]\((.*?)\)').firstMatch(trimmed);
+    return markdownMatch?.group(1) ?? trimmed;
   }
 }
 

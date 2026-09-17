@@ -200,6 +200,8 @@ class AppTheme {
       backgroundColor: AppColors.backgroundLight,
       foregroundColor: AppColors.primary,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
       centerTitle: true,
       iconTheme: IconThemeData(color: AppColors.primary),
       titleTextStyle: TextStyle(
@@ -220,7 +222,7 @@ class AppTheme {
       selectedItemColor: AppColors.primary, // بني داكن للمُختار
       unselectedItemColor: Color(0xFFA69477), // بني باهت لغير المُختار
       type: BottomNavigationBarType.fixed,
-      elevation: 12,
+      elevation: 0,
     ),
     cardTheme: CardThemeData(
       color: Colors.white,
@@ -415,6 +417,8 @@ class AppTheme {
       backgroundColor: const Color(0xFF261208),
       foregroundColor: AppColors.cream,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
       centerTitle: true,
       titleTextStyle: TextStyle(
         color: AppColors.cream,
@@ -434,7 +438,7 @@ class AppTheme {
       selectedItemColor: Color(0xFFFAF0D0), // كريمي للمُختار
       unselectedItemColor: Color(0xFF8A6A45), // بني باهت לغير المُختار
       type: BottomNavigationBarType.fixed,
-      elevation: 12,
+      elevation: 0,
     ),
     cardTheme: CardThemeData(
       color: const Color(0xFF3D1F0D),

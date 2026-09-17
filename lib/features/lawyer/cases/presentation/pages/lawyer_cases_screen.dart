@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/features/lawyer/cases/domain/entities/lawyer_case.dart';
 import 'package:hogga/features/lawyer/cases/presentation/cubit/lawyer_cases_cubit.dart';
@@ -27,31 +29,9 @@ class _LawyerCasesScreenState extends State<LawyerCasesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: widget.isBottomNav
-            ? null
-            : IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: context.textPrimary,
-                  size: 20.sp,
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-        backgroundColor: context.pageBg,
-        elevation: 0,
-        shape: Border(
-          bottom: BorderSide(
-            color: context.divColor.withValues(alpha: 0.5),
-            width: 1,
-          ),
-        ),
-        title: Text(
-          AppStrings.myCases.tr(context),
-          style: context.theme.appBarTheme.titleTextStyle,
-        ),
-        centerTitle: true,
+      appBar: MainAppbar(
+        title: AppStrings.myCases.tr(context),
+        backBtn: !widget.isBottomNav,
       ),
       body: BlocBuilder<LawyerCasesCubit, LawyerCasesState>(
         builder: (context, state) {
@@ -87,23 +67,40 @@ class _LawyerCasesScreenState extends State<LawyerCasesScreen> {
                   Expanded(
                     child: SafeArea(
                       child: filteredCases.isEmpty
-                          ? ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                CustomEmptyState(
-                                  title: _searchQuery.isEmpty
-                                      ? AppStrings.noCases.tr(context)
-                                      : AppStrings.noResults.tr(context),
-                                  subtitle: _searchQuery.isEmpty
-                                      ? AppStrings.noCasesSubtitle.tr(context)
-                                      : AppStrings.noSearchResultsSubtitle.tr(
-                                          context,
-                                        ),
-                                  icon: _searchQuery.isEmpty
-                                      ? Icons.gavel_outlined
-                                      : Icons.search_off_rounded,
+                          ? LayoutBuilder(
+                              builder: (context, constraints) =>
+                                  SingleChildScrollView(
+                                physics:
+                                    const AlwaysScrollableScrollPhysics(),
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    minHeight: constraints.maxHeight,
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        top: 36.h,
+                                        bottom: 48.h,
+                                      ),
+                                      child: CustomEmptyState(
+                                        title: _searchQuery.isEmpty
+                                            ? AppStrings.noCases.tr(context)
+                                            : AppStrings.noResults.tr(context),
+                                        subtitle: _searchQuery.isEmpty
+                                            ? AppStrings.noCasesSubtitle.tr(
+                                                context,
+                                              )
+                                            : AppStrings
+                                                .noSearchResultsSubtitle
+                                                .tr(context),
+                                        icon: _searchQuery.isEmpty
+                                            ? Icons.gavel_outlined
+                                            : Icons.search_off_rounded,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ],
+                              ),
                             )
                           : ListView.separated(
                               physics: const AlwaysScrollableScrollPhysics(),
@@ -133,18 +130,8 @@ class _LawyerCasesScreenState extends State<LawyerCasesScreen> {
       _CaseStatusFilter('completed', AppStrings.completed.tr(context)),
     ];
 
-    return Container(
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: context.cardBg,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 12.h),
       child: Column(
         children: [
           TextField(
@@ -156,7 +143,7 @@ class _LawyerCasesScreenState extends State<LawyerCasesScreen> {
                 color: context.textSecondary,
               ),
               filled: true,
-              fillColor: context.pageBg,
+              fillColor: context.cardBg,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16.r),
                 borderSide: BorderSide.none,
@@ -167,49 +154,48 @@ class _LawyerCasesScreenState extends State<LawyerCasesScreen> {
               ),
             ),
           ),
-          SizedBox(height: 16.h),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
+          SizedBox(height: 12.h),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(
+              spacing: 8.w,
               children: filters.map((filter) {
                 final isSelected = _selectedType == filter.type;
-                return Padding(
-                  padding: EdgeInsets.only(left: 8.w),
-                  child: ChoiceChip(
-                    label: Text(filter.label),
-                    selected: isSelected,
-                    onSelected: (v) {
-                      if (v) {
-                        setState(() => _selectedType = filter.type);
-                        context.read<LawyerCasesCubit>().getCases(
-                          type: filter.type,
-                        );
-                      }
-                    },
-                    selectedColor: context.accentGolden,
-                    labelStyle: context.text.labelSmall?.copyWith(
-                      color: isSelected
-                          ? context.colors.onPrimary
-                          : context.textPrimary,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                    backgroundColor: context.pageBg,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      side: BorderSide(
-                        color: isSelected
-                            ? context.accentGolden
-                            : context.divColor,
-                      ),
-                    ),
-                    showCheckmark: false,
+                return ChoiceChip(
+                  label: Text(filter.label),
+                  selected: isSelected,
+                  onSelected: (v) {
+                    if (v) {
+                      setState(() => _selectedType = filter.type);
+                      context.read<LawyerCasesCubit>().getCases(
+                        type: filter.type,
+                      );
+                    }
+                  },
+                  selectedColor: context.accentGolden,
+                  labelStyle: context.text.labelSmall?.copyWith(
+                    color: isSelected
+                        ? context.colors.onPrimary
+                        : context.textPrimary,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
+                  backgroundColor: context.cardBg,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    side: BorderSide(
+                      color: isSelected
+                          ? context.accentGolden
+                          : context.divColor,
+                    ),
+                  ),
+                  showCheckmark: false,
                 );
               }).toList(),
             ),
           ),
+          SizedBox(height: 8.h),
         ],
       ),
     );

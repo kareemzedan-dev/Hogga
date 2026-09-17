@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -14,23 +13,26 @@ class LawyerCard extends StatelessWidget {
   final ProviderProfileModel provider;
   final bool isAdded;
   final VoidCallback? onAdd;
-  final  int? typeOfBookingFlow ; // 0 for main, 1 for admin core, 2 for provider core
+  final int?
+  typeOfBookingFlow; // 0 for main, 1 for admin core, 2 for provider core
 
   const LawyerCard({
     super.key,
     required this.provider,
     this.isAdded = false,
     this.onAdd,
-    this.typeOfBookingFlow=0,
+    this.typeOfBookingFlow = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final userName = provider.name;
     final userPhoto = provider.photo;
+    final showServicePricing =
+        typeOfBookingFlow != 0 && provider.services.isNotEmpty;
 
     // Mocking missing fields temporarily until backend provides them
-    final double mockPrice = 0.0; 
+    final double mockPrice = 0.0;
     final String mockTime = '00:00';
 
     return Container(
@@ -44,26 +46,36 @@ class LawyerCard extends StatelessWidget {
         ),
       ),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Avatar with online status
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.lawyerProfile, arguments: provider.id);
-                  },
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Avatar with online status
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.lawyerProfile,
+                    arguments: provider.id,
+                  );
+                },
+                child: Stack(
+                  children: [
+                    CircleAvatar(
                       radius: 22,
                       backgroundColor: context.chipBg,
                       backgroundImage: userPhoto != null && userPhoto.isNotEmpty
-                          ? CachedNetworkImageProvider(userPhoto) as ImageProvider
-                          : const AssetImage(AppAssets.userPlaceholder) as ImageProvider,
+                          ? CachedNetworkImageProvider(userPhoto)
+                                as ImageProvider
+                          : const AssetImage(AppAssets.userPlaceholder)
+                                as ImageProvider,
                       child: userPhoto == null || userPhoto.isEmpty
-                          ? Icon(Icons.person, color: context.textPrimary, size: 22)
+                          ? Icon(
+                              Icons.person,
+                              color: context.textPrimary,
+                              size: 22,
+                            )
                           : null,
                     ),
                     if (provider.isOnline)
@@ -81,125 +93,163 @@ class LawyerCard extends StatelessWidget {
                         ),
                       ),
                   ],
-                      ),
-                  ),
-                AppSizes.w(10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              userName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.text.bodyMedium?.copyWith(
-                                color: context.textPrimary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.sp,
-                              ),
+                ),
+              ),
+              AppSizes.w(10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.textPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
                             ),
                           ),
-                          if (provider.isVerified) ...[
-                            AppSizes.w(4),
-                            const Icon(Icons.verified, color: Colors.blue, size: 14),
-                          ],
+                        ),
+                        if (provider.isVerified) ...[
+                          AppSizes.w(4),
+                          const Icon(
+                            Icons.verified,
+                            color: Colors.blue,
+                            size: 14,
+                          ),
                         ],
-                      ),
-                      AppSizes.h(4),
-                      Row(
-                        children: [
-                          if (provider.city != null && provider.city!.isNotEmpty) ...[
-                            Icon(Icons.location_on_outlined, size: 12, color: context.textSecondary),
-                            AppSizes.w(2),
-                            Text(
-                              provider.city!,
-                              style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontSize: 10.sp),
+                      ],
+                    ),
+                    AppSizes.h(4),
+                    Row(
+                      children: [
+                        if (provider.city != null &&
+                            provider.city!.isNotEmpty) ...[
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 12,
+                            color: context.textSecondary,
+                          ),
+                          AppSizes.w(2),
+                          Text(
+                            provider.city!,
+                            style: context.text.labelSmall?.copyWith(
+                              color: context.textSecondary,
+                              fontSize: 10.sp,
                             ),
-                            AppSizes.w(8),
-                          ],
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.golden.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              children: [
-                                Text(
-                                  provider.rating.toStringAsFixed(1),
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.sp, color: AppColors.golden),
+                          ),
+                          AppSizes.w(8),
+                        ],
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.golden.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                provider.rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10.sp,
+                                  color: AppColors.golden,
                                 ),
-                                const SizedBox(width: 2),
-                                const Icon(Icons.star_rounded, color: AppColors.golden, size: 10),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 2),
+                              const Icon(
+                                Icons.star_rounded,
+                                color: AppColors.golden,
+                                size: 10,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
 
+          AppSizes.h(12),
+          // Stats row
+          if (showServicePricing) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.monetization_on_outlined,
+                        size: 14,
+                        color: context.colors.primary,
+                      ),
+                      AppSizes.w(6),
+                      Flexible(
+                        child: Text(
+                          '${AppStrings.servicePrice.tr(context)} / ${provider.services.first.price} ${provider.services.first.currency}',
+                          style: context.text.labelMedium?.copyWith(
+                            color: context.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11.sp,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-  
-            AppSizes.h(12),
-            // Stats row
-            if (provider.services.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Icon(Icons.monetization_on_outlined, size: 14, color: context.colors.primary),
-                        AppSizes.w(6),
-                        Flexible(
-                          child: Text(
-                            '${AppStrings.servicePrice.tr(context)} / ${provider.services.first.price} ${provider.services.first.currency}',
-                            style: context.text.labelMedium?.copyWith(
-                              color: context.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11.sp,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (provider.services.first.taxStatusText != null && provider.services.first.taxStatusText!.isNotEmpty) ...[
-                    AppSizes.w(4),
-                    Text(
-                      provider.services.first.taxStatusText!,
-                      style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontSize: 10.sp),
-                    ),
-                  ],
-                ],
-              ),
             AppSizes.h(6),
-
-            if(typeOfBookingFlow==0)
-              MainBookingFlowButton(onAdd: onAdd, isAdded: isAdded, provider: provider),
-            if(typeOfBookingFlow==1)
-              ProviderCoreFixedBookingFlowButton(onAdd: onAdd, provider: provider, mockPrice: mockPrice),
-            if(typeOfBookingFlow==2)
-              ProviderCoreBookingFlowButton(onAdd: onAdd, provider: provider, mockPrice: mockPrice, mockTime: mockTime),
           ],
-        ),
+
+          if (typeOfBookingFlow == 0)
+            MainBookingFlowButton(
+              onAdd: onAdd,
+              isAdded: isAdded,
+              provider: provider,
+            ),
+          if (typeOfBookingFlow == 1)
+            ProviderCoreFixedBookingFlowButton(
+              onAdd: onAdd,
+              provider: provider,
+              mockPrice: mockPrice,
+            ),
+          if (typeOfBookingFlow == 2)
+            ProviderCoreBookingFlowButton(
+              onAdd: onAdd,
+              provider: provider,
+              mockPrice: mockPrice,
+              mockTime: mockTime,
+            ),
+        ],
+      ),
     );
   }
 }
 
-class MainBookingFlowButton extends StatelessWidget{
-   final VoidCallback? onAdd;
-   final bool isAdded;
-   final provider;
-  const MainBookingFlowButton({super.key, this.onAdd, this.isAdded = false,this.provider});
+class MainBookingFlowButton extends StatelessWidget {
+  final VoidCallback? onAdd;
+  final bool isAdded;
+  final ProviderProfileModel? provider;
+  const MainBookingFlowButton({
+    super.key,
+    this.onAdd,
+    this.isAdded = false,
+    this.provider,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +286,9 @@ class MainBookingFlowButton extends StatelessWidget{
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              isAdded ? AppStrings.addedSuccessfully.tr(context) : AppStrings.addLawyer.tr(context),
+              isAdded
+                  ? AppStrings.addedSuccessfully.tr(context)
+                  : AppStrings.addLawyer.tr(context),
               style: TextStyle(
                 color: isAdded ? AppColors.cream : context.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -248,14 +300,18 @@ class MainBookingFlowButton extends StatelessWidget{
       ],
     );
   }
-
 }
 
-class ProviderCoreFixedBookingFlowButton extends StatelessWidget{
+class ProviderCoreFixedBookingFlowButton extends StatelessWidget {
   final VoidCallback? onAdd;
-  final provider ; // Mocking provider since not passed in constructor
+  final ProviderProfileModel? provider;
   final double mockPrice;
-  const ProviderCoreFixedBookingFlowButton({super.key, this.onAdd,this.provider, this.mockPrice = 0});
+  const ProviderCoreFixedBookingFlowButton({
+    super.key,
+    this.onAdd,
+    this.provider,
+    this.mockPrice = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -263,10 +319,9 @@ class ProviderCoreFixedBookingFlowButton extends StatelessWidget{
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
-
           children: [
             Text(
-              AppStrings.consultation,
+              AppStrings.consultation.tr(context),
               style: context.text.labelMedium?.copyWith(
                 color: context.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -282,7 +337,7 @@ class ProviderCoreFixedBookingFlowButton extends StatelessWidget{
                   ),
                 ),
                 Text(
-                  AppStrings.currencyRial,
+                  ' ${AppStrings.currencyRial.tr(context)}',
                   style: context.text.labelMedium?.copyWith(
                     color: context.textPrimary,
                     fontWeight: FontWeight.bold,
@@ -299,11 +354,11 @@ class ProviderCoreFixedBookingFlowButton extends StatelessWidget{
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color:  context.chipBg,
+              color: context.chipBg,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-             AppStrings.addLawyer.tr(context),
+              AppStrings.addLawyer.tr(context),
               style: TextStyle(
                 color: context.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -315,14 +370,20 @@ class ProviderCoreFixedBookingFlowButton extends StatelessWidget{
       ],
     );
   }
-
 }
-class ProviderCoreBookingFlowButton extends StatelessWidget{
-    final provider ; // Mocking provider since not passed in constructor
-    final VoidCallback? onAdd;
-    final double mockPrice;
-    final String mockTime;
-  const ProviderCoreBookingFlowButton({super.key, this.onAdd,this.provider, this.mockPrice = 0, this.mockTime = ''});
+
+class ProviderCoreBookingFlowButton extends StatelessWidget {
+  final ProviderProfileModel? provider;
+  final VoidCallback? onAdd;
+  final double mockPrice;
+  final String mockTime;
+  const ProviderCoreBookingFlowButton({
+    super.key,
+    this.onAdd,
+    this.provider,
+    this.mockPrice = 0,
+    this.mockTime = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -330,10 +391,9 @@ class ProviderCoreBookingFlowButton extends StatelessWidget{
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
-
           children: [
             Text(
-              AppStrings.startFrom,
+              AppStrings.startFrom.tr(context),
               style: context.text.labelMedium?.copyWith(
                 color: context.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -341,18 +401,15 @@ class ProviderCoreBookingFlowButton extends StatelessWidget{
             ),
             Row(
               children: [
+                Text(mockPrice.toString(), style: context.text.labelMedium),
                 Text(
-                  mockPrice.toString(),
-                  style: context.text.labelMedium,
-                ),
-                Text(
-                  AppStrings.currencyRial,
+                  ' ${AppStrings.currencyRial.tr(context)}',
                   style: context.text.labelMedium?.copyWith(
                     color: context.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text('/$mockTime',style: context.text.labelMedium)
+                Text('/$mockTime', style: context.text.labelMedium),
               ],
             ),
           ],
@@ -364,7 +421,7 @@ class ProviderCoreBookingFlowButton extends StatelessWidget{
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color:  context.chipBg,
+              color: context.chipBg,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -380,5 +437,4 @@ class ProviderCoreBookingFlowButton extends StatelessWidget{
       ],
     );
   }
-
 }

@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
-import 'package:hogga/features/lawyer/overview/domain/entities/lawyer_home.dart';
+import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_card.dart';
 import 'package:hogga/features/lawyer/subscription/data/models/subscription_summary_model.dart';
-import 'package:hogga/config/routes/app_routes.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SubscriptionStatusCard extends StatelessWidget {
   final SubscriptionSummary? summary;
@@ -20,198 +20,323 @@ class SubscriptionStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Container(
-        height: 100.h,
-        decoration: BoxDecoration(
-          color: context.mc.chipBg,
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-      );
+      return const LawyerCard(child: SizedBox(height: 92));
     }
 
-    if (summary == null) {
+    if (summary == null || summary!.planName.isEmpty || !summary!.isActive) {
       return _buildNoSubscriptionCard(context);
     }
 
-    return _buildActiveState(context);
-  }
-
-  Widget _buildActiveState(BuildContext context) {
-    final bool isExpiring = summary?.isExpiringSoon ?? false;
-    final color = isExpiring ? context.warning : context.success;
-    final icon = isExpiring ? Icons.timer_outlined : Icons.verified_user_rounded;
-    final title = isExpiring 
-        ? AppStrings.subscriptionExpiringSoon.tr(context) 
-        : AppStrings.visibleToClients.tr(context);
-
-    return _buildBaseSubscriptionCard(
-      context: context,
-      color: color,
-      icon: icon,
-      title: title,
-      buttonText: isExpiring ? AppStrings.renew.tr(context) : AppStrings.manage.tr(context),
-    );
+    return _buildCurrentSubscriptionCard(context);
   }
 
   Widget _buildNoSubscriptionCard(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: context.mc.chipBg,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: context.colors.error.withValues(alpha: 0.15)),
-      ),
-      child: Column(
+    return LawyerCard(
+      padding: EdgeInsets.all(14.w),
+      onTap: () => Navigator.pushNamed(context, AppRoutes.lawyerSubscription),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(6.w),
-                decoration: BoxDecoration(
-                  color: context.colors.error.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.warning_amber_rounded, color: context.colors.error, size: 20.sp),
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                AppStrings.notActive.tr(context),
-                style: context.text.labelLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: context.colors.error,
-                ),
-              ),
-              Spacer(),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.lawyerSubscription),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [context.accentGolden, context.accentGolden.withValues(alpha: 0.8)],
-                    ),
-                    borderRadius: BorderRadius.circular(25.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: context.accentGolden.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    AppStrings.activateNow.tr(context),
-                    style: context.text.labelSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color:context.textPrimary
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          _IconBadge(
+            icon: Icons.workspace_premium_outlined,
+            color: context.colors.error,
           ),
-          SizedBox(height: 8.h),
-          Align(
-            alignment: AlignmentDirectional.topStart,
-            child: Text(
-              AppStrings.activateSubscriptionToStart.tr(context),
-              style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontSize: 10.sp),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppStrings.currentSubscription.tr(context),
+                  style: context.text.labelSmall?.copyWith(
+                    color: context.textSecondary,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  AppStrings.notActive.tr(context),
+                  style: context.text.titleSmall?.copyWith(
+                    color: context.textPrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  AppStrings.activateSubscriptionToStart.tr(context),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.labelSmall?.copyWith(
+                    color: context.textSecondary,
+                    fontSize: 10.sp,
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 12.h),
-
+          SizedBox(width: 8.w),
+          _ActionPill(
+            label: AppStrings.activateNow.tr(context),
+            color: context.accentGolden,
+            filled: true,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBaseSubscriptionCard({
-    required BuildContext context,
-    required Color color,
-    required IconData icon,
-    required String title,
-    required String buttonText,
-  }) {
-    final remaining = summary?.remainingConsultations ?? 0;
-    final percentage = summary?.completionPercentage ?? 0.0;
+  Widget _buildCurrentSubscriptionCard(BuildContext context) {
+    final data = summary!;
+    final isFree = data.isDefaultFree;
+    final isExpiring = data.isExpiringSoon;
+    final statusColor = isExpiring
+        ? context.warning
+        : isFree
+        ? context.accentGolden
+        : context.success;
+    final statusText = isExpiring
+        ? AppStrings.subscriptionExpiringSoon.tr(context)
+        : isFree
+        ? AppStrings.defaultFreePackage.tr(context)
+        : AppStrings.active.tr(context);
+    final subtitle = isFree || data.endDate == null
+        ? AppStrings.noExpiryDate.tr(context)
+        : '${AppStrings.remainingDays.tr(context)}: ${data.remainingDays.clamp(0, 9999)} ${AppStrings.days.tr(context)}';
 
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: context.mc.chipBg,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 20.sp),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Text(
-                  title,
-                  style: context.text.labelLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.lawyerSubscription),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(color: color.withValues(alpha: 0.2)),
-                  ),
-                  child: Text(
-                    buttonText,
-                    style: context.text.labelSmall?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+    return LawyerCard(
+      padding: EdgeInsets.zero,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          gradient: LinearGradient(
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
+            colors: [
+              statusColor.withValues(alpha: context.isDark ? 0.22 : 0.14),
+              context.cardBg,
             ],
           ),
-          SizedBox(height: 10.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    summary?.planName ?? '',
-                    style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        padding: EdgeInsets.all(14.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _IconBadge(
+                  icon: isFree
+                      ? Icons.card_giftcard_rounded
+                      : Icons.verified_user_rounded,
+                  color: statusColor,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppStrings.currentSubscription.tr(context),
+                        style: context.text.labelSmall?.copyWith(
+                          color: context.textSecondary,
+                          fontSize: 10.sp,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        data.planName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.text.titleSmall?.copyWith(
+                          color: context.textPrimary,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    '$remaining ${AppStrings.consultationLeft.tr(context)}',
-                    style: context.text.labelSmall?.copyWith(color: context.textSecondary),
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 80.w,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4.r),
-                  child: LinearProgressIndicator(
-                    value: (percentage / 100).clamp(0.0, 1.0),
-                    backgroundColor: context.divColor,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                    minHeight: 4.h,
-                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: [
+                _InfoChip(
+                  icon: Icons.circle,
+                  label: statusText,
+                  color: statusColor,
+                ),
+                _InfoChip(
+                  icon: Icons.event_available_rounded,
+                  label: subtitle,
+                  color: context.accentGolden,
+                ),
+              ],
+            ),
+            if (data.canOpenPackages) ...[
+              SizedBox(height: 12.h),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: _PackagesButton(
+                  color: statusColor,
+                  onTap: () => _openPackagesLink(data.packageLink),
                 ),
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openPackagesLink(String? link) async {
+    final url = link?.trim();
+    if (url == null || url.isEmpty) return;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
+
+class _IconBadge extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+
+  const _IconBadge({required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 42.w,
+      height: 42.w,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
+      ),
+      child: Icon(icon, color: color, size: 22.sp),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 11.sp),
+          SizedBox(width: 5.w),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.labelSmall?.copyWith(
+                color: context.textPrimary,
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionPill extends StatelessWidget {
+  final String label;
+  final Color color;
+  final bool filled;
+
+  const _ActionPill({
+    required this.label,
+    required this.color,
+    this.filled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = filled ? context.textPrimary : color;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
+      decoration: BoxDecoration(
+        color: filled ? color : color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: color.withValues(alpha: 0.26)),
+      ),
+      child: Text(
+        label,
+        style: context.text.labelSmall?.copyWith(
+          color: textColor,
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _PackagesButton extends StatelessWidget {
+  final Color color;
+  final VoidCallback onTap;
+
+  const _PackagesButton({required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(18.r),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.22),
+              blurRadius: 10.r,
+              offset: Offset(0, 4.h),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              AppStrings.packages.tr(context),
+              style: context.text.labelSmall?.copyWith(
+                color: context.textPrimary,
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            SizedBox(width: 5.w),
+            Icon(
+              Icons.open_in_new_rounded,
+              color: context.textPrimary,
+              size: 13.sp,
+            ),
+          ],
+        ),
       ),
     );
   }

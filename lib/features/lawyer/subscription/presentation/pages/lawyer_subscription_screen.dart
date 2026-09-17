@@ -5,6 +5,7 @@ import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_shimmer_loading.dart';
 import '../cubit/subscription_cubit.dart';
@@ -29,14 +30,8 @@ class _LawyerSubscriptionScreenState extends State<LawyerSubscriptionScreen> {
       create: (context) => sl<SubscriptionCubit>()..loadSubscriptionData(),
       child: Scaffold(
         backgroundColor: context.pageBg,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Text(
-            AppStrings.subscriptionPackages.tr(context),
-            style: context.theme.appBarTheme.titleTextStyle,
-          ),
-          centerTitle: true,
+        appBar: MainAppbar(
+          title: AppStrings.subscriptionPackages.tr(context),
         ),
         body: BlocConsumer<SubscriptionCubit, SubscriptionState>(
           listener: (context, state) {

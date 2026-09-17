@@ -40,7 +40,7 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
   int? _remoteUid;
   bool _muted = false;
   bool _speaker = false;
-  bool _videoEnabled = true;
+  bool _videoEnabled = false;
   Timer? _callTimer;
   Timer? _ringingTimer;
   Timer? _connectionRecoveryTimer;
@@ -148,9 +148,6 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
 
   Future<void> _initAgora(CallTokenModel callToken) async {
     await [Permission.microphone].request();
-    if (callToken.isVideo) {
-      await [Permission.camera].request();
-    }
 
     _engine = createAgoraRtcEngine();
     await _engine!.initialize(
@@ -211,12 +208,9 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
       ),
     );
 
-    if (callToken.isVideo) {
-      await _engine!.enableVideo();
-      await _engine!.startPreview();
-    } else {
-      await _engine!.enableAudio();
-    }
+    await _engine!.enableAudio();
+    await _engine!.enableVideo();
+    await _engine!.muteLocalVideoStream(true);
 
     await _engine!.joinChannel(
       token: callToken.token,
@@ -241,7 +235,7 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
     _callTimer?.cancel();
     _ringingTimer?.cancel();
     _connectionRecoveryTimer?.cancel();
-    context.read<LawyerCallCubit>().endCall(callId);
+    context.read<LawyerCallCubit>().endCall(callId, duration: _callDuration);
   }
 
   String _callStatusText(BuildContext context) {
@@ -282,9 +276,19 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
     _engine?.setEnableSpeakerphone(_speaker);
   }
 
-  void _onToggleVideo() {
-    setState(() => _videoEnabled = !_videoEnabled);
-    _engine?.muteLocalVideoStream(!_videoEnabled);
+  Future<void> _onToggleVideo() async {
+    final shouldEnableVideo = !_videoEnabled;
+    if (shouldEnableVideo) {
+      final cameraPermission = await Permission.camera.request();
+      if (!cameraPermission.isGranted || !mounted) return;
+    }
+    setState(() => _videoEnabled = shouldEnableVideo);
+    if (shouldEnableVideo) {
+      _engine?.startPreview();
+    } else {
+      _engine?.stopPreview();
+    }
+    _engine?.muteLocalVideoStream(!shouldEnableVideo);
   }
 
   void _onSwitchCamera() => _engine?.switchCamera();
@@ -326,7 +330,7 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
 
         if (callToken == null) return const SizedBox();
 
-        final isVideo = callToken.isVideo;
+        final isVideo = _videoEnabled;
 
         return Scaffold(
           backgroundColor: isVideo ? Colors.black : context.pageBg,
@@ -478,12 +482,11 @@ class _LawyerAgoraCallScreenState extends State<LawyerAgoraCallScreen> {
                       AppStrings.mute.tr(context),
                       onPressed: _onToggleMute,
                     ),
-                    if (isVideo)
-                      _buildCallAction(
-                        _videoEnabled ? Icons.videocam : Icons.videocam_off,
-                        AppStrings.video.tr(context),
-                        onPressed: _onToggleVideo,
-                      ),
+                    _buildCallAction(
+                      _videoEnabled ? Icons.videocam : Icons.videocam_off,
+                      AppStrings.video.tr(context),
+                      onPressed: _onToggleVideo,
+                    ),
                     _buildCallAction(
                       Icons.call_end,
                       AppStrings.end.tr(context),

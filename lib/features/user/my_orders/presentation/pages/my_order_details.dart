@@ -23,10 +23,13 @@ import 'order_details/widgets/proposal_card.dart';
 import '../../../../../config/routes/app_routes.dart';
 import '../widgets/order_details_shimmer.dart';
 import '../../../../../core/widgets/custom_text_field.dart';
+import '../../../../../core/widgets/custom_network_image.dart';
 
 class OrderDetailsView extends StatefulWidget {
   final int orderId;
-  const OrderDetailsView({super.key, required this.orderId});
+  final String? recordType;
+
+  const OrderDetailsView({super.key, required this.orderId, this.recordType});
 
   @override
   State<OrderDetailsView> createState() => _OrderDetailsViewState();
@@ -34,23 +37,34 @@ class OrderDetailsView extends StatefulWidget {
 
 class _OrderDetailsViewState extends State<OrderDetailsView> {
   int? _selectedProposalId;
+  late final LegalCaseActionsCubit _actionsCubit;
 
   @override
   void initState() {
     super.initState();
-    context.read<MyOrdersCubit>().getOrderDetails(orderId: widget.orderId);
+    _actionsCubit = di.sl<LegalCaseActionsCubit>();
+    context.read<MyOrdersCubit>().getOrderDetails(
+      orderId: widget.orderId,
+      recordType: widget.recordType,
+    );
+  }
+
+  @override
+  void dispose() {
+    _actionsCubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<LegalCaseActionsCubit>(),
+    return BlocProvider.value(
+      value: _actionsCubit,
       child: BlocListener<LegalCaseActionsCubit, LegalCaseActionsState>(
-        listener: (context, actionState) {
+        listener: (listenerContext, actionState) {
           if (actionState.errorMessage != null &&
               actionState.errorMessage!.isNotEmpty) {
             AppSnackbar.showError(context, message: actionState.errorMessage);
-            context.read<LegalCaseActionsCubit>().clearMessages();
+            _actionsCubit.clearMessages();
           }
           if (actionState.successMessage != null &&
               actionState.successMessage!.isNotEmpty) {
@@ -60,17 +74,54 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
             );
             final type = actionState.actionType;
             if (type == 'cancel') {
-              context.read<LegalCaseActionsCubit>().clearMessages();
+              _actionsCubit.clearMessages();
               Navigator.of(
                 context,
               ).pop({'cancelled': true, 'orderId': widget.orderId});
+            } else if (type == 'accept') {
+              final paymentUrl = actionState.paymentUrl;
+              final caseId = actionState.caseId ?? widget.orderId;
+              _actionsCubit.clearMessages();
+              final cubit = context.read<MyOrdersCubit>();
+              final currentState = cubit.state;
+              final currentOrder = currentState is MyOrderDetailsLoaded
+                  ? currentState.orderDetails
+                  : null;
+              if (paymentUrl != null && paymentUrl.isNotEmpty) {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.paymentWebView,
+                  arguments: {
+                    'paymentUrl': paymentUrl,
+                    'caseNumber': currentOrder?.caseNumber ?? '',
+                    'caseId': caseId,
+                    'recordType': currentOrder?.recordType ?? 'service',
+                  },
+                ).then((_) {
+                  if (mounted) {
+                    cubit.getOrderDetails(
+                      orderId: widget.orderId,
+                      recordType: widget.recordType,
+                    );
+                  }
+                });
+              } else {
+                // No payment URL - reload to reflect updated state
+                cubit.getOrderDetails(
+                  orderId: widget.orderId,
+                  recordType: widget.recordType,
+                );
+              }
             } else {
-              context.read<LegalCaseActionsCubit>().clearMessages();
+              _actionsCubit.clearMessages();
               // For uploads and other actions, reload details immediately
               final cubit = context.read<MyOrdersCubit>();
               Future.delayed(const Duration(milliseconds: 300), () {
                 if (mounted) {
-                  cubit.getOrderDetails(orderId: widget.orderId);
+                  cubit.getOrderDetails(
+                    orderId: widget.orderId,
+                    recordType: widget.recordType,
+                  );
                 }
               });
             }
@@ -81,72 +132,217 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
             final title = state is MyOrderDetailsLoaded
                 ? (state.orderDetails.title.isNotEmpty
                       ? state.orderDetails.title
-                      : AppStrings.consultationDetails.tr(context))
-                : AppStrings.consultationDetails.tr(context);
-            return Scaffold(
-              backgroundColor: context.pageBg,
-              appBar: MainAppbar(title: title),
-              body: Builder(
-                builder: (context) {
-                  if (state is MyOrderDetailsLoading) {
-                    return const OrderDetailsShimmer();
-                  }
-                  if (state is MyOrderDetailsError) {
-                    return Center(
-                      child: Text(
-                        state.message.tr(context),
-                        style: TextStyle(color: AppColors.error),
-                      ),
-                    );
-                  }
-                  if (state is MyOrderDetailsLoaded) {
-                    final order = state.orderDetails;
-                    _selectedProposalId ??=
-                        order.ratableProposal?.id ??
-                        (order.proposals.isNotEmpty
-                            ? order.proposals.first.id
-                            : null);
-                    final ratableProposal = order.ratableProposal;
-                    return SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.horizontalPadding,
-                        vertical: 10,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          OrderDetailsHeader(order: order),
-                          const SizedBox(height: 24),
-                          OrderSummaryCard(
-                            order: order,
-                            onViewDetails: () {
-                              _showDocumentsSheet(order.id);
-                            },
-                            onCancelOrder: () {
-                              _showCancelCaseDialog(order.id);
-                            },
+                      : (state.orderDetails.isConsultation
+                            ? AppStrings.consultationDetails.tr(context)
+                            : AppStrings.requestDetails.tr(context)))
+                : (widget.recordType == 'consultation'
+                      ? AppStrings.consultationDetails.tr(context)
+                      : AppStrings.requestDetails.tr(context));
+            final actionState = context.watch<LegalCaseActionsCubit>().state;
+            final bottomActionOrder = state is MyOrderDetailsLoaded
+                ? state.orderDetails
+                : null;
+            final showCompleteBottomAction =
+                bottomActionOrder?.canCompleteByUser ?? false;
+            return Stack(
+              children: [
+                Scaffold(
+                  backgroundColor: context.pageBg,
+                  appBar: MainAppbar(title: title),
+                  bottomNavigationBar: showCompleteBottomAction
+                      ? _buildCompleteBottomBar(
+                          bottomActionOrder!,
+                          actionState.isLoading &&
+                              actionState.actionType == 'complete',
+                        )
+                      : null,
+                  body: Builder(
+                    builder: (context) {
+                      if (state is MyOrderDetailsLoading) {
+                        return const OrderDetailsShimmer();
+                      }
+                      if (state is MyOrderDetailsError) {
+                        return Center(
+                          child: Text(
+                            state.message.tr(context),
+                            style: TextStyle(color: AppColors.error),
                           ),
-                          const SizedBox(height: 20),
-                          if (order.proposals.isNotEmpty) ...[
-                            _buildProposalsSection(order),
-                            const SizedBox(height: 20),
+                        );
+                      }
+                      if (state is MyOrderDetailsLoaded) {
+                        final order = state.orderDetails;
+                        _selectedProposalId ??=
+                            order.ratableProposal?.id ??
+                            (order.proposals.isNotEmpty
+                                ? order.proposals.first.id
+                                : null);
+                        final ratingTarget = order.ratingTarget;
+                        return SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.horizontalPadding,
+                            vertical: 10,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              OrderDetailsHeader(order: order),
+                              const SizedBox(height: 24),
+                              OrderSummaryCard(
+                                order: order,
+                                onViewDetails: () {
+                                  _showDocumentsSheet(order.id);
+                                },
+                                onCancelOrder: () {
+                                  _showCancelCaseDialog(order.id);
+                                },
+                                onOpenChat: order.hasChatRoom
+                                    ? () => _openChat(order)
+                                    : null,
+                                onOpenCall: order.hasChatRoom
+                                    ? () => _openCall(order)
+                                    : null,
+                                onCompleteOrder: null,
+                              ),
+                              SizedBox(height: 8.h),
+
+                              if (order.hasAcceptedLawyer) ...[
+                                _buildAcceptedLawyerCard(order),
+                                SizedBox(height: 10.h),
+                              ] else if (!order.isConsultation &&
+                                  order.proposals.isNotEmpty) ...[
+                                _buildProposalsSection(order),
+                                SizedBox(height: 10.h),
+                              ] else if (order.isPending) ...[
+                                _buildWaitingForProposalsCard(order),
+                                SizedBox(height: 10.h),
+                              ],
+                              if (order.canRateLawyer &&
+                                  ratingTarget != null) ...[
+                                _buildRateLawyerCard(ratingTarget),
+                                const SizedBox(height: 20),
+                              ],
+                              if (order.financials.totalPrice > 0 ||
+                                  order.proposals.any((p) => p.isAccepted) ||
+                                  order.hasAcceptedLawyer) ...[
+                                OrderReceiptSection(order: order),
+                                const SizedBox(height: 40),
+                              ],
+                            ],
+                          ),
+                        );
+                      }
+                      return const SizedBox();
+                    },
+                  ),
+                ),
+                if (actionState.isLoading && actionState.actionType == 'accept')
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.45),
+                    child: Center(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 32.w),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24.w,
+                          vertical: 20.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.cardBg,
+                          borderRadius: BorderRadius.circular(16.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
                           ],
-                          if (order.canRateLawyer &&
-                              ratableProposal != null) ...[
-                            _buildRateLawyerCard(ratableProposal),
-                            const SizedBox(height: 20),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(
+                              color: AppColors.golden,
+                            ),
+                            SizedBox(height: 16.h),
+                            Text(
+                              Localizations.localeOf(context).languageCode ==
+                                      'ar'
+                                  ? 'جاري قبول العرض وتجهيز الدفع...'
+                                  : 'Processing acceptance & preparing payment...',
+                              textAlign: TextAlign.center,
+                              style: context.text.bodyMedium?.copyWith(
+                                color: context.textPrimary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12.5.sp,
+                              ),
+                            ),
                           ],
-                          OrderReceiptSection(order: order),
-                          const SizedBox(height: 40),
-                        ],
+                        ),
                       ),
-                    );
-                  }
-                  return const SizedBox();
-                },
-              ),
+                    ),
+                  ),
+              ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompleteBottomBar(OrderDetailsData order, bool isCompleting) {
+    final label =
+        (order.isConsultation
+                ? AppStrings.completeConsultation
+                : AppStrings.completeService)
+            .tr(context);
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 14.h),
+        decoration: BoxDecoration(
+          color: context.cardBg,
+          border: Border(top: BorderSide(color: context.divColor)),
+        ),
+        child: SizedBox(
+          height: 48.h,
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: isCompleting
+                ? null
+                : () => _showCompleteOrderDialog(order),
+            icon: isCompleting
+                ? SizedBox(
+                    width: 18.w,
+                    height: 18.w,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Icon(
+                    Icons.done_all_rounded,
+                    color: Colors.white,
+                    size: 20.sp,
+                  ),
+            label: Text(
+              label,
+              style: context.text.labelLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13.sp,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF27AE60),
+              disabledBackgroundColor: const Color(
+                0xFF27AE60,
+              ).withValues(alpha: 0.65),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -181,7 +377,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   style: context.text.titleSmall?.copyWith(
                     color: context.textPrimary,
                     fontWeight: FontWeight.w700,
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -209,6 +405,41 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
           ),
         ],
       ),
+    );
+  }
+
+  void _openChat(OrderDetailsData order) {
+    final chatRoomId = order.chatRoomId;
+    if (chatRoomId == null) return;
+
+    Navigator.pushNamed(
+      context,
+      AppRoutes.chat,
+      arguments: {
+        'chatRoomId': chatRoomId,
+        'lawyerName': order.lawyerName,
+        'caseTitle': order.title,
+        'serviceType': order.serviceTypeKey,
+        'recordType': order.recordType,
+        'isConsultation': order.isConsultation,
+        'isCall': order.isCallType,
+      },
+    );
+  }
+
+  void _openCall(OrderDetailsData order) {
+    final chatRoomId = order.chatRoomId;
+    if (chatRoomId == null) return;
+
+    Navigator.pushNamed(
+      context,
+      AppRoutes.call,
+      arguments: {
+        'chatRoomId': chatRoomId,
+        'lawyerName': order.lawyerName,
+        'lawyerPhoto': null,
+        'serviceType': order.serviceTypeKey,
+      },
     );
   }
 
@@ -266,7 +497,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                       style: context.text.titleMedium?.copyWith(
                         color: context.textPrimary,
                         fontWeight: FontWeight.w700,
-                        fontSize: 17.sp,
+                        fontSize: 14.5.sp,
                       ),
                     ),
                     SizedBox(height: 8.h),
@@ -382,19 +613,22 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppStrings.receivedProposals.tr(context),
-          style: context.text.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            fontSize: 17,
+        Padding(
+          padding: EdgeInsetsDirectional.only(start: 2.w, bottom: 7.h),
+          child: Text(
+            AppStrings.receivedProposals.tr(context),
+            style: context.text.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 13.sp,
+              height: 1.1,
+            ),
           ),
         ),
-        const SizedBox(height: 14),
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: order.proposals.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          separatorBuilder: (context, index) => SizedBox(height: 7.h),
           itemBuilder: (context, index) {
             final proposal = order.proposals[index];
             return ProposalCard(
@@ -420,58 +654,645 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     );
   }
 
+  Widget _buildWaitingForProposalsCard(OrderDetailsData order) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final isDirectLawyer =
+        order.selectionType == 'select' || order.lawyer != null;
+    final lawyer = order.lawyer;
+
+    final title = isDirectLawyer
+        ? (order.statusText.isNotEmpty
+              ? order.statusText
+              : (isArabic
+                    ? 'بانتظار قبول المحامي'
+                    : "Waiting for Lawyer's Approval"))
+        : (order.statusText.isNotEmpty
+              ? order.statusText
+              : AppStrings.waitingForProposals.tr(context));
+
+    final subtitle = isDirectLawyer
+        ? (isArabic
+              ? (lawyer != null
+                    ? 'تم إرسال طلبك بنجاح إلى المحامي (${lawyer.name}) وبانتظار مراجعته وقبول الطلب وتقديم عرض السعر.'
+                    : 'تم إرسال طلبك إلى المحامي المحدد وبانتظار موافقته وتقديم عرض السعر.')
+              : (lawyer != null
+                    ? 'Your request has been sent to (${lawyer.name}) and is awaiting approval and quotation.'
+                    : 'Your request has been sent to the selected lawyer and is awaiting approval.'))
+        : AppStrings.waitingForProposalsSubtitle.tr(context);
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: context.cardBg,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: AppColors.golden.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 40.w,
+            height: 40.w,
+            decoration: BoxDecoration(
+              color: AppColors.golden.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.hourglass_top_rounded,
+              color: AppColors.golden,
+              size: 21.sp,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: context.text.titleSmall?.copyWith(
+              color: context.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 13.sp,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: context.text.bodySmall?.copyWith(
+              color: context.textSecondary,
+              height: 1.35,
+              fontSize: 10.5.sp,
+            ),
+          ),
+          if (isDirectLawyer && lawyer != null) ...[
+            SizedBox(height: 10.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: AppColors.golden.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: AppColors.golden.withValues(alpha: 0.18),
+                ),
+              ),
+              child: Row(
+                children: [
+                  ClipOval(
+                    child:
+                        lawyer.photoUrl != null && lawyer.photoUrl!.isNotEmpty
+                        ? CustomNetworkImage(
+                            imageUrl: lawyer.photoUrl!,
+                            width: 40.w,
+                            height: 40.w,
+                            fit: BoxFit.cover,
+                            errorWidget: Container(
+                              width: 40.w,
+                              height: 40.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.golden.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.person_outline_rounded,
+                                color: AppColors.golden,
+                                size: 20.sp,
+                              ),
+                            ),
+                          )
+                        : Container(
+                            width: 40.w,
+                            height: 40.w,
+                            decoration: BoxDecoration(
+                              color: AppColors.golden.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.person_outline_rounded,
+                              color: AppColors.golden,
+                              size: 20.sp,
+                            ),
+                          ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lawyer.name,
+                          style: context.text.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.sp,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (lawyer.specialization != null &&
+                            lawyer.specialization!.isNotEmpty) ...[
+                          SizedBox(height: 2.h),
+                          Text(
+                            lawyer.specialization!,
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.textSecondary,
+                              fontSize: 10.sp,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.golden.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      isArabic ? 'المحامي المطلوب' : 'Requested',
+                      style: context.text.labelSmall?.copyWith(
+                        color: AppColors.golden,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 9.5.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAcceptedLawyerCard(OrderDetailsData order) {
+    final lawyer = order.lawyer;
+    final acceptedProposal = order.acceptedProposal;
+    final lawyerName = lawyer?.name.isNotEmpty == true
+        ? lawyer!.name
+        : (order.lawyerName.isNotEmpty ? order.lawyerName : 'المحامي');
+    final lawyerPhoto = lawyer?.photoUrl ?? acceptedProposal?.lawyerPhoto;
+    final lawyerId = lawyer?.id ?? order.lawyerId ?? acceptedProposal?.lawyerId;
+    final specialization = lawyer?.specialization ?? lawyer?.providerType ?? '';
+    final hasChat = order.hasChatRoom;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsetsDirectional.only(start: 2.w, bottom: 7.h),
+          child: Text(
+            order.isConsultation
+                ? (Localizations.localeOf(context).languageCode == 'ar'
+                      ? 'محامي الاستشارة'
+                      : 'Consultation Lawyer')
+                : (Localizations.localeOf(context).languageCode == 'ar'
+                      ? 'المحامي المعين للقضية'
+                      : 'Assigned Lawyer'),
+            style: context.text.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 13.sp,
+              height: 1.1,
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: context.cardBg,
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(color: context.divColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  // Avatar
+                  GestureDetector(
+                    onTap: lawyerId != null
+                        ? () => Navigator.pushNamed(
+                            context,
+                            AppRoutes.lawyerProfile,
+                            arguments: lawyerId,
+                          )
+                        : null,
+                    child: ClipOval(
+                      child: lawyerPhoto != null && lawyerPhoto.isNotEmpty
+                          ? CustomNetworkImage(
+                              imageUrl: lawyerPhoto,
+                              width: 52.w,
+                              height: 52.w,
+                              fit: BoxFit.cover,
+                              errorWidget: Container(
+                                width: 52.w,
+                                height: 52.w,
+                                decoration: BoxDecoration(
+                                  color: AppColors.golden.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.person_outline_rounded,
+                                  color: AppColors.golden,
+                                  size: 26.sp,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              width: 52.w,
+                              height: 52.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.golden.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.person_outline_rounded,
+                                color: AppColors.golden,
+                                size: 26.sp,
+                              ),
+                            ),
+                    ),
+                  ),
+                  SizedBox(width: 14.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lawyerName,
+                          style: context.text.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.5.sp,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (specialization.isNotEmpty) ...[
+                          SizedBox(height: 3.h),
+                          Text(
+                            specialization,
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.textSecondary,
+                              fontSize: 10.5.sp,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        SizedBox(height: 4.h),
+                        Row(
+                          children: [
+                            if (lawyer != null &&
+                                lawyer.experienceYears > 0) ...[
+                              Icon(
+                                Icons.work_outline,
+                                size: 12.sp,
+                                color: context.textSecondary,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                '${lawyer.experienceYears} ${AppStrings.years.tr(context)}',
+                                style: context.text.labelSmall?.copyWith(
+                                  color: context.textSecondary,
+                                  fontSize: 10.sp,
+                                ),
+                              ),
+                              SizedBox(width: 10.w),
+                            ],
+                            if (lawyer != null && lawyer.rating > 0) ...[
+                              Icon(
+                                Icons.star_rounded,
+                                color: AppColors.golden,
+                                size: 14.sp,
+                              ),
+                              SizedBox(width: 3.w),
+                              Text(
+                                lawyer.rating.toStringAsFixed(1),
+                                style: context.text.labelSmall?.copyWith(
+                                  color: context.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10.sp,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (acceptedProposal != null ||
+                  (!order.isConsultation &&
+                      order.financials.totalPrice > 0)) ...[
+                SizedBox(height: 14.h),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 10.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.golden.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: AppColors.golden.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.payments_outlined,
+                                size: 16.sp,
+                                color: AppColors.golden,
+                              ),
+                              SizedBox(width: 6.w),
+                              Text(
+                                Localizations.localeOf(context).languageCode ==
+                                        'ar'
+                                    ? 'قيمة العرض المعتمد:'
+                                    : 'Accepted Offer:',
+                                style: context.text.bodySmall?.copyWith(
+                                  color: context.textSecondary,
+                                  fontSize: 11.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            AppStrings.priceWithCurrency.tr(
+                              context,
+                              namedArgs: {
+                                'price':
+                                    acceptedProposal?.price ??
+                                    order.financials.totalPrice.toStringAsFixed(
+                                      2,
+                                    ),
+                              },
+                            ),
+                            style: context.text.titleSmall?.copyWith(
+                              color: AppColors.golden,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12.5.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (acceptedProposal?.description.isNotEmpty == true) ...[
+                        SizedBox(height: 6.h),
+                        Divider(
+                          color: AppColors.golden.withValues(alpha: 0.15),
+                          height: 1,
+                        ),
+                        SizedBox(height: 6.h),
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            acceptedProposal!.description,
+                            style: context.text.bodySmall?.copyWith(
+                              color: context.textSecondary,
+                              fontSize: 10.5.sp,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+              SizedBox(height: 14.h),
+              Row(
+                children: [
+                  if (hasChat) ...[
+                    Expanded(
+                      child: SizedBox(
+                        height: 40.h,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _openChat(order),
+                          icon: Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 16.sp,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            AppStrings.chat.tr(context),
+                            style: context.text.labelMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.golden,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (lawyerId != null) SizedBox(width: 8.w),
+                  ],
+                  if (lawyerId != null)
+                    Expanded(
+                      child: SizedBox(
+                        height: 40.h,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.lawyerProfile,
+                              arguments: lawyerId,
+                            );
+                          },
+                          icon: Icon(
+                            Icons.person_outline_rounded,
+                            size: 16.sp,
+                            color: context.textPrimary,
+                          ),
+                          label: Text(
+                            'عرض الملف الشخصي',
+                            style: context.text.labelMedium?.copyWith(
+                              color: context.textPrimary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11.5.sp,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: context.divColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   void _showAcceptProposalDialog(CaseProposal proposal) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: context.pageBg,
+        backgroundColor: context.cardBg,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(20.r),
         ),
-        title: Text(
-          AppStrings.confirm.tr(context),
-          style: context.text.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+        titlePadding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+        actionsPadding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
+        title: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: AppColors.golden.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(
+                Icons.payment_rounded,
+                color: AppColors.golden,
+                size: 22.sp,
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Text(
+                'تأكيد القبول والمتابعة للدفع',
+                style: context.text.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13.sp,
+                ),
+              ),
+            ),
+          ],
         ),
-        content: Text(
-          AppStrings.confirmAcceptProposal.tr(
-            context,
-            namedArgs: {'name': proposal.lawyerName},
-          ),
-          style: context.text.bodyMedium?.copyWith(
-            color: context.textSecondary,
-          ),
-        ),
-        actionsPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'هل أنت متأكد من قبول عرض ${proposal.lawyerName}؟',
+              style: context.text.bodyMedium?.copyWith(
+                color: context.textPrimary,
+                fontWeight: FontWeight.w600,
+                fontSize: 12.sp,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: AppColors.golden.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: AppColors.golden.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.proposalPrice.tr(context),
+                    style: context.text.bodySmall?.copyWith(
+                      color: context.textSecondary,
+                      fontSize: 11.sp,
+                    ),
+                  ),
+                  Text(
+                    AppStrings.priceWithCurrency.tr(
+                      context,
+                      namedArgs: {'price': proposal.price},
+                    ),
+                    style: context.text.titleSmall?.copyWith(
+                      color: AppColors.golden,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              'سيتم نقلك لصفحة الدفع الإلكتروني الآمن لاستكمال رسوم الخدمة والبدء في تنفيذ القضية.',
+              style: context.text.bodySmall?.copyWith(
+                color: context.textSecondary,
+                fontSize: 10.5.sp,
+                height: 1.4,
+              ),
+            ),
+          ],
         ),
         actions: [
           Row(
             children: [
               Expanded(
-                child: CustomButton(
-                  isOutlined: true,
-                  onPressed: () => Navigator.pop(dialogContext),
-                  text: AppStrings.cancel.tr(context),
-                  fontWeight: FontWeight.w600,
+                child: SizedBox(
+                  height: 40.h,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: context.divColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    child: Text(
+                      AppStrings.cancel.tr(context),
+                      style: context.text.bodyMedium?.copyWith(
+                        color: context.textSecondary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11.5.sp,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 10.w),
               Expanded(
-                child: CustomButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext); // Close dialog
-                    // Call the actual API
-                    context.read<LegalCaseActionsCubit>().acceptProposal(
-                      proposal.id,
-                    );
-                  },
-                  backgroundColor: AppColors.golden,
-                  textColor: Colors.white,
-                  text: AppStrings.confirm.tr(context),
-                  fontWeight: FontWeight.w600,
+                child: SizedBox(
+                  height: 40.h,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext); // Close dialog
+                      _actionsCubit.acceptProposal(proposal.id);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.golden,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    child: Text(
+                      'تأكيد والدفع',
+                      style: context.text.bodyMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11.5.sp,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -507,11 +1328,75 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   onPressed: () {
                     Navigator.pop(dialogContext); // Close dialog
                     // Call the actual API for cancellation
-                    context.read<LegalCaseActionsCubit>().cancelCase(caseId);
+                    _actionsCubit.cancelCase(caseId);
                   },
                   backgroundColor: AppColors.error,
                   textColor: Colors.white,
                   text: AppStrings.confirm.tr(context),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCompleteOrderDialog(OrderDetailsData order) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: context.pageBg,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          (order.isConsultation
+                  ? AppStrings.completeConsultation
+                  : AppStrings.completeService)
+              .tr(context),
+          style: context.text.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          (order.isConsultation
+                  ? AppStrings.confirmCompleteConsultation
+                  : AppStrings.confirmCompleteService)
+              .tr(context),
+          style: context.text.bodyMedium?.copyWith(
+            color: context.textSecondary,
+          ),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  isOutlined: true,
+                  onPressed: () => Navigator.pop(dialogContext),
+                  text: AppStrings.back.tr(context),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: CustomButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    _actionsCubit.completeRecord(
+                      recordId: order.id,
+                      isConsultation: order.isConsultation,
+                    );
+                  },
+                  backgroundColor: const Color(0xFF27AE60),
+                  textColor: Colors.white,
+                  text: AppStrings.confirm.tr(context),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -527,7 +1412,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (bottomSheetContext) {
-        final actionCubit = context.read<LegalCaseActionsCubit>();
+        final actionCubit = _actionsCubit;
         final myOrdersCubit = context.read<MyOrdersCubit>();
         return MultiBlocProvider(
           providers: [
@@ -543,7 +1428,10 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                 Future.delayed(const Duration(milliseconds: 300), () {
                   final sheetCubit = myOrdersCubit;
                   if (sheetCubit.isClosed) return;
-                  sheetCubit.getOrderDetails(orderId: orderId);
+                  sheetCubit.getOrderDetails(
+                    orderId: orderId,
+                    recordType: widget.recordType,
+                  );
                 });
               }
             },

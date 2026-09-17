@@ -39,11 +39,15 @@ class LawyerChatRemoteDataSource {
       formData.fields.add(MapEntry('message', message));
     }
     if (file != null) {
-      formData.files.add(MapEntry(
-        'file',
-        await MultipartFile.fromFile(file.path,
-            filename: file.path.split('/').last),
-      ));
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          ),
+        ),
+      );
     }
     final response = await apiClient.post(
       AppEndPoints.lawyerSendChatMessage(roomId),
@@ -61,10 +65,15 @@ class LawyerChatRemoteDataSource {
     await apiClient.post(AppEndPoints.lawyerConnectCall(callId));
   }
 
-  Future<int> endCall(int callId) async {
-    final response = await apiClient.post(AppEndPoints.lawyerEndCall(callId));
-    final duration = response.data?['data']?['duration'];
-    return (duration is num && duration > 0) ? duration.toInt() : 0;
+  Future<int> endCall(int callId, {int duration = 0}) async {
+    final response = await apiClient.post(
+      AppEndPoints.lawyerEndCall(callId),
+      data: {'duration': duration},
+    );
+    final responseDuration = response.data?['data']?['duration'];
+    return (responseDuration is num && responseDuration > 0)
+        ? responseDuration.toInt()
+        : 0;
   }
 
   Future<void> updateCallStatus(int callId, String status) async {

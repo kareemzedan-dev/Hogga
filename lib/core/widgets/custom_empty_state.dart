@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 
@@ -8,6 +7,7 @@ class CustomEmptyState extends StatelessWidget {
   final IconData icon;
   final String? buttonLabel;
   final VoidCallback? onAction;
+  final EdgeInsetsGeometry? padding;
 
   const CustomEmptyState({
     super.key,
@@ -16,13 +16,14 @@ class CustomEmptyState extends StatelessWidget {
     required this.icon,
     this.buttonLabel,
     this.onAction,
+    this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
+        padding: padding ?? EdgeInsets.symmetric(horizontal: 40.w, vertical: 24.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

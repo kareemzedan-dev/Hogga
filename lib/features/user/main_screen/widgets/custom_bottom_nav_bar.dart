@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
@@ -17,14 +16,20 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedColor = context.isDark ? context.mc.textPrimary : AppColors.primary;
-    final unselectedColor = context.isDark ? const Color(0xFF6B4C30) : const Color(0xFFA69470);
+    final selectedColor = context.isDark
+        ? context.mc.textPrimary
+        : AppColors.primary;
+    final unselectedColor = context.isDark
+        ? const Color(0xFF6B4C30)
+        : const Color(0xFFA69470);
 
     return Container(
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: context.isDark ? Colors.transparent : const Color(0xFFEADBCA),
+            color: context.isDark
+                ? context.divColor.withValues(alpha: 0.3)
+                : const Color(0xFFEADBCA),
             width: 1,
           ),
         ),
@@ -36,7 +41,7 @@ class CustomBottomNavBar extends StatelessWidget {
         backgroundColor: context.mc.navBarBg,
         selectedItemColor: selectedColor,
         unselectedItemColor: unselectedColor,
-        elevation: context.isDark ? 8 : 0,
+        elevation: 0,
         items: [
           BottomNavigationBarItem(
             icon: Icon(
@@ -48,7 +53,9 @@ class CustomBottomNavBar extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              selectedIndex == 1 ? Icons.receipt_long_rounded : Icons.receipt_long_outlined,
+              selectedIndex == 1
+                  ? Icons.receipt_long_rounded
+                  : Icons.receipt_long_outlined,
               size: 26,
               color: selectedIndex == 1 ? selectedColor : unselectedColor,
             ),
@@ -56,9 +63,21 @@ class CustomBottomNavBar extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              selectedIndex == 2 ? Icons.person_rounded : Icons.person_outline_rounded,
+              selectedIndex == 2
+                  ? Icons.forum_rounded
+                  : Icons.forum_outlined,
               size: 26,
               color: selectedIndex == 2 ? selectedColor : unselectedColor,
+            ),
+            label: AppStrings.chats.tr(context),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              selectedIndex == 3
+                  ? Icons.person_rounded
+                  : Icons.person_outline_rounded,
+              size: 26,
+              color: selectedIndex == 3 ? selectedColor : unselectedColor,
             ),
             label: AppStrings.profile.tr(context),
           ),

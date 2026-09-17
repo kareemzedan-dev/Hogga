@@ -6,6 +6,7 @@ import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 import 'package:hogga/core/widgets/custom_text_field.dart';
 import 'package:hogga/core/widgets/hogga_card.dart';
@@ -39,14 +40,8 @@ class ProfileScreen extends StatelessWidget {
       create: (context) => sl<ProfileCubit>()..loadProfile(),
       child: Scaffold(
         backgroundColor: context.pageBg,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
-            AppStrings.profile.tr(context),
-            style: context.theme.appBarTheme.titleTextStyle,
-          ),
+        appBar: MainAppbar(
+          title: AppStrings.profile.tr(context),
         ),
         body: BlocConsumer<ProfileCubit, ProfileState>(
           listener: (context, state) {

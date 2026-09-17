@@ -52,20 +52,26 @@ class ProposalsRepositoryImpl implements ProposalsRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> submitProposal({
+  Future<Either<Failure, String>> submitProposal({
     required int serviceId,
+    required double offerPrice,
     required String description,
   }) async {
     try {
       final success = await remoteDataSource.submitProposal(
         serviceId: serviceId,
+        offerPrice: offerPrice,
         description: description,
       );
       return Right(success);
     } on Failure catch (e) {
       return Left(e);
     } on DioException catch (e) {
-      final msg = e.response?.data?['message'] ?? e.message ?? e.toString();
+      String? msg;
+      if (e.response?.data is Map) {
+        msg = e.response?.data['message']?.toString();
+      }
+      msg ??= e.message ?? e.toString();
       return Left(ServerFailure(msg));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
@@ -73,30 +79,42 @@ class ProposalsRepositoryImpl implements ProposalsRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> updateProposal({
+  Future<Either<Failure, String>> updateProposal({
     required int proposalId,
+    required double offerPrice,
     required String description,
   }) async {
     try {
       final success = await remoteDataSource.updateProposal(
         proposalId: proposalId,
+        offerPrice: offerPrice,
         description: description,
       );
       return Right(success);
     } on Failure catch (e) {
       return Left(e);
+    } on DioException catch (e) {
+      String? msg;
+      if (e.response?.data is Map) {
+        msg = e.response?.data['message']?.toString();
+      }
+      msg ??= e.message ?? e.toString();
+      return Left(ServerFailure(msg));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, bool>> deleteProposal(int proposalId) async {
+  Future<Either<Failure, String>> deleteProposal(int proposalId) async {
     try {
-      final success = await remoteDataSource.deleteProposal(proposalId);
-      return Right(success);
+      final message = await remoteDataSource.deleteProposal(proposalId);
+      return Right(message);
     } on Failure catch (e) {
       return Left(e);
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? e.message ?? e.toString();
+      return Left(ServerFailure(msg));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }

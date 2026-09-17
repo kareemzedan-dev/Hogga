@@ -33,8 +33,10 @@ class AppEndPoints {
   static const String lawyerAvailableServicesEndPoint =
       "lawyer/proposals/available-services";
   static const String lawyerSubmitProposalEndPoint = "lawyer/proposals/submit";
-  static const String lawyerUpdateProposalEndPoint = "lawyer/proposals/update";
-  static const String lawyerDeleteProposalEndPoint = "lawyer/proposals/delete";
+  static String lawyerUpdateProposalEndPoint(int proposalId) =>
+      "lawyer/proposals/update/$proposalId";
+  static String lawyerDeleteProposalEndPoint(int proposalId) =>
+      "lawyer/proposals/delete/$proposalId";
   static const String lawyerBookingsEndPoint = "lawyer/bookings";
   static const String lawyerMyProposalsEndPoint =
       "lawyer/proposals/my-proposals";
@@ -69,8 +71,8 @@ class AppEndPoints {
   static const String updateLocationEndPoint = "update-location";
   static const String userPaymentsEndPoint = "user/payments";
   static String getUserPaymentDetailsEndPoint(int id) => "user/payments/$id";
-  static const String myOrders = "my-bookings";
-  static const String myOrdersDetails = "my-bookings-details/";
+  static const String myOrders = "services/legal-cases";
+  static const String myOrdersDetails = "services/legal-cases/";
   // Chat
   static const String chats = "chats";
   static String chatMessages(int roomId) => "chats/$roomId/messages";
@@ -112,14 +114,36 @@ class AppEndPoints {
   static const String privacyEndPoint = "public/privacy";
   static const String appConfigEndPoint = "app/config";
   static const String itemCategoriesEndPoint = "app/item-categories";
+  static const String consultationLawyersEndPoint = "consultations/lawyers";
+  static const String couponLawyersEndPoint = "services/coupons/lawyers";
+  static const String bookConsultationEndPoint = "consultations/book";
+  static String completeConsultationEndPoint(int id) =>
+      "consultations/$id/complete";
+  static String consultationLawyerPricesEndPoint(int lawyerId) =>
+      "consultations/lawyers/$lawyerId/prices";
+  static const String lawyerMyConsultationsEndPoint = "lawyer/my-consultations";
+  static String lawyerConsultationDetailsEndPoint(int id) =>
+      "lawyer/my-consultations/$id";
+  static String lawyerCompleteConsultationEndPoint(int id) =>
+      "lawyer/my-consultations/$id/complete";
+  static const String lawyerConsultationsPricingGetEndPoint = "lawyer/consultations";
+  static const String lawyerConsultationPricingEndPoint =
+      "lawyer/consultations/store-or-update";
+  static const String lawyerMySpecializationsEndPoint = "lawyer/specializations";
+  static const String lawyerUpdateSpecializationsEndPoint =
+      "lawyer/specializations/update";
   static const String storeServiceEndPoint = "services/store-service";
   static const String verifyServiceCouponEndPoint = "services/coupons/verify";
   static const String uploadLegalCaseFilesEndPoint =
       "services/legal-cases/upload";
   static const String acceptLegalCaseProposalEndPoint =
       "services/legal-cases/accept-proposal";
+  static String legalCaseProposalsEndPoint(int id) =>
+      "services/legal-cases/proposals/$id";
   static const String cancelLegalCaseEndPoint = "services/legal-cases/cancel";
   static String payLegalCaseEndPoint(int id) => "services/legal-cases/$id/pay";
+  static String completeLegalCaseEndPoint(int id) =>
+      "services/legal-cases/$id/complete";
   static String rateProviderEndPoint(int providerId) =>
       "providers/$providerId/rate";
   static const String notificationsEndPoint = "user/notifications";
@@ -139,7 +163,7 @@ class AppEndPoints {
   static const String discounts = "provider/discounts"; // GET/POST
   static const String discountById = "provider/discounts/";
 
-  static const String lawyerUpdateTokenEndPoint = "user/token";
+  static const String lawyerUpdateTokenEndPoint = "lawyer/home/token";
   static const String lawyerServicesEndPoint = "lawyer/services";
   static const String lawyerCategoryItemsEndPoint =
       "lawyer/services/categores-items";

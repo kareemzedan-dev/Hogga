@@ -17,6 +17,7 @@ import 'package:hogga/features/lawyer/services/presentation/cubit/delete_service
 import 'package:hogga/features/lawyer/services/presentation/cubit/change_service_status_cubit.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 import 'package:hogga/core/widgets/custom_confirmation_sheet.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/core/utils/app_assets.dart';
 
 class LawyerServiceDetailsScreen extends StatelessWidget {
@@ -70,16 +71,8 @@ class LawyerServiceDetailsScreen extends StatelessWidget {
         ],
         child: Scaffold(
           backgroundColor: context.pageBg,
-          appBar: AppBar(
-            backgroundColor: context.pageBg,
-            elevation: 0,
-            shape: Border(bottom: BorderSide(color: context.divColor.withValues(alpha: 0.5), width: 1)),
-            title: Text(title, style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: context.textPrimary)),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 20.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
+          appBar: MainAppbar(
+            title: title,
             actions: [
               BlocBuilder<LawyerServiceDetailsCubit, LawyerServiceDetailsState>(
                 builder: (context, state) {

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
@@ -7,6 +6,7 @@ import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/config/routes/app_routes.dart';
 import 'package:hogga/features/user/home/data/models/categories_model.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:hogga/features/user/home/presentation/cubit/home_cubit.dart';
 import 'package:hogga/features/user/home/presentation/cubit/home_state.dart';
@@ -22,10 +22,12 @@ class ChooseSpecializationScreen extends StatefulWidget {
   });
 
   @override
-  State<ChooseSpecializationScreen> createState() => _ChooseSpecializationScreenState();
+  State<ChooseSpecializationScreen> createState() =>
+      _ChooseSpecializationScreenState();
 }
 
-class _ChooseSpecializationScreenState extends State<ChooseSpecializationScreen> {
+class _ChooseSpecializationScreenState
+    extends State<ChooseSpecializationScreen> {
   @override
   void initState() {
     super.initState();
@@ -38,18 +40,8 @@ class _ChooseSpecializationScreenState extends State<ChooseSpecializationScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: context.textPrimary),
-          onPressed: () => Navigator.pop(context),
-        ),
-        centerTitle: true,
-        title: Text(
-          widget.category.name,
-          style: context.theme.appBarTheme.titleTextStyle,
-        ),
+      appBar: MainAppbar(
+        title: widget.category.name,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,13 +56,16 @@ class _ChooseSpecializationScreenState extends State<ChooseSpecializationScreen>
                   style: context.text.titleSmall?.copyWith(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14.sp,
+                    fontSize: 11.sp,
                   ),
                 ),
                 AppSizes.h(4),
                 Text(
                   AppStrings.chooseSpecialization.tr(context),
-                  style: context.text.bodySmall?.copyWith(color: context.textSecondary, fontSize: 12.sp),
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.textSecondary,
+                    fontSize: 10.5.sp,
+                  ),
                 ),
               ],
             ),
@@ -117,8 +112,12 @@ class _ChooseSpecializationScreenState extends State<ChooseSpecializationScreen>
       separatorBuilder: (_, __) => AppSizes.h(12),
       itemBuilder: (context, index) {
         return Shimmer.fromColors(
-          baseColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800]! : Colors.grey[300]!,
-          highlightColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey[700]! : Colors.grey[100]!,
+          baseColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey[800]!
+              : Colors.grey[300]!,
+          highlightColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey[700]!
+              : Colors.grey[100]!,
           child: Container(
             height: 70,
             decoration: BoxDecoration(
@@ -139,10 +138,19 @@ class _ChooseSpecializationScreenState extends State<ChooseSpecializationScreen>
           AppRoutes.serviceSubtypes,
           arguments: {
             'childCategoryId': child.id,
+            'subCategoryId': widget.subCategory.id,
             'sectionName': widget.category.name,
             'subCategoryName': widget.subCategory.name,
             'childCategoryName': child.name,
-            'subCategoryPrice': double.tryParse(widget.subCategory.price ?? '0') ?? 0.0,
+            'parentServiceType':
+                widget.subCategory.serviceType ?? widget.category.type,
+            'parentConsultationType': widget.subCategory.consultationType,
+            'parentIsConsultation': widget.subCategory.isConsultation,
+            'subCategoryPrice':
+                widget.subCategory.publishingFee ??
+                double.tryParse(widget.subCategory.price ?? '0') ??
+                0.0,
+            'requiredInputs': widget.subCategory.requiredInputs,
           },
         );
       },
@@ -181,11 +189,15 @@ class _ChooseSpecializationScreenState extends State<ChooseSpecializationScreen>
                 style: context.text.bodyMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: context.textPrimary,
-                  fontSize: 13.sp,
+                  fontSize: 11.5.sp,
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 14, color: context.textSecondary),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: context.textSecondary,
+            ),
           ],
         ),
       ),

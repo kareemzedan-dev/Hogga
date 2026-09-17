@@ -10,6 +10,8 @@ class NotificationModel extends Equatable {
   final String? readAt;
   final String? actionType;
   final int? caseId;
+  final int? consultationId;
+  final String? recordType;
   final String? caseNumber;
   final int? businessId;
   final int? chatRoomId;
@@ -28,6 +30,8 @@ class NotificationModel extends Equatable {
     this.readAt,
     this.actionType,
     this.caseId,
+    this.consultationId,
+    this.recordType,
     this.caseNumber,
     this.businessId,
     this.chatRoomId,
@@ -54,7 +58,35 @@ class NotificationModel extends Equatable {
         .toLowerCase();
     final isCallPayload = _isCallType(type) || _isCallType(actionType);
     final isCasePayload = _isCaseType(type) || _isCaseType(actionType);
+    final isConsultationPayload =
+        _isConsultationType(type) || _isConsultationType(actionType);
     final channelName = payload['channel_name']?.toString();
+    final consultationId = _firstInt([
+      meta['consultation_id'],
+      payload['consultation_id'],
+      json['consultation_id'],
+      if (isConsultationPayload && !isCallPayload) payload['id'],
+    ]);
+    final caseId = _firstInt([
+      meta['case_id'],
+      payload['case_id'],
+      json['case_id'],
+      meta['legal_case_id'],
+      payload['legal_case_id'],
+      json['legal_case_id'],
+      if (isCasePayload && !isCallPayload && !isConsultationPayload)
+        payload['id'],
+    ]);
+    final recordType =
+        _normalizeRecordType(
+          meta['record_type'] ??
+              payload['record_type'] ??
+              json['record_type'] ??
+              meta['type'] ??
+              payload['recordType'],
+        ) ??
+        (consultationId != null ? 'consultation' : null) ??
+        (caseId != null ? 'service' : null);
 
     return NotificationModel(
       id: json['id']?.toString() ?? '',
@@ -71,15 +103,9 @@ class NotificationModel extends Equatable {
       readAt: readAt,
       type: type,
       actionType: actionType,
-      caseId: _firstInt([
-        meta['case_id'],
-        payload['case_id'],
-        json['case_id'],
-        meta['legal_case_id'],
-        payload['legal_case_id'],
-        json['legal_case_id'],
-        if (isCasePayload && !isCallPayload) payload['id'],
-      ]),
+      caseId: caseId,
+      consultationId: consultationId,
+      recordType: recordType,
       caseNumber: meta['case_number']?.toString(),
       businessId: _toInt(payload['id']),
       chatRoomId:
@@ -107,6 +133,8 @@ class NotificationModel extends Equatable {
       readAt: readAt ?? this.readAt,
       actionType: actionType,
       caseId: caseId,
+      consultationId: consultationId,
+      recordType: recordType,
       caseNumber: caseNumber,
       businessId: businessId,
       chatRoomId: chatRoomId,
@@ -170,6 +198,25 @@ class NotificationModel extends Equatable {
         normalized.contains('payment');
   }
 
+  static bool _isConsultationType(String? value) {
+    final normalized = value?.toLowerCase() ?? '';
+    return normalized.contains('consultation') ||
+        normalized.contains('consult');
+  }
+
+  static String? _normalizeRecordType(dynamic value) {
+    final normalized = value?.toString().trim().toLowerCase();
+    if (normalized == 'consultation' || normalized == 'consult') {
+      return 'consultation';
+    }
+    if (normalized == 'service' ||
+        normalized == 'legal_case' ||
+        normalized == 'case') {
+      return 'service';
+    }
+    return null;
+  }
+
   @override
   List<Object?> get props => [
     id,
@@ -181,6 +228,8 @@ class NotificationModel extends Equatable {
     readAt,
     actionType,
     caseId,
+    consultationId,
+    recordType,
     caseNumber,
     businessId,
     chatRoomId,

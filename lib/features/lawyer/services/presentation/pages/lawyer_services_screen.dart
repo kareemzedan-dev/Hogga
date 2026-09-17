@@ -183,7 +183,7 @@ class _LawyerServicesScreenState extends State<LawyerServicesScreen> {
                     Text(
                       service.name,
                       style: context.text.titleMedium!.copyWith(
-                        fontSize: 13.sp,
+                        fontSize: 11.sp,
                       ),
                     ),
                     if (service.categoriesItemName.isNotEmpty)

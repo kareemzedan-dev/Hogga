@@ -13,7 +13,11 @@ class LawyerProposalModel extends LawyerProposal {
   factory LawyerProposalModel.fromJson(Map<String, dynamic> json) {
     return LawyerProposalModel(
       id: json['id'] ?? 0,
-      price: json['price']?.toString() ?? '0.00',
+      price:
+          json['offer_price']?.toString() ??
+          json['price']?.toString() ??
+          json['total_price']?.toString() ??
+          '0.00',
       description: json['description'] ?? '',
       status: json['status'] ?? '',
       createdAt: json['created_at'],
@@ -28,6 +32,7 @@ class LawyerProposalCaseModel extends LawyerProposalCase {
     required super.caseNumber,
     required super.title,
     required super.categoryName,
+    super.serviceType,
     super.minPrice,
     super.maxPrice,
   });
@@ -38,6 +43,7 @@ class LawyerProposalCaseModel extends LawyerProposalCase {
       caseNumber: json['case_number'] ?? '',
       title: json['title'] ?? '',
       categoryName: json['category_name'] ?? '',
+      serviceType: json['service_type']?.toString(),
       minPrice: json['min_price']?.toString(),
       maxPrice: json['max_price']?.toString(),
     );

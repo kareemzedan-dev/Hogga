@@ -7,30 +7,59 @@ import '../../../../../core/utils/app_strings.dart';
 import '../models/item_category_model.dart';
 import '../models/legal_case_models.dart';
 
-abstract class hoggaRemoteDataSource {
-  Future<ItemCategoryModel> getItemCategories(int childCategoryId);
+abstract class HoggaRemoteDataSource {
+  Future<ItemCategoryModel> getItemCategories({
+    required int childCategoryId,
+    int? subCategoryId,
+  });
   Future<CouponVerificationModel> verifyCoupon(String code);
+  Future<List<ConsultationLawyerModel>> getConsultationLawyers(
+    int categorySubId, {
+    String? coupon,
+  });
+  Future<List<ConsultationLawyerModel>> getCouponLawyers(String code);
+  Future<List<ConsultationPriceModel>> getConsultationLawyerPrices({
+    required int lawyerId,
+    required int categorySubId,
+  });
+  Future<LegalCaseResponse> bookConsultation(BookConsultationRequest request);
+  Future<LegalCaseResponse> completeConsultation(int consultationId);
   Future<LegalCaseResponse> createLegalCase(CreateLegalCaseRequest request);
-  Future<LegalCaseResponse> uploadLegalCaseDocuments(UploadLegalCaseDocumentsRequest request);
-  Future<AcceptProposalResponse> acceptProposal(int proposalId);
+  Future<LegalCaseResponse> uploadLegalCaseDocuments(
+    UploadLegalCaseDocumentsRequest request,
+  );
+  Future<AcceptProposalResponse> acceptProposal(
+    int proposalId, {
+    String paymentMethod = 'card',
+  });
+  Future<LegalCaseResponse> completeLegalCase(int caseId);
   Future<LegalCaseResponse> cancelLegalCase(int caseId);
 }
 
-class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
+class HoggaRemoteDataSourceImpl implements HoggaRemoteDataSource {
   final ApiClient apiClient;
 
-  hoggaRemoteDataSourceImpl({required this.apiClient});
+  HoggaRemoteDataSourceImpl({required this.apiClient});
 
   @override
-  Future<ItemCategoryModel> getItemCategories(int childCategoryId) async {
+  Future<ItemCategoryModel> getItemCategories({
+    required int childCategoryId,
+    int? subCategoryId,
+  }) async {
     try {
+      final queryParameters = <String, dynamic>{
+        'categories_child_id': childCategoryId,
+        if (subCategoryId != null && subCategoryId > 0)
+          'categories_sub_id': subCategoryId,
+      };
       final response = await apiClient.get(
         AppEndPoints.itemCategoriesEndPoint,
-        queryParameters: {'categories_child_id': childCategoryId},
+        queryParameters: queryParameters,
       );
       return ItemCategoryModel.fromJson(response.data);
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? e.message ?? 'Failed to load items';
+      final message =
+          e.response?.data['message'] ?? e.message ?? 'Failed to load items';
       throw ServerFailure(message);
     } catch (e) {
       throw ServerFailure(e.toString());
@@ -46,7 +75,8 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
       );
       return CouponVerificationModel.fromJson(response.data);
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? e.message ?? 'Failed to verify coupon';
+      final message =
+          e.response?.data['message'] ?? e.message ?? 'Failed to verify coupon';
       throw ServerFailure(message);
     } catch (e) {
       throw ServerFailure(e.toString());
@@ -54,7 +84,142 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
   }
 
   @override
-  Future<LegalCaseResponse> createLegalCase(CreateLegalCaseRequest request) async {
+  Future<List<ConsultationLawyerModel>> getConsultationLawyers(
+    int categorySubId, {
+    String? coupon,
+  }) async {
+    try {
+      final response = await apiClient.get(
+        AppEndPoints.consultationLawyersEndPoint,
+        queryParameters: {
+          'category_sub_id': categorySubId,
+          if (coupon != null && coupon.trim().isNotEmpty)
+            'coupon': coupon.trim(),
+        },
+      );
+      final responseData = response.data as Map<String, dynamic>;
+      return (responseData['data'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(ConsultationLawyerModel.fromJson)
+          .toList();
+    } on DioException catch (e) {
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to load consultation lawyers';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<List<ConsultationLawyerModel>> getCouponLawyers(String code) async {
+    try {
+      final response = await apiClient.get(
+        AppEndPoints.couponLawyersEndPoint,
+        queryParameters: {'code': code},
+      );
+      final responseData = response.data as Map<String, dynamic>;
+      return _readLawyersList(
+        responseData['data'],
+      ).map(ConsultationLawyerModel.fromJson).toList();
+    } on DioException catch (e) {
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to load coupon lawyers';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  List<Map<String, dynamic>> _readLawyersList(dynamic data) {
+    if (data is List<dynamic>) {
+      return data.whereType<Map<String, dynamic>>().toList();
+    }
+    if (data is Map<String, dynamic>) {
+      for (final key in const ['lawyers', 'providers', 'items', 'data']) {
+        final value = data[key];
+        if (value is List<dynamic>) {
+          return value.whereType<Map<String, dynamic>>().toList();
+        }
+      }
+    }
+    return const [];
+  }
+
+  @override
+  Future<List<ConsultationPriceModel>> getConsultationLawyerPrices({
+    required int lawyerId,
+    required int categorySubId,
+  }) async {
+    try {
+      final response = await apiClient.get(
+        AppEndPoints.consultationLawyerPricesEndPoint(lawyerId),
+        queryParameters: {'category_sub_id': categorySubId},
+      );
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] as Map<String, dynamic>? ?? const {};
+      return (data['prices'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(ConsultationPriceModel.fromJson)
+          .toList();
+    } on DioException catch (e) {
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to load consultation prices';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<LegalCaseResponse> bookConsultation(
+    BookConsultationRequest request,
+  ) async {
+    try {
+      final response = await apiClient.post(
+        AppEndPoints.bookConsultationEndPoint,
+        data: request.toJson(),
+      );
+      return LegalCaseResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to book consultation';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<LegalCaseResponse> completeConsultation(int consultationId) async {
+    try {
+      final response = await apiClient.post(
+        AppEndPoints.completeConsultationEndPoint(consultationId),
+      );
+      return LegalCaseResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to complete consultation';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<LegalCaseResponse> createLegalCase(
+    CreateLegalCaseRequest request,
+  ) async {
     try {
       final response = await apiClient.post(
         AppEndPoints.storeServiceEndPoint,
@@ -62,7 +227,10 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
       );
       return LegalCaseResponse.fromJson(response.data);
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? e.message ?? 'Failed to create legal case';
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to create legal case';
       throw ServerFailure(message);
     } catch (e) {
       throw ServerFailure(e.toString());
@@ -70,7 +238,9 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
   }
 
   @override
-  Future<LegalCaseResponse> uploadLegalCaseDocuments(UploadLegalCaseDocumentsRequest request) async {
+  Future<LegalCaseResponse> uploadLegalCaseDocuments(
+    UploadLegalCaseDocumentsRequest request,
+  ) async {
     if (request.files.isEmpty) {
       throw const ServerFailure('The files field is required.');
     }
@@ -104,8 +274,11 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
       );
       return LegalCaseResponse.fromJson(response.data);
     } on DioException catch (e) {
-      var message = e.response?.data['message']?.toString() ?? e.message ?? 'Failed to upload files';
-      if (message.contains('must be a file of type') || 
+      var message =
+          e.response?.data['message']?.toString() ??
+          e.message ??
+          'Failed to upload files';
+      if (message.contains('must be a file of type') ||
           (message.contains('files.') && message.contains('type'))) {
         message = AppStrings.unsupportedFileFormat;
       }
@@ -116,15 +289,39 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
   }
 
   @override
-  Future<AcceptProposalResponse> acceptProposal(int proposalId) async {
+  Future<AcceptProposalResponse> acceptProposal(
+    int proposalId, {
+    String paymentMethod = 'card',
+  }) async {
     try {
       final response = await apiClient.post(
         AppEndPoints.acceptLegalCaseProposalEndPoint,
-        data: {'proposal_id': proposalId},
+        data: {'proposal_id': proposalId, 'payment_method': paymentMethod},
       );
       return AcceptProposalResponse.fromJson(response.data);
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? e.message ?? 'Failed to accept proposal';
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to accept proposal';
+      throw ServerFailure(message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<LegalCaseResponse> completeLegalCase(int caseId) async {
+    try {
+      final response = await apiClient.post(
+        AppEndPoints.completeLegalCaseEndPoint(caseId),
+      );
+      return LegalCaseResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to complete service';
       throw ServerFailure(message);
     } catch (e) {
       throw ServerFailure(e.toString());
@@ -140,7 +337,10 @@ class hoggaRemoteDataSourceImpl implements hoggaRemoteDataSource {
       );
       return LegalCaseResponse.fromJson(response.data);
     } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? e.message ?? 'Failed to cancel legal case';
+      final message =
+          e.response?.data['message'] ??
+          e.message ??
+          'Failed to cancel legal case';
       throw ServerFailure(message);
     } catch (e) {
       throw ServerFailure(e.toString());

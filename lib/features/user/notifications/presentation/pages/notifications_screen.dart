@@ -6,6 +6,7 @@ import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snackbar.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
 import 'package:hogga/features/chat/data/repositories/chat_repository.dart';
@@ -27,14 +28,8 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        backgroundColor: context.pageBg,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          AppStrings.notifications.tr(context),
-          style: context.theme.appBarTheme.titleTextStyle,
-        ),
+      appBar: MainAppbar(
+        title: AppStrings.notifications.tr(context),
       ),
       body: BlocBuilder<NotificationsCubit, NotificationsState>(
         builder: (context, state) {
@@ -150,13 +145,17 @@ class _NotificationItem extends StatelessWidget {
     final actionType = notification.actionType?.toLowerCase() ?? '';
 
     return notification.caseId != null ||
+        notification.consultationId != null ||
+        notification.recordType == 'consultation' ||
         actionType == 'case_accepted' ||
         actionType.contains('case') ||
         actionType.contains('legal') ||
         actionType.contains('proposal') ||
+        actionType.contains('consultation') ||
         type == 'order_status' ||
         type == 'legal_case_update' ||
         type == 'payment' ||
+        type.contains('consultation') ||
         type.contains('case') ||
         type.contains('legal');
   }
@@ -232,9 +231,31 @@ class _NotificationItem extends StatelessWidget {
 
   Future<void> _openCaseDetails(BuildContext context) async {
     final isLawyer = _isLawyerAccount;
+    final isConsultation =
+        notification.recordType == 'consultation' ||
+        notification.consultationId != null;
+    final consultationId = notification.consultationId;
     final caseId = await _resolveCaseId(isLawyer);
 
     if (!context.mounted) {
+      return;
+    }
+
+    if (isConsultation && consultationId != null && consultationId > 0) {
+      if (isLawyer) {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.lawyerConsultationDetails,
+          arguments: consultationId,
+        );
+        return;
+      }
+
+      Navigator.pushNamed(
+        context,
+        AppRoutes.myOrderDetails,
+        arguments: {'orderId': consultationId, 'recordType': 'consultation'},
+      );
       return;
     }
 
@@ -278,48 +299,73 @@ class _NotificationItem extends StatelessWidget {
         return;
       }
 
-      Navigator.pushNamed(context, AppRoutes.myOrderDetails, arguments: caseId);
+      Navigator.pushNamed(
+        context,
+        AppRoutes.myOrderDetails,
+        arguments: {'orderId': caseId, 'recordType': 'service'},
+      );
       return;
     }
 
-    AppSnackbar.showInfo(context, messageKey: AppStrings.callNoLongerAvailable);
+    AppSnackbar.showInfo(context, messageKey: AppStrings.noDataFound);
   }
 
   Future<void> _handleTap(BuildContext context) async {
-    if (!notification.isRead) {
-      await context.read<NotificationsCubit>().markAsRead(notification.id);
-      if (!context.mounted) {
+    try {
+      if (!notification.isRead) {
+        await context.read<NotificationsCubit>().markAsRead(notification.id);
+        if (!context.mounted) {
+          return;
+        }
+      }
+
+      if (_isCallNotification) {
+        await _openCaseDetails(context);
         return;
       }
-    }
 
-    if (_isCallNotification) {
-      await _openCaseDetails(context);
-      return;
-    }
+      final type = notification.type?.toLowerCase() ?? '';
+      final actionType = notification.actionType?.toLowerCase() ?? '';
+      final isChat = (notification.chatRoomId != null && notification.chatRoomId! > 0) &&
+          (type == 'chat_message' ||
+              type == 'new_message' ||
+              type == 'message' ||
+              type == 'chat' ||
+              actionType == 'chat_message' ||
+              actionType == 'new_message' ||
+              actionType == 'chat');
 
-    if (_isCaseNotification) {
-      await _openCaseDetails(context);
-      return;
-    }
-
-    final type = notification.type;
-    if (type == 'chat_message') {
-      if (notification.chatRoomId != null) {
+      if (isChat) {
         final isLawyer = _isLawyerAccount;
         Navigator.pushNamed(
           context,
           isLawyer ? AppRoutes.lawyerChat : AppRoutes.chat,
           arguments: {
             'chatRoomId': notification.chatRoomId,
-            'lawyerName': '',
-            'caseTitle': '',
+            'clientName': notification.callerName ?? notification.title,
+            'lawyerName': notification.callerName ?? notification.title,
+            'caseTitle': notification.title,
             'serviceType': 'chat',
           },
         );
+        return;
       }
-    } else if (type == 'notification') {
-      _openCasesList(context, _isLawyerAccount);
+
+      if (_isCaseNotification) {
+        await _openCaseDetails(context);
+        return;
+      }
+
+      if (type == 'notification') {
+        _openCasesList(context, _isLawyerAccount);
+        return;
+      }
+
+      // If it's a general or informational notification, it is now marked as read.
+    } catch (_) {
+      if (context.mounted) {
+        AppSnackbar.showInfo(context, messageKey: AppStrings.noDataFound);
+      }
     }
   }
 

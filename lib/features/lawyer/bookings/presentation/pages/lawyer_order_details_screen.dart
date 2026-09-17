@@ -6,6 +6,7 @@ import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/app_snakbar.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/overview/domain/entities/lawyer_booking.dart';
 import 'package:hogga/features/lawyer/bookings/presentation/cubit/lawyer_bookings_cubit.dart';
 import 'package:hogga/features/lawyer/common/presentation/widgets/lawyer_card.dart';
@@ -26,11 +27,8 @@ class LawyerOrderDetailsScreen extends StatelessWidget {
       child: Builder(builder: (context) {
         return Scaffold(
       backgroundColor: context.pageBg,
-      appBar: AppBar(
-        title: Text(AppStrings.orderDetail.tr(context), style: context.text.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+      appBar: MainAppbar(
+        title: AppStrings.orderDetail.tr(context),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -70,8 +68,17 @@ class LawyerOrderDetailsScreen extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.golden,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    textStyle: context.text.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    textStyle: context.text.labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.sp,
+                    ),
                   ),
                   child: Text(AppStrings.accept.tr(context)),
                 ),
@@ -98,7 +105,13 @@ class LawyerOrderDetailsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     foregroundColor: context.colors.error,
                     side: BorderSide(color: context.colors.error),
-                    textStyle: context.text.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    textStyle: context.text.labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.sp,
+                    ),
                   ),
                   child: Text(AppStrings.refuse.tr(context)),
                 ),
@@ -120,10 +133,10 @@ class LawyerOrderDetailsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: context.colors.primary.withOpacity(0.1),
+              color: context.accentGolden.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(Icons.headset_mic_rounded, color: context.colors.primary, size: 32),
+            child: Icon(Icons.headset_mic_rounded, color: context.accentGolden, size: 32),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -144,7 +157,7 @@ class LawyerOrderDetailsScreen extends StatelessWidget {
               context,
               namedArgs: {'price': booking?.price ?? '0'},
             ),
-            style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: context.colors.primary),
+            style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: context.accentGolden),
           ),
         ],
       ),

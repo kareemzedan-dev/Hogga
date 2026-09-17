@@ -11,12 +11,16 @@ class LegalCaseActionsState extends Equatable {
   final String? errorMessage;
   final String? successMessage;
   final String? actionType;
+  final String? paymentUrl;
+  final int? caseId;
 
   const LegalCaseActionsState({
     this.isLoading = false,
     this.errorMessage,
     this.successMessage,
     this.actionType,
+    this.paymentUrl,
+    this.caseId,
   });
 
   LegalCaseActionsState copyWith({
@@ -27,30 +31,46 @@ class LegalCaseActionsState extends Equatable {
     bool clearSuccess = false,
     String? actionType,
     bool clearActionType = false,
+    String? paymentUrl,
+    bool clearPaymentUrl = false,
+    int? caseId,
+    bool clearCaseId = false,
   }) {
     return LegalCaseActionsState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      successMessage: clearSuccess ? null : (successMessage ?? this.successMessage),
+      successMessage: clearSuccess
+          ? null
+          : (successMessage ?? this.successMessage),
       actionType: clearActionType ? null : (actionType ?? this.actionType),
+      paymentUrl: clearPaymentUrl ? null : (paymentUrl ?? this.paymentUrl),
+      caseId: clearCaseId ? null : (caseId ?? this.caseId),
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, errorMessage, successMessage, actionType];
+  List<Object?> get props => [
+    isLoading,
+    errorMessage,
+    successMessage,
+    actionType,
+    paymentUrl,
+    caseId,
+  ];
 }
 
 class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
-  final hoggaRepository repository;
+  final HoggaRepository repository;
 
-  LegalCaseActionsCubit({required this.repository}) : super(const LegalCaseActionsState());
+  LegalCaseActionsCubit({required this.repository})
+    : super(const LegalCaseActionsState());
 
   Future<void> uploadDocuments({
     required int caseId,
     required List<String> titles,
     required List<File> files,
   }) async {
-    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true, clearActionType: true));
+    _emitActionLoading(actionType: 'upload');
     final result = await repository.uploadLegalCaseDocuments(
       UploadLegalCaseDocumentsRequest(
         caseId: caseId,
@@ -59,7 +79,8 @@ class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
       ),
     );
     result.fold(
-      (failure) => emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
       (response) => emit(
         state.copyWith(
           isLoading: false,
@@ -71,10 +92,11 @@ class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
   }
 
   Future<void> cancelCase(int caseId) async {
-    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true, clearActionType: true));
+    _emitActionLoading(actionType: 'cancel');
     final result = await repository.cancelLegalCase(caseId);
     result.fold(
-      (failure) => emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
       (response) => emit(
         state.copyWith(
           isLoading: false,
@@ -85,22 +107,100 @@ class LegalCaseActionsCubit extends Cubit<LegalCaseActionsState> {
     );
   }
 
-  Future<void> acceptProposal(int proposalId) async {
-    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true, clearActionType: true));
-    final result = await repository.acceptProposal(proposalId);
+  Future<void> acceptProposal(
+    int proposalId, {
+    String paymentMethod = 'card',
+  }) async {
+    _emitActionLoading(actionType: 'accept');
+    final result = await repository.acceptProposal(
+      proposalId,
+      paymentMethod: paymentMethod,
+    );
     result.fold(
-      (failure) => emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
-      (response) => emit(
-        state.copyWith(
-          isLoading: false,
-          successMessage: AppStrings.operationSuccess,
-          actionType: 'accept',
-        ),
-      ),
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (response) {
+        if (!response.status) {
+          emit(
+            state.copyWith(
+              isLoading: false,
+              errorMessage: response.message.isNotEmpty
+                  ? response.message
+                  : 'فشل قبول العرض',
+            ),
+          );
+          return;
+        }
+        emit(
+          state.copyWith(
+            isLoading: false,
+            successMessage: response.message.isNotEmpty
+                ? response.message
+                : AppStrings.operationSuccess,
+            actionType: 'accept',
+            paymentUrl: response.paymentUrl,
+            caseId: response.caseId,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> completeRecord({
+    required int recordId,
+    required bool isConsultation,
+  }) async {
+    _emitActionLoading(actionType: 'complete');
+    final result = isConsultation
+        ? await repository.completeConsultation(recordId)
+        : await repository.completeLegalCase(recordId);
+    result.fold(
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (response) {
+        if (!response.status) {
+          emit(
+            state.copyWith(isLoading: false, errorMessage: response.message),
+          );
+          return;
+        }
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            successMessage: response.message.isNotEmpty
+                ? response.message
+                : AppStrings.operationSuccess,
+            actionType: 'complete',
+          ),
+        );
+      },
     );
   }
 
   void clearMessages() {
-    emit(state.copyWith(clearError: true, clearSuccess: true, clearActionType: true));
+    emit(
+      state.copyWith(
+        clearError: true,
+        clearSuccess: true,
+        clearActionType: true,
+        clearPaymentUrl: true,
+        clearCaseId: true,
+      ),
+    );
+  }
+
+  void _emitActionLoading({String? actionType}) {
+    emit(
+      state.copyWith(
+        isLoading: true,
+        clearError: true,
+        clearSuccess: true,
+        actionType: actionType,
+        clearActionType: actionType == null,
+        clearPaymentUrl: true,
+        clearCaseId: true,
+      ),
+    );
   }
 }

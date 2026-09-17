@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/widgets/custom_shimmer.dart';
@@ -38,7 +37,7 @@ class OrderDetailsShimmer extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Summary Card Shimmer
           Container(
             padding: const EdgeInsets.all(20),
@@ -47,20 +46,23 @@ class OrderDetailsShimmer extends StatelessWidget {
               borderRadius: BorderRadius.circular(24.r),
             ),
             child: Column(
-              children: List.generate(4, (index) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    CustomShimmer.rectangular(height: 12, width: 80),
-                    CustomShimmer.rectangular(height: 12, width: 120),
-                  ],
+              children: List.generate(
+                4,
+                (index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      CustomShimmer.rectangular(height: 12, width: 80),
+                      CustomShimmer.rectangular(height: 12, width: 120),
+                    ],
+                  ),
                 ),
-              )),
+              ),
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Proposals Section Shimmer
           const CustomShimmer.rectangular(height: 20, width: 150),
           const SizedBox(height: 16),
@@ -80,14 +82,17 @@ class OrderDetailsShimmer extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                const CustomShimmer.rectangular(height: 12, width: double.infinity),
+                const CustomShimmer.rectangular(
+                  height: 12,
+                  width: double.infinity,
+                ),
                 const SizedBox(height: 8),
                 const CustomShimmer.rectangular(height: 12, width: 200),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Receipt Shimmer
           Container(
             padding: const EdgeInsets.all(20),
@@ -96,16 +101,19 @@ class OrderDetailsShimmer extends StatelessWidget {
               borderRadius: BorderRadius.circular(24.r),
             ),
             child: Column(
-              children: List.generate(3, (index) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    CustomShimmer.rectangular(height: 12, width: 80),
-                    CustomShimmer.rectangular(height: 12, width: 60),
-                  ],
+              children: List.generate(
+                3,
+                (index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      CustomShimmer.rectangular(height: 12, width: 80),
+                      CustomShimmer.rectangular(height: 12, width: 60),
+                    ],
+                  ),
                 ),
-              )),
+              ),
             ),
           ),
         ],

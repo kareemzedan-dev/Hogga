@@ -23,6 +23,7 @@ class CallCoordinator {
   int? _activeCallId;
   IncomingCallPayload? _pendingPayload;
   final Set<int> _subscribedRooms = <int>{};
+  final Set<int> _closedCallIds = <int>{};
   final Map<int, String> _roomCallerNames = <int, String>{};
 
   Future<void> initialize() async {
@@ -54,6 +55,7 @@ class CallCoordinator {
     _activeCallId = null;
     _pendingPayload = null;
     _subscribedRooms.clear();
+    _closedCallIds.clear();
     _roomCallerNames.clear();
     WebSocketService.dispose();
   }
@@ -65,6 +67,11 @@ class CallCoordinator {
     }
 
     final payload = IncomingCallPayload.fromMap(data);
+    if (_isTerminalCallPayload(payload)) {
+      dismissIncomingCall(payload.callId);
+      _markCallClosed(payload.callId);
+      return;
+    }
     await _showIncomingCall(payload);
   }
 
@@ -108,13 +115,18 @@ class CallCoordinator {
 
     _isShowingIncomingCall = false;
     _activeCallId = payload.callId;
-    await pushIncomingAgoraCall(navigator: navigator, payload: payload);
-    _activeCallId = null;
+    try {
+      await pushIncomingAgoraCall(navigator: navigator, payload: payload);
+    } finally {
+      _markCallClosed(payload.callId);
+      _activeCallId = null;
+    }
   }
 
   Future<void> declineIncomingCall(IncomingCallPayload payload) async {
     _pendingPayload = null;
     await updateCallStatus(payload, 'declined');
+    _markCallClosed(payload.callId);
     dismissIncomingCall(payload.callId);
   }
 
@@ -126,6 +138,9 @@ class CallCoordinator {
       return;
     }
     _dismissIncomingCall();
+    if (callId != null) {
+      _markCallClosed(callId);
+    }
     _activeCallId = null;
   }
 
@@ -191,6 +206,7 @@ class CallCoordinator {
             'declined',
             'missed',
           }.contains(action.isNotEmpty ? action : status)) {
+        _markCallClosed(callId);
         _dismissIncomingCall();
       }
     } catch (e) {
@@ -199,7 +215,7 @@ class CallCoordinator {
   }
 
   Future<void> _showIncomingCall(IncomingCallPayload payload) async {
-    if (_isShowingIncomingCall) {
+    if (_shouldIgnoreIncomingCall(payload)) {
       return;
     }
 
@@ -222,8 +238,45 @@ class CallCoordinator {
       ),
     );
 
+    _markCallClosed(payload.callId);
     _isShowingIncomingCall = false;
     _activeCallId = null;
+  }
+
+  bool _shouldIgnoreIncomingCall(IncomingCallPayload payload) {
+    if (_isShowingIncomingCall || isIncomingAgoraCallRouteActive(payload)) {
+      return true;
+    }
+    if (payload.callId > 0) {
+      return _activeCallId == payload.callId ||
+          _closedCallIds.contains(payload.callId);
+    }
+    return false;
+  }
+
+  bool _isTerminalCallPayload(IncomingCallPayload payload) {
+    final values = {
+      payload.action.toLowerCase().trim(),
+      payload.status.toLowerCase().trim(),
+    };
+    return values.any(
+      (value) =>
+          value == 'ended' ||
+          value == 'declined' ||
+          value == 'missed' ||
+          value == 'canceled' ||
+          value == 'cancelled',
+    );
+  }
+
+  void _markCallClosed(int callId) {
+    if (callId <= 0) {
+      return;
+    }
+    _closedCallIds.add(callId);
+    if (_closedCallIds.length > 50) {
+      _closedCallIds.remove(_closedCallIds.first);
+    }
   }
 
   void _dismissIncomingCall() {

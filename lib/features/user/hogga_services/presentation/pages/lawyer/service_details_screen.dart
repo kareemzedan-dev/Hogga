@@ -113,9 +113,16 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
         ),
       ),
       leading: IconButton(
-        icon: const CircleAvatar(
+        icon: CircleAvatar(
           backgroundColor: Colors.white24,
-          child: Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
+          child: Icon(
+            Directionality.of(context) == TextDirection.rtl ||
+                    Localizations.localeOf(context).languageCode == 'ar'
+                ? Icons.chevron_right_rounded
+                : Icons.chevron_left_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
         ),
         onPressed: () => Navigator.pop(context),
       ),

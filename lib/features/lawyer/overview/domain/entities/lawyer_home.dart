@@ -86,12 +86,14 @@ class LawyerOverview {
 class LawyerSettings {
   final bool acceptTextConsultations;
   final bool acceptInstantConsultations;
+  final bool acceptScheduledConsultations;
   final bool acceptServices;
   final bool isActive;
 
   LawyerSettings({
     required this.acceptTextConsultations,
     required this.acceptInstantConsultations,
+    this.acceptScheduledConsultations = false,
     required this.acceptServices,
     required this.isActive,
   });
@@ -99,12 +101,17 @@ class LawyerSettings {
   LawyerSettings copyWith({
     bool? acceptTextConsultations,
     bool? acceptInstantConsultations,
+    bool? acceptScheduledConsultations,
     bool? acceptServices,
     bool? isActive,
   }) {
     return LawyerSettings(
-      acceptTextConsultations: acceptTextConsultations ?? this.acceptTextConsultations,
-      acceptInstantConsultations: acceptInstantConsultations ?? this.acceptInstantConsultations,
+      acceptTextConsultations:
+          acceptTextConsultations ?? this.acceptTextConsultations,
+      acceptInstantConsultations:
+          acceptInstantConsultations ?? this.acceptInstantConsultations,
+      acceptScheduledConsultations:
+          acceptScheduledConsultations ?? this.acceptScheduledConsultations,
       acceptServices: acceptServices ?? this.acceptServices,
       isActive: isActive ?? this.isActive,
     );

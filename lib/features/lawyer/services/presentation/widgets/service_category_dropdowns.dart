@@ -53,7 +53,7 @@ class ServiceCategoryDropdowns extends StatelessWidget {
               onChanged: (val) {
                 onMainCategoryChanged(val);
                 if (val != null) {
-                  context.read<ItemCategoriesCubit>().getItemCategories(val);
+                  context.read<ItemCategoriesCubit>().getItemCategories(childCategoryId: val);
                 }
               },
             ),

@@ -94,7 +94,7 @@ class UserWalletScreen extends StatelessWidget {
                       style: context.text.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: context.textPrimary,
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
                     SizedBox(height: 16.h),
@@ -250,7 +250,7 @@ class UserWalletScreen extends StatelessWidget {
                       AppStrings.totalPayments.tr(context),
                       style: context.text.labelMedium?.copyWith(
                         color: context.textSecondary,
-                        fontSize: 13.sp,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -276,7 +276,7 @@ class UserWalletScreen extends StatelessWidget {
                       style: context.text.titleMedium?.copyWith(
                         color: context.accentGolden,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
                   ],

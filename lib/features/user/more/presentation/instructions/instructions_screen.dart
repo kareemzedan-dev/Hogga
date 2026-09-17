@@ -96,7 +96,7 @@ class InstructionsScreen extends StatelessWidget {
                   style: TextStyle(
                     color: context.isDark ? AppColors.golden : AppColors.primary,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                   ),
                 ),
               ),

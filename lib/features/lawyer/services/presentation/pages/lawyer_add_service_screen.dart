@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
-import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
 import 'package:hogga/core/widgets/custom_empty_state.dart';
 import 'package:hogga/core/widgets/custom_error_state.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/services/domain/entities/lawyer_category_item.dart';
 import 'package:hogga/features/lawyer/services/presentation/cubit/add_service_cubit.dart';
 import 'package:hogga/features/lawyer/services/presentation/cubit/lawyer_category_items_cubit.dart';
@@ -81,16 +81,8 @@ class _LawyerAddServiceScreenState extends State<LawyerAddServiceScreen> {
         },
         child: Scaffold(
           backgroundColor: context.pageBg,
-          appBar: AppBar(
-            backgroundColor: context.pageBg,
-            elevation: 0,
-            shape: Border(bottom: BorderSide(color: context.divColor.withValues(alpha: 0.5), width: 1)),
-            title: Text(AppStrings.addService.tr(context), style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: context.textPrimary)),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 20.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
+          appBar: MainAppbar(
+            title: AppStrings.addService.tr(context),
           ),
           body: BlocBuilder<LawyerCategoryItemsCubit, LawyerCategoryItemsState>(
             builder: (context, state) {

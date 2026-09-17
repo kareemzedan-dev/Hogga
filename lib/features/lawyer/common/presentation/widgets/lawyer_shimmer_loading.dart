@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:hogga/core/theme/app_theme.dart';
-import 'package:hogga/core/utils/app_colors.dart';
 
 class LawyerShimmerLoading extends StatelessWidget {
   const LawyerShimmerLoading({super.key});

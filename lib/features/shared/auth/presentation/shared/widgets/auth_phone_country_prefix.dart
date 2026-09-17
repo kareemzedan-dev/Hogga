@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hogga/core/theme/app_theme.dart';
 
 class AuthPhoneCountryPrefix extends StatelessWidget {
   const AuthPhoneCountryPrefix({super.key});
@@ -7,13 +7,19 @@ class AuthPhoneCountryPrefix extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 88.w,
-      margin: EdgeInsetsDirectional.only(end: 8.w),
+      width: 72.w,
+      height: 48.h,
+      margin: EdgeInsetsDirectional.only(end: 12.w),
       decoration: BoxDecoration(
-        color: context.colors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadiusDirectional.only(
-          topStart: Radius.circular(14.r),
-          bottomStart: Radius.circular(14.r),
+        color: const Color(0xFF382317),
+        borderRadius: BorderRadiusDirectional.horizontal(
+          start: Radius.circular(15.r),
+        ),
+        border: BorderDirectional(
+          end: BorderSide(
+            color: const Color(0xFF4A3425).withValues(alpha: 0.8),
+            width: 1.2,
+          ),
         ),
       ),
       child: Center(
@@ -21,9 +27,11 @@ class AuthPhoneCountryPrefix extends StatelessWidget {
           textDirection: TextDirection.ltr,
           child: Text(
             '+968',
-            style: context.text.bodyMedium?.copyWith(
-              color: context.textPrimary,
-              fontWeight: FontWeight.bold,
+            style: TextStyle(
+              color: const Color(0xFFF5E8D0),
+              fontWeight: FontWeight.w700,
+              fontSize: 13.sp,
+              fontFamily: 'Rubik',
             ),
           ),
         ),

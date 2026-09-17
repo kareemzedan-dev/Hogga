@@ -62,7 +62,7 @@ class Header extends StatelessWidget {
                             textAlign: TextAlign.start,
                             style: context.text.bodyMedium?.copyWith(
                               color: context.textSecondary,
-                              fontSize: 14.sp,
+                              fontSize: 12.sp,
                             ),
                           ),
                           Flexible(
@@ -73,7 +73,7 @@ class Header extends StatelessWidget {
                               style: context.text.titleSmall?.copyWith(
                                 color: context.textPrimary,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 14.sp,
+                                fontSize: 12.sp,
                               ),
                             ),
                           ),

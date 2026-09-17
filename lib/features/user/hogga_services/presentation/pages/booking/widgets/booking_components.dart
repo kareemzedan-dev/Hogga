@@ -107,7 +107,7 @@ class BookingBottomButton extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFFF5E6D3),
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     fontFamily: 'Rubik',
                   ),
                 ),
@@ -117,7 +117,7 @@ class BookingBottomButton extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFFF5E6D3),
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                   fontFamily: 'Rubik',
                 ),
               ),
@@ -136,7 +136,7 @@ class BookingFieldLabel extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        fontSize: 12.5.sp,
+        fontSize: 11.sp,
         color: context.textPrimary,
         fontWeight: FontWeight.w600,
         fontFamily: 'Rubik',

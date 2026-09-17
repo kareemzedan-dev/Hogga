@@ -126,12 +126,12 @@ class LawyerTasksScreen extends StatelessWidget {
         backgroundColor: context.cardBg,
         title: CustomText(
           AppStrings.deleteTask.tr(context),
-          fontSize: 16.sp,
+          fontSize: 12.sp,
           fontWeight: FontWeight.bold,
         ),
         content: CustomText(
           AppStrings.confirmDeleteTask.tr(context),
-          fontSize: 14.sp,
+          fontSize: 12.sp,
         ),
         actions: [
           TextButton(
@@ -139,7 +139,7 @@ class LawyerTasksScreen extends StatelessWidget {
             child: CustomText(
               AppStrings.cancel.tr(context),
               color: context.textSecondary,
-              fontSize: 14.sp,
+              fontSize: 12.sp,
             ),
           ),
           TextButton(
@@ -150,7 +150,7 @@ class LawyerTasksScreen extends StatelessWidget {
             child: CustomText(
               AppStrings.delete.tr(context),
               color: context.colors.error,
-              fontSize: 14.sp,
+              fontSize: 12.sp,
             ),
           ),
         ],
@@ -200,18 +200,18 @@ class LawyerTasksScreen extends StatelessWidget {
                 SizedBox(height: 20.h),
                 CustomText(
                   AppStrings.addTask.tr(context),
-                  fontSize: 16.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
                 SizedBox(height: 20.h),
                 TextField(
                   controller: titleController,
-                  style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
+                  style: context.text.bodyMedium?.copyWith(fontSize: 12.sp),
                   decoration: InputDecoration(
                     labelText: AppStrings.taskTitle.tr(context),
                     labelStyle: context.text.bodyMedium?.copyWith(
                       color: context.textSecondary,
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                     ),
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 12.w,
@@ -237,12 +237,12 @@ class LawyerTasksScreen extends StatelessWidget {
                 DropdownButtonFormField<String>(
                   initialValue: priority,
                   dropdownColor: context.cardBg,
-                  style: context.text.bodyMedium?.copyWith(fontSize: 14.sp),
+                  style: context.text.bodyMedium?.copyWith(fontSize: 12.sp),
                   decoration: InputDecoration(
                     labelText: AppStrings.selectPriority.tr(context),
                     labelStyle: context.text.bodyMedium?.copyWith(
                       color: context.textSecondary,
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                     ),
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 12.w,
@@ -268,21 +268,21 @@ class LawyerTasksScreen extends StatelessWidget {
                       value: 'high',
                       child: CustomText(
                         AppStrings.high.tr(context),
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
                     DropdownMenuItem(
                       value: 'medium',
                       child: CustomText(
                         AppStrings.medium.tr(context),
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
                     DropdownMenuItem(
                       value: 'low',
                       child: CustomText(
                         AppStrings.low.tr(context),
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                       ),
                     ),
                   ],
@@ -344,7 +344,7 @@ class LawyerTasksScreen extends StatelessWidget {
                       children: [
                         CustomText(
                           DateFormat('yyyy-MM-dd HH:mm').format(selectedDate),
-                          fontSize: 14.sp,
+                          fontSize: 12.sp,
                         ),
                         Icon(
                           Icons.calendar_today,
@@ -365,7 +365,7 @@ class LawyerTasksScreen extends StatelessWidget {
                     ),
                     CustomText(
                       AppStrings.notifications.tr(context),
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                     ),
                   ],
                 ),

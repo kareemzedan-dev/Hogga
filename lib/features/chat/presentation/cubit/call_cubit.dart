@@ -52,10 +52,10 @@ class CallCubit extends Cubit<CallState> {
     }
   }
 
-  Future<void> endCall(int callId) async {
+  Future<void> endCall(int callId, {int duration = 0}) async {
     int usedSeconds = 0;
     try {
-      usedSeconds = await repository.endCall(callId);
+      usedSeconds = await repository.endCall(callId, duration: duration);
     } catch (e) {
       // Ignored
     } finally {

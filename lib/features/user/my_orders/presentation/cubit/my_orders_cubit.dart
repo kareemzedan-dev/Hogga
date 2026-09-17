@@ -33,9 +33,15 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
     });
   }
 
-  Future<void> getOrderDetails({required int orderId}) async {
+  Future<void> getOrderDetails({
+    required int orderId,
+    String? recordType,
+  }) async {
     emit(MyOrderDetailsLoading());
-    final result = await repository.getOrderDetails(orderId: orderId);
+    final result = await repository.getOrderDetails(
+      orderId: orderId,
+      recordType: recordType,
+    );
     result.fold((failure) => emit(MyOrderDetailsError(failure.message)), (
       details,
     ) {
@@ -67,6 +73,7 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
   Future<void> payLegalCase({
     required int orderId,
     required String caseNumber,
+    String recordType = 'service',
   }) async {
     emit(MyOrderPaymentLoading());
     final result = await repository.payLegalCase(orderId: orderId);
@@ -76,7 +83,9 @@ class MyOrdersCubit extends Cubit<MyOrdersState> {
         restoreOrdersList();
       },
       (paymentUrl) {
-        emit(MyOrderPaymentSuccess(paymentUrl, caseNumber, orderId));
+        emit(
+          MyOrderPaymentSuccess(paymentUrl, caseNumber, orderId, recordType),
+        );
         restoreOrdersList();
       },
     );

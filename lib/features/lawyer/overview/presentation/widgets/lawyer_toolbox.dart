@@ -34,27 +34,12 @@ class LawyerToolbox extends StatelessWidget {
               context.accentGolden,
               () => Navigator.pushNamed(context, AppRoutes.lawyerClients),
             ),
-
-            _buildToolItem(
-              context,
-              AppStrings.myServices.tr(context),
-              Icons.design_services_rounded,
-              context.accentGolden,
-              () => Navigator.pushNamed(context, AppRoutes.lawyerServices),
-            ),
             _buildToolItem(
               context,
               AppStrings.documents.tr(context),
               Icons.folder_copy_rounded,
               Colors.blue,
               () => Navigator.pushNamed(context, AppRoutes.lawyerDocuments),
-            ),
-            _buildToolItem(
-              context,
-              AppStrings.legalLibrary.tr(context),
-              Icons.menu_book_rounded,
-              Colors.brown,
-              () => Navigator.pushNamed(context, AppRoutes.lawyerLibrary),
             ),
             _buildToolItem(
               context,
@@ -71,6 +56,15 @@ class LawyerToolbox extends StatelessWidget {
               () => Navigator.pushNamed(context, AppRoutes.lawyerReports),
             ),
           ],
+        ),
+        SizedBox(height: 12.h),
+        _buildToolItem(
+          context,
+          AppStrings.myProposals.tr(context),
+          Icons.assignment_outlined,
+          Colors.deepOrange,
+          () => Navigator.pushNamed(context, AppRoutes.lawyerProposals),
+          isFullWidth: true,
         ),
       ],
     );
@@ -96,7 +90,9 @@ class LawyerToolbox extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20.r),
         child: Ink(
-          padding: EdgeInsets.all(11.w),
+          padding: isFullWidth
+              ? EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h)
+              : EdgeInsets.all(11.w),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topRight,
@@ -129,7 +125,7 @@ class LawyerToolbox extends StatelessWidget {
                         label,
                         style: context.text.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 13.sp,
+                          fontSize: 12.sp,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

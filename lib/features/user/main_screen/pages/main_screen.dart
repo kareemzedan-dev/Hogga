@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hogga/features/chat/presentation/pages/chat_list_screen.dart';
 import 'package:hogga/features/user/my_orders/presentation/pages/my_orders.dart';
 import '../../../../core/theme/app_theme.dart';
 import 'package:hogga/features/user/home/presentation/cubit/home_cubit.dart';
@@ -23,8 +24,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
-
   int _selectedIndex = 0;
   late PageController _pageController;
   DateTime? _lastBackPressTime;
@@ -49,21 +48,20 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onItemTapped(int index) {
-
     setState(() {
       _selectedIndex = index;
     });
     _pageController.jumpToPage(index);
   }
 
-
   Future<void> _onRefresh() async {
     await _refreshAllData();
   }
 
   Future<void> _refreshAllData() async {
-    await context.read<HomeCubit>().loadCategories();
-    await context.read<HomeCubit>().loadBanners();
+    final homeCubit = context.read<HomeCubit>();
+    await homeCubit.loadCategories();
+    await homeCubit.loadBanners();
   }
 
   @override
@@ -74,10 +72,14 @@ class _MainScreenState extends State<MainScreen> {
         if (didPop) return;
 
         final now = DateTime.now();
-        if (_lastBackPressTime == null || now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+        if (_lastBackPressTime == null ||
+            now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
           _lastBackPressTime = now;
           if (context.mounted) {
-            AppSnackbar.showInfo(context, message: AppStrings.pressBackAgainToExit.tr(context));
+            AppSnackbar.showInfo(
+              context,
+              message: AppStrings.pressBackAgainToExit.tr(context),
+            );
           }
           return;
         }
@@ -95,18 +97,21 @@ class _MainScreenState extends State<MainScreen> {
           body: RefreshIndicator(
             onRefresh: _onRefresh,
             color: Theme.of(context).colorScheme.primary,
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(), // Disable swipe to change tab
-                children: [
-                  // 0: Home
-                  HomeScreen(),
-                  // 1: My Orders
-                  const MyOrdersView(),
-                  // 2: Account/Profile
-                  MoreScreen(),
-                ],
-              ),
+            child: PageView(
+              controller: _pageController,
+              physics:
+                  const NeverScrollableScrollPhysics(), // Disable swipe to change tab
+              children: [
+                // 0: Home
+                HomeScreen(),
+                // 1: My Orders
+                const MyOrdersView(),
+                // 2: Chats
+                const ChatListScreen(),
+                // 3: Account/Profile
+                MoreScreen(),
+              ],
+            ),
           ),
           bottomNavigationBar: CustomBottomNavBar(
             selectedIndex: _selectedIndex,
@@ -117,6 +122,3 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
-
-
-

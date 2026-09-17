@@ -47,4 +47,5 @@ class AppAssets {
   static const String heart = 'assets/images/solar_heart.svg'; // Assuming heart exists or using similar
   static const String moreNav = 'assets/images/more_nav.svg'; // Added moreNav
   static const String userPlaceholder = 'assets/images/user_placeholder.png';
+  static const String authBackground = 'assets/images/auth_background.png';
 }

@@ -92,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
     final size = MediaQuery.of(context).size;
     final bgColor = isDark ? AppColors.primary : AppColors.cream;
     final fgColor = isDark ? AppColors.cream : AppColors.primary;
-    final logoFontSize = (size.width * 0.12).clamp(36.0, 56.0);
+    final logoFontSize = (size.width * 0.085).clamp(24.0, 36.0);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -109,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen>
                   children: [
                     LocalizedAppLogo(
                       isDark: isDark,
-                      imageWidth: size.width * 0.55,
+                      imageWidth: size.width * 0.42,
                       fontSize: logoFontSize,
                       textColor: fgColor,
                     ),
@@ -127,7 +127,7 @@ class _SplashScreenState extends State<SplashScreen>
                     AppStrings.splashSubtitle.tr(context),
                     style: TextStyle(
                       fontFamily: 'Rubik',
-                      fontSize: 15,
+                      fontSize: 12.5,
                       fontWeight: FontWeight.w500,
                       color: fgColor.withValues(alpha: 0.55),
                       letterSpacing: 0.3,

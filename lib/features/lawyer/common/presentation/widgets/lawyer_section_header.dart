@@ -21,7 +21,7 @@ class LawyerSectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 14.sp),
+          style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 12.sp),
         ),
         if (actionLabel != null)
           TextButton(

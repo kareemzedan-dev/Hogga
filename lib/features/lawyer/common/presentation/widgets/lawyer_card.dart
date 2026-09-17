@@ -1,7 +1,5 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
 import 'package:hogga/core/theme/app_theme.dart';
-import 'package:hogga/core/utils/app_colors.dart';
 
 class LawyerCard extends StatelessWidget {
   final Widget child;
@@ -32,7 +30,12 @@ class LawyerCard extends StatelessWidget {
           decoration: BoxDecoration(
             color:  context.cardBg,
             borderRadius: BorderRadius.circular(borderRadius),
-            border: context.isDark? Border.all(color:context.divColor, width: 1.0) : Border.all(color:context.colors.primary.withOpacity(0.6), width: 1.0),
+            border: context.isDark
+                ? Border.all(color: context.divColor, width: 1.0)
+                : Border.all(
+                    color: context.colors.primary.withValues(alpha: 0.6),
+                    width: 1.0,
+                  ),
           ),
           child: child,
         ),

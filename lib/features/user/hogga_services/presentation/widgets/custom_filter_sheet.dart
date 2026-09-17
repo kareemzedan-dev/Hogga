@@ -174,7 +174,7 @@ class _CustomFilterSheetState<T> extends State<CustomFilterSheet<T>> {
                 style: TextStyle(
                   color: context.isDark ? AppColors.primary : AppColors.cream,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: 12.sp,
                   fontFamily: 'Rubik',
                 ),
               ),

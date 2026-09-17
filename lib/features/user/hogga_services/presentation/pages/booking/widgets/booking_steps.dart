@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/theme/app_theme.dart';
 import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_sizes.dart';
 import 'package:hogga/core/utils/app_strings.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
-import 'package:hogga/core/widgets/custom_container.dart';
 import 'package:hogga/core/widgets/custom_text_field.dart';
 import 'package:hogga/features/user/hogga_services/data/models/legal_case_models.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:hogga/features/user/hogga_services/domain/models/service_required_input.dart';
 import 'booking_components.dart';
 
 class RequestDetailsStep extends StatefulWidget {
@@ -26,6 +24,9 @@ class RequestDetailsStep extends StatefulWidget {
   final TextEditingController? cityController;
   final int? duration;
   final bool isCallType;
+  final List<ServiceRequiredInput> requiredInputs;
+  final Map<String, String> metadataValues;
+  final void Function(String slug, String value)? onMetadataChanged;
 
   const RequestDetailsStep({
     super.key,
@@ -43,6 +44,9 @@ class RequestDetailsStep extends StatefulWidget {
     this.cityController,
     this.duration,
     this.isCallType = false,
+    this.requiredInputs = const [],
+    this.metadataValues = const {},
+    this.onMetadataChanged,
   });
 
   @override
@@ -50,9 +54,12 @@ class RequestDetailsStep extends StatefulWidget {
 }
 
 class _RequestDetailsStepState extends State<RequestDetailsStep> {
+  final Map<String, TextEditingController> _metadataControllers = {};
+
   @override
   void initState() {
     super.initState();
+    _syncMetadataControllers();
     if (widget.showInfoDialog) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -60,6 +67,46 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
         }
       });
     }
+  }
+
+  @override
+  void didUpdateWidget(covariant RequestDetailsStep oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncMetadataControllers();
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _metadataControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _syncMetadataControllers() {
+    final slugs = widget.requiredInputs.map((input) => input.slug).toSet();
+    final staleSlugs = _metadataControllers.keys
+        .where((slug) => !slugs.contains(slug))
+        .toList();
+    for (final slug in staleSlugs) {
+      _metadataControllers.remove(slug)?.dispose();
+    }
+
+    for (final input in widget.requiredInputs) {
+      _metadataControllers.putIfAbsent(
+        input.slug,
+        () => TextEditingController(
+          text: widget.metadataValues[input.slug] ?? '',
+        ),
+      );
+    }
+  }
+
+  bool _areRequiredInputsValid() {
+    return widget.requiredInputs.every((input) {
+      if (!input.isRequired) return true;
+      return (widget.metadataValues[input.slug]?.trim().isNotEmpty ?? false);
+    });
   }
 
   void _showDisclaimer() {
@@ -83,15 +130,28 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            Icon(Icons.info_outline, size: 56, color: Theme.of(context).primaryColor),
+            Icon(
+              Icons.info_outline,
+              size: 56,
+              color: Theme.of(context).primaryColor,
+            ),
             AppSizes.h(16),
-            Text(AppStrings.infoDialogHeading.tr(context), style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              AppStrings.infoDialogHeading.tr(context),
+              style: context.text.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             AppSizes.h(12),
-            Text(AppStrings.infoDialogBody.tr(context), textAlign: TextAlign.center, style: context.text.bodyMedium?.copyWith(height: 1.5)),
+            Text(
+              AppStrings.infoDialogBody.tr(context),
+              textAlign: TextAlign.center,
+              style: context.text.bodyMedium?.copyWith(height: 1.5),
+            ),
             AppSizes.h(32),
             SizedBox(
               width: double.infinity,
@@ -103,9 +163,18 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.golden,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: Text(AppStrings.infoDialogConfirm.tr(context), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
+                child: Text(
+                  AppStrings.infoDialogConfirm.tr(context),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
             AppSizes.h(16),
@@ -117,13 +186,10 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
 
   @override
   Widget build(BuildContext context) {
-    bool isValid = widget.titleController.text.trim().isNotEmpty &&
-        widget.detailsController.text.trim().isNotEmpty;
-        
-    if (false && widget.governorateController != null && widget.cityController != null) {
-      isValid = isValid && widget.governorateController!.text.trim().isNotEmpty &&
-          widget.cityController!.text.trim().isNotEmpty;
-    }
+    bool isValid =
+        widget.titleController.text.trim().isNotEmpty &&
+        widget.detailsController.text.trim().isNotEmpty &&
+        _areRequiredInputsValid();
 
     return Column(
       children: [
@@ -135,14 +201,21 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
               children: [
                 // Service breadcrumb
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: context.chipBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.folder_outlined, size: 14, color: context.colors.primary),
+                      Icon(
+                        Icons.folder_outlined,
+                        size: 14,
+                        color: context.colors.primary,
+                      ),
                       AppSizes.w(6),
                       Expanded(
                         child: Text(
@@ -162,16 +235,25 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
                 if (widget.isCallType && widget.duration != null) ...[
                   AppSizes.h(12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF27AE60).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF27AE60).withValues(alpha: 0.2)),
+                      border: Border.all(
+                        color: const Color(0xFF27AE60).withValues(alpha: 0.2),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.timer_outlined, size: 16, color: Color(0xFF27AE60)),
+                        const Icon(
+                          Icons.timer_outlined,
+                          size: 16,
+                          color: Color(0xFF27AE60),
+                        ),
                         AppSizes.w(6),
                         Text(
                           '${widget.duration} ${AppStrings.minutesLabel.tr(context)}',
@@ -184,7 +266,11 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
                     ),
                   ),
                 ],
-                Divider(color: AppColors.golden.withValues(alpha: 0.2), thickness: 1, height: 24),
+                Divider(
+                  color: AppColors.golden.withValues(alpha: 0.2),
+                  thickness: 1,
+                  height: 24,
+                ),
 
                 BookingFieldLabel(AppStrings.requestTitle.tr(context)),
                 AppSizes.h(8),
@@ -203,39 +289,11 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
                   onChanged: (_) => setState(() {}),
                 ),
                 AppSizes.h(20),
-                if (false && widget.governorateController != null && widget.cityController != null) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          AppStrings.remoteAttendance.tr(context),
-                          style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Switch(
-                        value: widget.canAttendRemotely,
-                        onChanged: widget.onRemoteAttendanceChanged,
-                        activeColor: AppColors.golden,
-                      ),
-                    ],
-                  ),
-                  AppSizes.h(20),
-                  BookingFieldLabel(AppStrings.governorate.tr(context)),
-                  AppSizes.h(8),
-                  CustomTextField(
-                    controller: widget.governorateController,
-                    hintText: '* ${AppStrings.governorateHint.tr(context)}',
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  AppSizes.h(20),
-                  BookingFieldLabel(AppStrings.city.tr(context)),
-                  AppSizes.h(8),
-                  CustomTextField(
-                    controller: widget.cityController,
-                    hintText: '* ${AppStrings.cityHint.tr(context)}',
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  AppSizes.h(20),
+                if (widget.requiredInputs.isNotEmpty) ...[
+                  BookingFieldLabel(AppStrings.additionalDataTitle.tr(context)),
+                  AppSizes.h(12),
+                  ...widget.requiredInputs.map(_buildMetadataField),
+                  AppSizes.h(4),
                 ],
               ],
             ),
@@ -247,6 +305,63 @@ class _RequestDetailsStepState extends State<RequestDetailsStep> {
         ),
       ],
     );
+  }
+
+  Widget _buildMetadataField(ServiceRequiredInput input) {
+    final controller = _metadataControllers[input.slug]!;
+    final label = input.isRequired ? '* ${input.label}' : input.label;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BookingFieldLabel(label),
+          AppSizes.h(8),
+          CustomTextField(
+            controller: controller,
+            hintText: input.label,
+            readOnly: input.isDate,
+            maxLines: input.isLongText ? 4 : 1,
+            keyboardType: input.isNumber
+                ? TextInputType.number
+                : TextInputType.text,
+            suffixIcon: input.isDate
+                ? const Icon(Icons.calendar_today_outlined, size: 18)
+                : null,
+            onTap: input.isDate ? () => _pickMetadataDate(input) : null,
+            onChanged: (value) {
+              widget.onMetadataChanged?.call(input.slug, value);
+              setState(() {});
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickMetadataDate(ServiceRequiredInput input) async {
+    final currentValue = widget.metadataValues[input.slug];
+    final initialDate = DateTime.tryParse(currentValue ?? '') ?? DateTime.now();
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (selected == null) return;
+
+    final value = _formatDate(selected);
+    final controller = _metadataControllers[input.slug];
+    controller?.text = value;
+    widget.onMetadataChanged?.call(input.slug, value);
+    setState(() {});
+  }
+
+  String _formatDate(DateTime date) {
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '${date.year}-$month-$day';
   }
 }
 
@@ -282,12 +397,17 @@ class LawyerModeStep extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     color: AppColors.golden.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.golden.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.golden.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -302,13 +422,17 @@ class LawyerModeStep extends StatelessWidget {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: context.colors.primary,
-                                    fontSize: 13.sp,
+                                    fontSize: 11.sp,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(Icons.info_outline, color: AppColors.golden, size: 18),
+                          const Icon(
+                            Icons.info_outline,
+                            color: AppColors.golden,
+                            size: 18,
+                          ),
                         ],
                       ),
                       AppSizes.h(8),
@@ -339,7 +463,10 @@ class LawyerModeStep extends StatelessWidget {
                   extra: lawyerMode == 1
                       ? Container(
                           margin: const EdgeInsets.only(top: 12),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.golden.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -348,7 +475,11 @@ class LawyerModeStep extends StatelessWidget {
                             selectedLawyersCount > 0
                                 ? '${AppStrings.selected.tr(context)} ($selectedLawyersCount)'
                                 : AppStrings.browseLawyers.tr(context),
-                            style: const TextStyle(color: AppColors.golden, fontWeight: FontWeight.bold, fontSize: 12),
+                            style: const TextStyle(
+                              color: AppColors.golden,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         )
                       : null,
@@ -365,8 +496,14 @@ class LawyerModeStep extends StatelessWidget {
     );
   }
 
-  Widget _buildModeCard(BuildContext context,
-      {required int index, required String title, required String desc, required IconData icon, Widget? extra}) {
+  Widget _buildModeCard(
+    BuildContext context, {
+    required int index,
+    required String title,
+    required String desc,
+    required IconData icon,
+    Widget? extra,
+  }) {
     final isSelected = lawyerMode == index;
     return GestureDetector(
       onTap: () => onModeChanged(index),
@@ -375,29 +512,51 @@ class LawyerModeStep extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.cardBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppColors.golden : context.divColor, width: isSelected ? 2 : 1),
+          border: Border.all(
+            color: isSelected ? AppColors.golden : context.divColor,
+            width: isSelected ? 2 : 1,
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: context.chipBg, shape: BoxShape.circle),
-              child: Icon(icon, color: isSelected ? AppColors.golden : context.textSecondary),
+              decoration: BoxDecoration(
+                color: context.chipBg,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? AppColors.golden : context.textSecondary,
+              ),
             ),
             AppSizes.w(16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 12.sp)),
+                  Text(
+                    title,
+                    style: context.text.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11.sp,
+                    ),
+                  ),
                   AppSizes.h(4),
-                  Text(desc, style: context.text.labelSmall?.copyWith(color: context.textSecondary, fontSize: 11.sp)),
+                  Text(
+                    desc,
+                    style: context.text.labelSmall?.copyWith(
+                      color: context.textSecondary,
+                      fontSize: 10.sp,
+                    ),
+                  ),
                   if (extra != null) extra,
                 ],
               ),
             ),
-            if (isSelected) const Icon(Icons.check_circle, color: AppColors.golden),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppColors.golden),
           ],
         ),
       ),
@@ -411,6 +570,7 @@ class PaymentStep extends StatelessWidget {
   final bool isApplyingCoupon;
   final CouponData? coupon;
   final VoidCallback onApplyCoupon;
+  final VoidCallback? onClearCoupon;
   final Function(int) onPaymentMethodChanged;
   final double servicePrice;
   final double discount;
@@ -427,6 +587,7 @@ class PaymentStep extends StatelessWidget {
     required this.isApplyingCoupon,
     this.coupon,
     required this.onApplyCoupon,
+    this.onClearCoupon,
     required this.onPaymentMethodChanged,
     required this.servicePrice,
     required this.discount,
@@ -449,15 +610,24 @@ class PaymentStep extends StatelessWidget {
               children: [
                 // Compact service info card
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.golden.withOpacity(0.06),
+                    color: AppColors.golden.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.golden.withOpacity(0.2)),
+                    border: Border.all(
+                      color: AppColors.golden.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.assignment_outlined, color: AppColors.golden, size: 16),
+                      const Icon(
+                        Icons.assignment_outlined,
+                        color: AppColors.golden,
+                        size: 16,
+                      ),
                       AppSizes.w(8),
                       Expanded(
                         child: Column(
@@ -465,11 +635,19 @@ class PaymentStep extends StatelessWidget {
                           children: [
                             Text(
                               AppStrings.serviceNameLabel.tr(context),
-                              style: TextStyle(fontSize: 10.sp, color: context.textSecondary, fontFamily: 'Rubik'),
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                color: context.textSecondary,
+                                fontFamily: 'Rubik',
+                              ),
                             ),
                             Text(
                               serviceName,
-                              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, fontFamily: 'Rubik'),
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Rubik',
+                              ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -480,11 +658,19 @@ class PaymentStep extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.security, color: Colors.green, size: 12),
+                          const Icon(
+                            Icons.security,
+                            color: Colors.green,
+                            size: 12,
+                          ),
                           AppSizes.w(3),
                           Text(
                             AppStrings.securePayment.tr(context),
-                            style: TextStyle(fontSize: 9.sp, color: Colors.green, fontFamily: 'Rubik'),
+                            style: TextStyle(
+                              fontSize: 8.sp,
+                              color: Colors.green,
+                              fontFamily: 'Rubik',
+                            ),
                           ),
                         ],
                       ),
@@ -494,58 +680,170 @@ class PaymentStep extends StatelessWidget {
                 AppSizes.h(20),
                 BookingFieldLabel(AppStrings.paymentMethod.tr(context)),
                 AppSizes.h(10),
-                _buildPaymentOption(context, index: 0, title: AppStrings.payByCard.tr(context), icon: Icons.credit_card),
-                AppSizes.h(10),
-                _buildPaymentOption(context, index: 1, title: AppStrings.payByWallet.tr(context), icon: Icons.account_balance_wallet_outlined),
+                _buildPaymentOption(
+                  context,
+                  index: 0,
+                  title: AppStrings.payByCard.tr(context),
+                  icon: Icons.credit_card,
+                ),
                 AppSizes.h(24),
                 BookingFieldLabel(AppStrings.promoCode.tr(context)),
                 AppSizes.h(10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomTextField(
-                        controller: promoController,
-                        hintText: AppStrings.enterPromoCode.tr(context),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                    ),
-                    AppSizes.w(10),
-                    ElevatedButton(
-                      onPressed: isApplyingCoupon ? null : onApplyCoupon,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.golden,
-                        minimumSize: Size.zero,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: isApplyingCoupon
-                          ? Shimmer.fromColors(
-                              baseColor: const Color(0xFFF5E6D3).withValues(alpha: 0.5),
-                              highlightColor: const Color(0xFFF5E6D3),
-                              child: Text(AppStrings.apply.tr(context), style: const TextStyle(color: Color(0xFFF5E6D3), fontWeight: FontWeight.bold)),
-                            )
-                          : Text(AppStrings.apply.tr(context), style: const TextStyle(color: Color(0xFFF5E6D3), fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
                 if (coupon != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      '${AppStrings.couponApplied.tr(context)} (${coupon!.code})',
-                      style: const TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
                     ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF27AE60).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFF27AE60).withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF27AE60).withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            color: Color(0xFF27AE60),
+                            size: 16,
+                          ),
+                        ),
+                        AppSizes.w(10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${AppStrings.couponApplied.tr(context)} (${coupon!.code})',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Color(0xFF27AE60),
+                                ),
+                              ),
+                              if (discount > 0) ...[
+                                AppSizes.h(2),
+                                Text(
+                                  '${AppStrings.discount.tr(context)}: -${discount.toStringAsFixed(2)} ${AppStrings.currencySymbol.tr(context)}',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        if (onClearCoupon != null)
+                          IconButton(
+                            onPressed: onClearCoupon,
+                            icon: const Icon(
+                              Icons.close_rounded,
+                              color: Colors.redAccent,
+                              size: 18,
+                            ),
+                            splashRadius: 18,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                      ],
+                    ),
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomTextField(
+                          controller: promoController,
+                          hintText: AppStrings.enterPromoCode.tr(context),
+                          prefixIcon: Icon(
+                            Icons.local_offer_outlined,
+                            size: 18,
+                            color: context.textSecondary,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                      AppSizes.w(10),
+                      SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: isApplyingCoupon ? null : onApplyCoupon,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.golden,
+                            disabledBackgroundColor:
+                                AppColors.golden.withValues(alpha: 0.5),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: isApplyingCoupon
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  AppStrings.apply.tr(context),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
                 AppSizes.h(24),
-                Divider(color: AppColors.golden.withValues(alpha: 0.2), thickness: 1, height: 1),
+                Divider(
+                  color: AppColors.golden.withValues(alpha: 0.2),
+                  thickness: 1,
+                  height: 1,
+                ),
                 AppSizes.h(16),
-                SummaryRow(label: AppStrings.servicePrice.tr(context), value: servicePrice),
-                if (discount > 0) SummaryRow(label: AppStrings.discount.tr(context), value: -discount, isDiscount: true),
-                SummaryRow(label: AppStrings.tax.tr(context), value: tax),
+                SummaryRow(
+                  label: AppStrings.stepPlatformFees.tr(context),
+                  value: servicePrice,
+                ),
+                if (discount > 0)
+                  SummaryRow(
+                    label: AppStrings.discount.tr(context),
+                    value: -discount,
+                    isDiscount: true,
+                  ),
+                if (tax > 0)
+                  SummaryRow(label: AppStrings.tax.tr(context), value: tax),
                 AppSizes.h(8),
-                Divider(color: AppColors.golden.withValues(alpha: 0.2), thickness: 1, height: 1),
+                Divider(
+                  color: AppColors.golden.withValues(alpha: 0.2),
+                  thickness: 1,
+                  height: 1,
+                ),
                 AppSizes.h(8),
-                SummaryRow(label: AppStrings.total.tr(context), value: total, isTotal: true),
+                SummaryRow(
+                  label: AppStrings.total.tr(context),
+                  value: total,
+                  isTotal: true,
+                ),
               ],
             ),
           ),
@@ -559,7 +857,12 @@ class PaymentStep extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentOption(BuildContext context, {required int index, required String title, required IconData icon}) {
+  Widget _buildPaymentOption(
+    BuildContext context, {
+    required int index,
+    required String title,
+    required IconData icon,
+  }) {
     final isSelected = paymentMethod == index;
     return GestureDetector(
       onTap: () => onPaymentMethodChanged(index),
@@ -568,15 +871,26 @@ class PaymentStep extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppColors.golden : context.divColor),
+          border: Border.all(
+            color: isSelected ? AppColors.golden : context.divColor,
+          ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.golden : context.textSecondary),
+            Icon(
+              icon,
+              color: isSelected ? AppColors.golden : context.textSecondary,
+            ),
             AppSizes.w(16),
-            Text(title, style: context.text.bodyMedium?.copyWith(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+            Text(
+              title,
+              style: context.text.bodyMedium?.copyWith(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
             const Spacer(),
-            if (isSelected) const Icon(Icons.check_circle, color: AppColors.golden, size: 20),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppColors.golden, size: 20),
           ],
         ),
       ),
@@ -608,16 +922,23 @@ class PlatformFeeStep extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColors.golden.withOpacity(0.1),
+                      color: AppColors.golden.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.account_balance_wallet_outlined, size: 64, color: AppColors.golden),
+                    child: const Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 64,
+                      color: AppColors.golden,
+                    ),
                   ),
                 ),
                 AppSizes.h(32),
                 Text(
                   AppStrings.serviceFee.tr(context),
-                  style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                  style: context.text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
                 AppSizes.h(16),
                 Container(
@@ -634,14 +955,22 @@ class PlatformFeeStep extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(AppStrings.serviceFeeDesc.tr(context), style: context.text.bodyMedium?.copyWith(fontSize: 12.sp)),
+                            Text(
+                              AppStrings.serviceFeeDesc.tr(context),
+                              style: context.text.bodyMedium?.copyWith(
+                                fontSize: 12.sp,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       AppSizes.w(16),
                       Text(
                         '$serviceFee ${AppStrings.omr.tr(context)}',
-                        style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: AppColors.golden),
+                        style: context.text.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.golden,
+                        ),
                       ),
                     ],
                   ),

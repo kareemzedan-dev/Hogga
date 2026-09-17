@@ -154,7 +154,11 @@ class AppPreferences {
   }
 
   bool get isProvider =>
-      (getBool(_isProviderKey) ?? false) || role == 'provider';
+      (getBool(_isProviderKey) ?? false) ||
+      role.toLowerCase() == 'provider' ||
+      role.toLowerCase() == 'lawyer';
+
+  bool get isLawyer => isProvider;
 
   Future<void> saveLocale(String localeCode) async {
     final normalizedLocale = localeCode.toLowerCase();
@@ -224,5 +228,21 @@ class AppPreferences {
       activeKeys.remove(flowKey);
       await _prefs!.setStringList(_activeDraftsKey, activeKeys);
     }
+  }
+
+  // ─── Lawyer Specializations Persistence ────────────────────────
+  static const String _lawyerSpecializationsKey = 'lawyer_specialization_ids';
+
+  Future<void> saveLawyerSpecializationIds(List<int> ids) async {
+    await _prefs?.setStringList(
+      _lawyerSpecializationsKey,
+      ids.map((e) => e.toString()).toList(),
+    );
+  }
+
+  Set<int> getLawyerSpecializationIds() {
+    final list = _prefs?.getStringList(_lawyerSpecializationsKey);
+    if (list == null) return {};
+    return list.map((e) => int.tryParse(e)).whereType<int>().toSet();
   }
 }

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hogga/core/localization/app_localizations.dart';
 import 'package:hogga/core/theme/app_theme.dart';
-import 'package:hogga/core/utils/app_colors.dart';
 import 'package:hogga/core/utils/app_strings.dart';
+import 'package:hogga/core/widgets/main_appbar.dart';
 import 'package:hogga/features/lawyer/services/domain/entities/lawyer_service.dart';
 import 'package:hogga/features/lawyer/services/presentation/cubit/update_service_cubit.dart';
 import 'package:hogga/core/widgets/custom_button.dart';
@@ -54,19 +54,8 @@ class _LawyerUpdateServiceScreenState extends State<LawyerUpdateServiceScreen> {
         },
         child: Scaffold(
           backgroundColor: context.pageBg,
-          appBar: AppBar(
-            backgroundColor: context.pageBg,
-            elevation: 0,
-            shape: Border(bottom: BorderSide(color: context.divColor.withValues(alpha: 0.5), width: 1)),
-            title: Text(
-              AppStrings.editService.tr(context), 
-              style: context.text.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: context.textPrimary)
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.textPrimary, size: 18.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
+          appBar: MainAppbar(
+            title: AppStrings.editService.tr(context),
           ),
           body: Form(
             key: _formKey,
