@@ -2,7 +2,7 @@ name: hogga
 description: "Hogga legal services app."
 publish_to: 'none'
 
-version: 1.0.6+14
+version: 1.0.6+15
 
 environment:
   sdk: ^3.9.2
