@@ -186,7 +186,18 @@ class FcmService {
   static final FcmService instance = FcmService._();
   static const String incomingCallChannelId = 'incoming_call_channel_v6';
 
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  /// Must be registered before [runApp].
+  static bool _backgroundHandlerRegistered = false;
+
+  static void registerBackgroundHandler() {
+    if (_backgroundHandlerRegistered) {
+      return;
+    }
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    _backgroundHandlerRegistered = true;
+  }
+
+  FirebaseMessaging get _fcm => FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final StreamController<Map<String, dynamic>> _foregroundDataController =
@@ -306,6 +317,11 @@ class FcmService {
       return;
     }
 
+    if (Firebase.apps.isEmpty) {
+      log('FCM initialize skipped: Firebase is not ready');
+      return;
+    }
+
     final NotificationSettings settings = await _fcm.requestPermission(
       alert: true,
       badge: true,
@@ -327,7 +343,9 @@ class FcmService {
       sound: false,
     );
 
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    if (!_backgroundHandlerRegistered) {
+      registerBackgroundHandler();
+    }
 
     _foregroundMessagesSub ??= FirebaseMessaging.onMessage.listen((message) {
       log('Got a message whilst in the foreground!');
@@ -573,6 +591,17 @@ class FcmService {
 
   Future<String?> getToken() async {
     try {
+      if (Firebase.apps.isEmpty) {
+        return null;
+      }
+      // iOS requires an APNs token before FCM can issue a device token.
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        final apns = await _fcm.getAPNSToken();
+        if (apns == null) {
+          log('APNs token not ready yet');
+          return null;
+        }
+      }
       return await _fcm.getToken();
     } catch (e) {
       log('Error getting FCM token: $e');
@@ -580,7 +609,12 @@ class FcmService {
     }
   }
 
-  Stream<String> get onTokenRefresh => _fcm.onTokenRefresh;
+  Stream<String> get onTokenRefresh {
+    if (Firebase.apps.isEmpty) {
+      return const Stream<String>.empty();
+    }
+    return _fcm.onTokenRefresh;
+  }
 
   bool _isCallType(String? type) {
     return type == 'incoming_call' ||

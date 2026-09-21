@@ -19,20 +19,24 @@ class AppPreferences {
     final savedLocale = _prefs!.getString(_localeKey);
     _cachedLocale = _isSupportedLocale(savedLocale) ? savedLocale : null;
 
-    // Migration logic & Token Caching
-    final secureStorage = AppSecureStorage();
-    _cachedToken = await secureStorage.getToken();
+    // Migration logic & Token Caching — never let Keychain failures block launch.
+    try {
+      final secureStorage = AppSecureStorage();
+      _cachedToken = await secureStorage.getToken();
 
-    // If no token in secure storage, check old shared prefs
-    if (_cachedToken == null) {
-      final oldToken = _prefs!.getString(_tokenKey);
-      if (oldToken != null) {
-        // Migrate to secure storage
-        await secureStorage.saveToken(oldToken);
-        _cachedToken = oldToken;
-        // Remove from insecure storage
-        await _prefs!.remove(_tokenKey);
+      // If no token in secure storage, check old shared prefs
+      if (_cachedToken == null) {
+        final oldToken = _prefs!.getString(_tokenKey);
+        if (oldToken != null) {
+          // Migrate to secure storage
+          await secureStorage.saveToken(oldToken);
+          _cachedToken = oldToken;
+          // Remove from insecure storage
+          await _prefs!.remove(_tokenKey);
+        }
       }
+    } catch (_) {
+      _cachedToken = _prefs!.getString(_tokenKey);
     }
   }
 

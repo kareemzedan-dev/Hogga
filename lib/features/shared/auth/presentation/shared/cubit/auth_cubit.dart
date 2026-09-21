@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hogga/core/constants/constant_strings.dart';
 
@@ -17,8 +19,16 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit({
     required this.authRepository,
   }) : super(AuthInitial()) {
-    _listenToTokenRefresh();
-    _checkAndSyncToken();
+    try {
+      _listenToTokenRefresh();
+      _checkAndSyncToken();
+    } catch (error, stackTrace) {
+      log(
+        'AuthCubit FCM bootstrap failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   void _checkAndSyncToken() {
@@ -56,10 +66,18 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> updateFcmToken() async {
-    final fcmService = FcmService.instance;
-    final token = await fcmService.getToken();
-    if (token != null) {
-      await authRepository.updateToken(token);
+    try {
+      final fcmService = FcmService.instance;
+      final token = await fcmService.getToken();
+      if (token != null) {
+        await authRepository.updateToken(token);
+      }
+    } catch (error, stackTrace) {
+      log(
+        'updateFcmToken failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
